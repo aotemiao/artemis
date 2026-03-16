@@ -1,0 +1,21 @@
+# 网关专属配置 - 仅路由与网关行为，公共部分来自 application-common
+# Data ID: artemis-gateway.yml
+# 网关不引用 datasource.yml
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: artemis-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lowerCaseServiceId: true
+      routes:
+        - id: artemis-system
+          uri: lb://artemis-system
+          predicates:
+            - Path=/api/system/**

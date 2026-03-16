@@ -1,0 +1,20 @@
+# 系统服务专属配置 - 仅差异化部分，公共部分来自 application-common，数据源来自 datasource
+# Data ID: artemis-system.yml
+
+server:
+  port: 9300
+
+spring:
+  application:
+    name: artemis-system
+  datasource:
+    url: ${datasource.system-master.url}
+    username: ${datasource.system-master.username}
+    password: ${datasource.system-master.password}
+    driver-class-name: ${datasource.system-master.driver-class-name}
+
+# Spring Data JDBC 仓库扫描包（Ant 风格：* 表示一层，可覆盖多模块如 system、resource）
+artemis:
+  jdbc:
+    repositories:
+      base-packages: com.aotemiao.artemis.*.infra.repository

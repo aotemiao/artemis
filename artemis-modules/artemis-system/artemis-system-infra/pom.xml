@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.aotemiao</groupId>
+        <artifactId>artemis-system</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>artemis-system-infra</artifactId>
+    <name>Artemis System Infra</name>
+    <description>Infrastructure: gateway impl, mapper, DO, converter</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.aotemiao</groupId>
+            <artifactId>artemis-system-domain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aotemiao</groupId>
+            <artifactId>artemis-framework-jdbc</artifactId>
+        </dependency>
+        <!-- 集成测试：Spring Boot Test + JUnit 5 + 内嵌 DB -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

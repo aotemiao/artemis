@@ -1,0 +1,35 @@
+# Tomcat 配置
+server:
+  port: 9300
+
+# Spring 配置
+spring:
+  application:
+    name: artemis-system
+  profiles:
+    active: @profiles.active@
+
+# Spring Data JDBC 仓库扫描包（Ant 风格：com.aotemiao.artemis.*.infra.repository 覆盖所有业务模块）
+artemis:
+  jdbc:
+    repositories:
+      base-packages: com.aotemiao.artemis.*.infra.repository
+
+--- # nacos 配置
+spring:
+  cloud:
+    nacos:
+      server-addr: @nacos.server@
+      username: @nacos.username@
+      password: @nacos.password@
+      discovery:
+        group: @nacos.discovery.group@
+        namespace: ${spring.profiles.active}
+      config:
+        group: @nacos.config.group@
+        namespace: ${spring.profiles.active}
+  config:
+    import:
+      - optional:nacos:application-common.yml
+      - optional:nacos:datasource.yml
+      - optional:nacos:artemis-system.yml

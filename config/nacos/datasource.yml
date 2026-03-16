@@ -1,0 +1,17 @@
+# 数据源配置 - 仅需数据库的服务引用（如 artemis-system）
+# Data ID: datasource.yml
+# 引用顺序：在 application-common 之后、各服务专属配置之前
+
+# 顶层数据源定义，各服务通过 spring.datasource 引用对应 key
+datasource:
+  system-master:
+    url: jdbc:postgresql://localhost:5432/artemis_system
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+# 后续可扩展：
+#  gen:
+#    url: jdbc:postgresql://localhost:5432/artemis_gen
+#    username: postgres
+#    password: postgres
+#    driver-class-name: org.postgresql.Driver

@@ -1,0 +1,11 @@
+# Generic Dockerfile template for Artemis *-start modules.
+# Copy to module dir and set ARG MODULE_PATH (e.g. artemis-modules/artemis-system/artemis-system-start).
+
+ARG JAVA_VERSION=21
+FROM eclipse-temurin:${JAVA_VERSION}-jre-alpine AS runtime
+
+ARG JAR_PATH=target/*.jar
+COPY ${JAR_PATH} app.jar
+
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/app.jar"]

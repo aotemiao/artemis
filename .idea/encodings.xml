@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/artemis-auth/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-auth/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-doc/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-doc/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-log/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-log/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-mybatis/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-mybatis/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-redis/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-redis/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-security/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-security/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-web/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-common-web/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-doc/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-doc/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-jdbc/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-jdbc/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-log/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-log/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-mybatis/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-mybatis/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-redis/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-redis/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-security/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-security/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-web/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/artemis-framework-web/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-framework/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-gateway/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/artemis-system/artemis-system-adapter/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/artemis-system/artemis-system-adapter/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/artemis-system/artemis-system-app/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/artemis-system/artemis-system-app/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/artemis-system/artemis-system-domain/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/artemis-system/artemis-system-domain/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/artemis-system/artemis-system-infra/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/artemis-system/artemis-system-infra/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/artemis-system/artemis-system-start/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/artemis-system/artemis-system-start/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/artemis-system/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/artemis-system/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-modules/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-visual/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/artemis-visual/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

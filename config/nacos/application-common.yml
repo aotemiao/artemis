@@ -1,0 +1,68 @@
+# 公共配置 - 所有服务通过 config.import 优先拉取
+# Data ID: application-common.yml
+# 引用顺序：各服务 config.import 中置于首位
+
+server:
+  undertow:
+    buffer-size: 512
+    direct-buffers: true
+    threads:
+      io: 8
+      worker: 256
+
+spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    serialization:
+      fail_on_empty_beans: false
+    deserialization:
+      fail_on_unknown_properties: false
+  servlet:
+    multipart:
+      max-request-size: 20MB
+      max-file-size: 10MB
+  # Redis 通用配置，子服务可本地覆盖
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      # password:  # 无密码可省略
+      database: 0
+      timeout: 10000ms
+
+# Redisson（与 artemis-common-redis 一致）
+redisson:
+  threads: 4
+  nettyThreads: 8
+  singleServerConfig:
+    clientName: ${spring.application.name}
+    connectionMinimumIdleSize: 8
+    connectionPoolSize: 32
+    idleConnectionTimeout: 10000
+    timeout: 3000
+    subscriptionConnectionPoolSize: 50
+
+# Sa-Token 公共配置
+sa-token:
+  token-name: Authorization
+  is-concurrent: true
+  is-share: false
+  # jwt-secret-key 生产环境请在 Nacos 或环境变量中覆盖
+
+# 监控端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: WHEN_AUTHORIZED
+
+# 日志（各模块使用 classpath 下的 logback-plus.xml，引用本公共配置的服务统一生效）
+logging:
+  config: classpath:logback-plus.xml
+  level:
+    root: INFO
+    org.springframework: WARN
+    com.alibaba.nacos: WARN

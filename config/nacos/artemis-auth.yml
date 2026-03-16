@@ -1,0 +1,17 @@
+# 认证服务专属配置 - 仅认证/安全相关，公共部分（Redis、Sa-Token）来自 application-common
+# Data ID: artemis-auth.yml
+# 认证服务不引用 datasource.yml
+
+server:
+  port: 9200
+
+spring:
+  application:
+    name: artemis-auth
+
+# 安全白名单等可在此扩展
+# security:
+#   ignore:
+#     whites:
+#       - /auth/code
+#       - /auth/login
