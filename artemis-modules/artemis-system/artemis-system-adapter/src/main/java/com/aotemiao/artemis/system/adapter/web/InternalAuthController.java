@@ -1,0 +1,42 @@
+package com.aotemiao.artemis.system.adapter.web;
+
+import com.aotemiao.artemis.framework.core.constant.CommonErrorCode;
+import com.aotemiao.artemis.framework.core.domain.R;
+import com.aotemiao.artemis.framework.core.exception.BizException;
+import com.aotemiao.artemis.system.adapter.web.dto.ValidateCredentialsRequest;
+import com.aotemiao.artemis.system.app.command.ValidateCredentialsCmd;
+import com.aotemiao.artemis.system.app.command.ValidateCredentialsCmdExe;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * 内部认证校验接口，供 artemis-auth 调用。
+ * 契约见 openspec/changes/auth-and-gateway-design/docs/system-auth-validate-api.md
+ */
+@RestController
+@RequestMapping(InternalAuthController.BASE_PATH)
+public class InternalAuthController {
+
+    public static final String BASE_PATH = "/api/system/internal/auth";
+
+    private final ValidateCredentialsCmdExe validateCredentialsCmdExe;
+
+    public InternalAuthController(ValidateCredentialsCmdExe validateCredentialsCmdExe) {
+        this.validateCredentialsCmdExe = validateCredentialsCmdExe;
+    }
+
+    /**
+     * 校验用户名与密码，返回用户 ID。
+     * 校验失败返回 401。
+     */
+    @PostMapping("/validate")
+    public R<Long> validate(@Valid @RequestBody ValidateCredentialsRequest request) {
+        var cmd = new ValidateCredentialsCmd(request.username(), request.password());
+        Long userId = validateCredentialsCmdExe.execute(cmd)
+                .orElseThrow(() -> new BizException(CommonErrorCode.UNAUTHORIZED, "Invalid username or password"));
+        return R.ok(userId);
+    }
+}

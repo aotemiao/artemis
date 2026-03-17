@@ -23,6 +23,15 @@
         </dependency>
         <dependency>
             <groupId>com.aotemiao</groupId>
+            <artifactId>artemis-system-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aotemiao</groupId>
             <artifactId>artemis-framework-web</artifactId>
         </dependency>
         <dependency>

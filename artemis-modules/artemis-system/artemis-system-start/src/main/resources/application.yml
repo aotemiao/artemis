@@ -9,6 +9,13 @@ spring:
   profiles:
     active: @profiles.active@
 
+# Dubbo：与 Nacos 共用注册中心，应用名与 spring.application.name 一致
+dubbo:
+  application:
+    name: artemis-system
+  registry:
+    address: nacos://127.0.0.1:8848
+
 # Spring Data JDBC 仓库扫描包（Ant 风格：com.aotemiao.artemis.*.infra.repository 覆盖所有业务模块）
 artemis:
   jdbc:

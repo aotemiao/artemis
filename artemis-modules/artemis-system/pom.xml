@@ -17,6 +17,7 @@
     <description>System management (user, role, menu, dept, dict, tenant)</description>
 
     <modules>
+        <module>artemis-system-client</module>
         <module>artemis-system-domain</module>
         <module>artemis-system-infra</module>
         <module>artemis-system-app</module>
