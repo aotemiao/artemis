@@ -77,12 +77,34 @@
                 <artifactId>sa-token-reactor-spring-boot3-starter</artifactId>
                 <version>1.39.0</version>
             </dependency>
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-redisson-jackson</artifactId>
+                <version>1.39.0</version>
+            </dependency>
 
             <!-- Redisson 版本 -->
             <dependency>
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson-spring-boot-starter</artifactId>
                 <version>3.35.0</version>
+            </dependency>
+
+            <!-- Apache Dubbo 3.x（与 Spring Boot 3 / Java 21 兼容，内部 RPC） -->
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo</artifactId>
+                <version>3.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-spring-boot-starter</artifactId>
+                <version>3.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-registry-nacos</artifactId>
+                <version>3.3.1</version>
             </dependency>
 
             <!-- Lombok 版本 -->
