@@ -5,7 +5,7 @@ Spring Cloud 微服务管理后台脚手架，采用 DDD/COLA 分层架构，参
 ## 技术栈
 
 - **JDK 21** · **Spring Boot 3.5** · **Spring Cloud 2025**
-- **Nacos** 注册/配置中心 · **Sa-Token** 认证 · **MyBatis-Plus** ORM · **Redisson** 缓存与分布式锁
+- **PostgreSQL** 数据库（本地默认）· **Nacos** 注册/配置中心 · **Sa-Token** 认证 · **MyBatis-Plus** ORM · **Redisson** 缓存与分布式锁
 - **Spring Cloud Gateway** 网关
 
 ## 模块结构
@@ -14,13 +14,14 @@ Spring Cloud 微服务管理后台脚手架，采用 DDD/COLA 分层架构，参
 artemis/
 ├── artemis-dependencies     # BOM 依赖版本
 ├── artemis-framework        # 公共 starter
-│   ├── artemis-common-core
-│   ├── artemis-common-web
-│   ├── artemis-common-security
-│   ├── artemis-common-mybatis
-│   ├── artemis-common-redis
-│   ├── artemis-common-log
-│   └── artemis-common-doc
+│   ├── artemis-framework-core
+│   ├── artemis-framework-web
+│   ├── artemis-framework-security
+│   ├── artemis-framework-mybatis
+│   ├── artemis-framework-jdbc
+│   ├── artemis-framework-redis
+│   ├── artemis-framework-log
+│   └── artemis-framework-doc
 ├── artemis-gateway          # 网关
 ├── artemis-auth             # 认证服务
 ├── artemis-modules          # 业务微服务（按领域拆分，对外通过 REST API 暴露能力）
@@ -31,6 +32,8 @@ artemis/
 ## 快速开始
 
 1. **启动基础设施**
+
+   本地默认使用 **PostgreSQL**、Redis、Nacos（与 `config/nacos/datasource.yml` 一致）。首次从旧版 MySQL 编排切换时，可先执行 `docker-compose down -v` 再启动。
 
    ```bash
    cd docker && docker-compose up -d
@@ -62,13 +65,13 @@ artemis/
 ## Nacos 配置（参考 RuoYi script/config/nacos）
 
 - 各服务仅保留**一个** `application.yml`（含 `---` 分段与 Nacos config.import），与 RuoYi 一致。
-- Nacos 中需提前按 **`config/nacos`** 目录下的模板创建配置（Data ID：application-common、datasource、artemis-xxx）。详见 `config/nacos/README.md`。
+- Nacos 中需提前按 **`config/nacos`** 目录下的模板创建配置（Data ID：application-common、datasource、artemis-xxx）。数据源模板为 PostgreSQL，默认库名 `artemis_system`，与 `config/nacos/datasource.yml` 及本地 docker-compose 一致。详见 `config/nacos/README.md`。
 
 ## 规范与质量
 
 - 代码风格：Checkstyle（根目录 `checkstyle.xml`）
 - 静态检查：SpotBugs
-- 架构规范见 `openspec/` 下 foundation-spec。
+- 架构与工程规范见 `openspec/specs/`（如 ddd-cola-layering、repository-structure、tech-stack 等）。
 
 ## 贡献约定
 
