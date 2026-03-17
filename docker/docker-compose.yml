@@ -1,26 +1,38 @@
-# 本地开发：MySQL、Redis、Nacos
+# 本地开发：PostgreSQL、Redis、Nacos
 # 使用：docker-compose up -d
+# 首次从 MySQL 切换过来可先执行 docker-compose down -v 清空旧卷
 
 version: "3.8"
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: artemis-mysql
+  postgres:
+    image: postgres:16-alpine
+    container_name: artemis-postgres
     ports:
-      - "3306:3306"
+      - "5432:5432"
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: artemis_system
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: artemis_system
     volumes:
-      - mysql_data:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   redis:
     image: redis:7-alpine
     container_name: artemis-redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   nacos:
     image: nacos/nacos-server:v2.3.2
@@ -37,8 +49,15 @@ services:
     volumes:
       - nacos_data:/home/nacos/data
     depends_on:
-      - mysql
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8848/nacos/v1/console/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
-  mysql_data:
+  postgres_data:
   nacos_data:
