@@ -34,7 +34,7 @@ artemis-xxx.yml          ← 各服务专属（端口、路由、数据源引用
 ## 上传顺序（重要）
 
 1. **application-common.yml**（先传，被后续引用）
-2. **datasource.yml**
+2. **datasource.yml**（数据源为 PostgreSQL，与本地 docker-compose 一致）
 3. **artemis-system.yml**、**artemis-gateway.yml**、**artemis-auth.yml**
 
 与 RuoYi 一致：将此目录下所有配置文件按上表 Data ID 复制到 Nacos 配置列表中即可。
@@ -68,8 +68,12 @@ cd config/nacos
 ## 模板化说明
 
 - **application-common**：多服务共用的中间件与框架配置（Redis、Sa-Token、Redisson、undertow、jackson、logging、management），各服务 yml 只写差异化部分。
-- **datasource**：统一维护数据源连接（如 `datasource.system-master`），业务服务在各自 yml 中通过 `${datasource.system-master.url}` 等引用，便于多环境只改一处。
+- **datasource**：统一维护数据源连接（如 `datasource.system-master`），默认使用 **PostgreSQL**（端口 5432），与根目录 `docker/docker-compose.yml` 提供的本地数据库一致；业务服务在各自 yml 中通过 `${datasource.system-master.url}` 等引用，便于多环境只改一处。
 - **各服务 yml**：仅保留端口、路由、数据源引用、白名单等该服务独有配置，不重复写公共项。
+
+## Dubbo 注册中心（内部 RPC）
+
+参与内部 RPC 的服务（如 artemis-auth、artemis-system）在各自 `artemis-xxx.yml` 中配置 `dubbo.application.name` 与 `dubbo.registry.address`。注册中心与 Nacos 共用：`dubbo.registry.address: nacos://${spring.cloud.nacos.server-addr:127.0.0.1:8848}`。超时、重试等可使用 Dubbo 默认，或通过 `dubbo.consumer`/`dubbo.provider` 在公共或服务专属配置中覆盖。
 
 ## 注意
 

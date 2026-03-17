@@ -9,6 +9,13 @@ spring:
   application:
     name: artemis-auth
 
+# Dubbo 消费者
+dubbo:
+  application:
+    name: artemis-auth
+  registry:
+    address: nacos://${spring.cloud.nacos.server-addr:127.0.0.1:8848}
+
 # 安全白名单等可在此扩展
 # security:
 #   ignore:

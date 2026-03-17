@@ -4,6 +4,13 @@
 server:
   port: 9300
 
+# Dubbo 注册中心（与 Nacos 一致，可通过环境或 Nacos 覆盖）
+dubbo:
+  application:
+    name: artemis-system
+  registry:
+    address: nacos://${spring.cloud.nacos.server-addr:127.0.0.1:8848}
+
 spring:
   application:
     name: artemis-system
