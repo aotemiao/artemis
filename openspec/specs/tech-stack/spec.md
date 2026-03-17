@@ -114,9 +114,14 @@
 
 ### Requirement: 跨服务调用方式
 
-跨微服务调用 SHALL 通过各业务领域对外暴露的 REST API 进行。调用方使用 HTTP 客户端（RestTemplate、WebClient）或基于 OpenAPI 生成的客户端发起请求。若后续引入 Feign 或 Dubbo，SHALL 以调用 REST API 或 OpenAPI 契约为准，不依赖被调用方内部模块。
+内部微服务之间的调用 SHALL 通过 Dubbo RPC 进行；各业务领域在 `*-client` 模块中暴露 Dubbo 接口，调用方使用 `@Reference` 注入并调用，MUST NOT 通过 HTTP 调用内部 REST 接口。对外暴露（面向网关、开放 API）SHALL 仍通过各业务领域 adapter 层暴露的 REST API 进行；调用方使用 HTTP 客户端（RestTemplate、WebClient）或基于 OpenAPI 生成的客户端发起请求。Dubbo 与 Nacos 的集成方式及 BOM 管理见 internal-rpc-dubbo 能力规范。
 
 #### Scenario: 跨服务调用契约
 
-- **WHEN** 某服务需要调用系统服务的用户查询能力
-- **THEN** SHALL 通过系统服务 adapter 层暴露的 REST 接口或基于其 OpenAPI 生成的客户端调用，MUST NOT 依赖系统服务的 app/domain/infra 模块
+- **WHEN** 某服务需要调用系统服务的用户查询或校验能力（内部调用）
+- **THEN** SHALL 通过 artemis-system-client 暴露的 Dubbo 接口调用，MUST NOT 依赖系统服务的 app/domain/infra 模块，MUST NOT 使用 RestTemplate 请求 system 的 REST 接口
+
+#### Scenario: 对外调用仍为 REST
+
+- **WHEN** 网关或外部系统需要调用业务服务的 API
+- **THEN** SHALL 通过该业务服务暴露的 REST 接口（adapter 层）调用，契约为 OpenAPI/REST

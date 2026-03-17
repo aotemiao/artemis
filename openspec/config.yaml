@@ -1,0 +1,21 @@
+schema: spec-driven
+
+# Project context (optional)
+# Shown to AI when creating OpenSpec artifacts (proposal, design, spec).
+context: |
+  Tech stack: Java 21, Spring Boot 3.x, Spring Cloud 2025.x, Nacos, Sa-Token, Spring Data JDBC, Redisson. See openspec/specs/tech-stack and openspec/specs/ddd-cola-layering for full constraints.
+  Reference projects (align architecture and patterns; local paths for AI to read when generating artifacts):
+  - ruoyi-cloud-plus: C:\Users\aotem\IdeaProjects\ruoyi-cloud-plus
+  - COLA: C:\Users\aotem\IdeaProjects\COLA
+  - aws-sdk-java-v2: C:\Users\aotem\IdeaProjects\aws-sdk-java-v2
+  - Spring Cloud / Spring Framework: follow official BOM and design patterns (no local path; use project BOM and docs).
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours

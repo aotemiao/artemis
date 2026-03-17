@@ -26,12 +26,12 @@
 
 ### Requirement: API 契约化跨服务调用
 
-微服务间的调用 SHALL 通过被调用方对外暴露的 REST API 进行。调用方 SHALL 使用 HTTP 客户端或基于 OpenAPI 生成的客户端调用目标服务的 REST 接口，MUST NOT 依赖被调用方的内部实现模块（app/domain/infra）。契约变更 SHALL 遵循语义化版本规则。
+微服务间的调用 SHALL 通过契约进行，MUST NOT 依赖被调用方的内部实现模块（app/domain/infra）。**内部服务间**调用 SHALL 使用 Dubbo 接口契约：被调用方在 `*-client` 模块中暴露 Dubbo 接口与 DTO，调用方仅依赖 `*-client` 并通过 Dubbo 调用。**对外**（网关、开放 API）仍通过 REST API 契约；调用方使用 HTTP 客户端或基于 OpenAPI 的客户端调用目标服务的 REST 接口。契约变更 SHALL 遵循语义化版本规则。
 
 #### Scenario: 认证服务调用系统服务
 
-- **WHEN** `artemis-auth` 需要查询用户信息
-- **THEN** SHALL 通过系统服务对外 REST API（HTTP）或基于其 OpenAPI 生成的客户端进行调用，MUST NOT 直接依赖 `artemis-system-app` 或 `artemis-system-domain`
+- **WHEN** artemis-auth 需要查询或校验用户信息
+- **THEN** SHALL 通过 artemis-system-client 暴露的 Dubbo 接口进行调用，MUST NOT 直接依赖 `artemis-system-app` 或 `artemis-system-domain`，MUST NOT 通过 HTTP 调用 system 的 internal REST 接口
 
 ### Requirement: Nacos 配置模板目录
 
