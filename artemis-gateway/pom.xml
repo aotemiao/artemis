@@ -25,6 +25,14 @@
             <artifactId>sa-token-reactor-spring-boot3-starter</artifactId>
         </dependency>
         <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-redisson-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aotemiao</groupId>
+            <artifactId>artemis-framework-redis</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
