@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.aotemiao</groupId>
+        <artifactId>artemis-symphony</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>artemis-symphony-orchestrator</artifactId>
+    <name>Artemis Symphony Orchestrator</name>
+    <description>Poll loop, dispatch, reconciliation, retry</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.aotemiao</groupId>
+            <artifactId>artemis-symphony-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aotemiao</groupId>
+            <artifactId>artemis-symphony-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aotemiao</groupId>
+            <artifactId>artemis-symphony-tracker</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aotemiao</groupId>
+            <artifactId>artemis-symphony-workspace</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aotemiao</groupId>
+            <artifactId>artemis-symphony-agent</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,11 @@
+# Artemis Symphony - coding agent orchestrator
+# WORKFLOW.md path: set symphony.workflow-path or pass as first CLI arg
+symphony:
+  workflow-path: ./WORKFLOW.md
+
+server:
+  port: 0  # disable HTTP by default; set port or use --server.port for dashboard
+
+spring:
+  application:
+    name: artemis-symphony

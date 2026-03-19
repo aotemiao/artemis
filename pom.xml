@@ -38,6 +38,7 @@
         <module>artemis-auth</module>
         <module>artemis-modules</module>
         <module>artemis-visual</module>
+        <module>artemis-symphony</module>
     </modules>
 
     <build>

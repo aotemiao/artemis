@@ -171,6 +171,56 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- Artemis Symphony (coding agent orchestrator) -->
+            <dependency>
+                <groupId>com.aotemiao</groupId>
+                <artifactId>artemis-symphony-core</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aotemiao</groupId>
+                <artifactId>artemis-symphony-config</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aotemiao</groupId>
+                <artifactId>artemis-symphony-tracker</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aotemiao</groupId>
+                <artifactId>artemis-symphony-workspace</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aotemiao</groupId>
+                <artifactId>artemis-symphony-agent</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aotemiao</groupId>
+                <artifactId>artemis-symphony-orchestrator</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aotemiao</groupId>
+                <artifactId>artemis-symphony-start</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- Pebble (strict template for Symphony WORKFLOW.md prompt) -->
+            <dependency>
+                <groupId>io.pebbletemplates</groupId>
+                <artifactId>pebble</artifactId>
+                <version>3.2.2</version>
+            </dependency>
+            <!-- SnakeYAML (Symphony workflow front matter) -->
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>2.2</version>
+            </dependency>
+
             <!-- ArchUnit（架构测试） -->
             <dependency>
                 <groupId>com.tngtech.archunit</groupId>
