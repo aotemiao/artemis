@@ -1,14 +1,11 @@
 package com.aotemiao.artemis.framework.mybatis.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import java.time.LocalDateTime;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
-/**
- * 自动填充 createTime、updateTime、createBy、updateBy。
- */
+/** 自动填充 createTime、updateTime、createBy、updateBy。 */
 @Component
 public class AuditMetaObjectHandler implements MetaObjectHandler {
 

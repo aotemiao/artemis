@@ -1,13 +1,12 @@
 package com.aotemiao.artemis.system.infra.dataobject;
 
 import com.aotemiao.artemis.framework.jdbc.base.AuditAndSoftDeleteBase;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Table("lookup_types")
 public class LookupTypeDO extends AuditAndSoftDeleteBase {
@@ -18,8 +17,10 @@ public class LookupTypeDO extends AuditAndSoftDeleteBase {
 
     @Column("code")
     private String code;
+
     @Column("name")
     private String name;
+
     @Column("description")
     private String description;
 

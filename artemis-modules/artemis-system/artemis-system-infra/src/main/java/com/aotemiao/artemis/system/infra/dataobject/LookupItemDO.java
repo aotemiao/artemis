@@ -17,6 +17,7 @@ public class LookupItemDO extends AuditAndSoftDeleteBase {
 
     @Column("value")
     private String value;
+
     @Column("label")
     private String label;
 

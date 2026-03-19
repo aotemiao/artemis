@@ -1,8 +1,6 @@
 package com.aotemiao.artemis.framework.core.constant;
 
-/**
- * 通用错误码。
- */
+/** 通用错误码。 */
 public enum CommonErrorCode implements ErrorCode {
     OK("OK", "success", 200),
     BAD_REQUEST("BAD_REQUEST", "Bad request", 400),

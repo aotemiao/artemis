@@ -5,9 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * 网关 Sa-Token 鉴权配置：白名单放行，非白名单校验登录。
- */
+/** 网关 Sa-Token 鉴权配置：白名单放行，非白名单校验登录。 */
 @Configuration
 public class SaTokenGatewayConfig {
 
@@ -22,9 +20,7 @@ public class SaTokenGatewayConfig {
                 .setAuth(r -> StpUtil.checkLogin());
     }
 
-    /**
-     * 判断路径是否在白名单内（用于其他过滤器）。
-     */
+    /** 判断路径是否在白名单内（用于其他过滤器）。 */
     public static boolean isWhitelistPath(String path) {
         if (path == null) return true;
         for (String prefix : AUTH_WHITELIST_PREFIXES) {

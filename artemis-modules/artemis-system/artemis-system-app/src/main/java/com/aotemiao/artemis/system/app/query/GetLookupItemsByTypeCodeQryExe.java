@@ -1,10 +1,9 @@
 package com.aotemiao.artemis.system.app.query;
 
-import com.aotemiao.artemis.system.domain.model.LookupItem;
 import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
-import org.springframework.stereotype.Component;
-
+import com.aotemiao.artemis.system.domain.model.LookupItem;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 @Component
 public class GetLookupItemsByTypeCodeQryExe {

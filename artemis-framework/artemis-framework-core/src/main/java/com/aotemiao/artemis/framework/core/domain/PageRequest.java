@@ -3,9 +3,7 @@ package com.aotemiao.artemis.framework.core.domain;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * 与具体框架无关的分页请求：页码、每页条数及可选排序。
- */
+/** 与具体框架无关的分页请求：页码、每页条数及可选排序。 */
 public record PageRequest(int page, int size, List<SortOrder> sort) implements Serializable {
 
     public PageRequest {

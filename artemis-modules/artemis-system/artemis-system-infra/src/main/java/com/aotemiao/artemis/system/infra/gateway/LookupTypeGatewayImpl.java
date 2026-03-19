@@ -10,12 +10,11 @@ import com.aotemiao.artemis.system.infra.converter.LookupConverter;
 import com.aotemiao.artemis.system.infra.dataobject.LookupItemDO;
 import com.aotemiao.artemis.system.infra.dataobject.LookupTypeDO;
 import com.aotemiao.artemis.system.infra.repository.LookupTypeRepository;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class LookupTypeGatewayImpl implements LookupTypeGateway {
@@ -43,14 +42,11 @@ public class LookupTypeGatewayImpl implements LookupTypeGateway {
     public PageResult<LookupType> findPage(PageRequest pageRequest) {
         var page = repository.findAllByDeletedOrderById(0, PageConversion.toPageable(pageRequest));
         var pr = PageConversion.toPageResult(page);
-        return PageResult.of(pr.total(),
-                pr.content().stream().map(LookupConverter::toDomain).toList(),
-                pr.totalPages());
+        return PageResult.of(
+                pr.total(), pr.content().stream().map(LookupConverter::toDomain).toList(), pr.totalPages());
     }
 
-    /**
-     * 逻辑删除。若 id 对应记录不存在则静默不操作（存在性校验由 App 层 DeleteLookupTypeCmdExe 负责）。
-     */
+    /** 逻辑删除。若 id 对应记录不存在则静默不操作（存在性校验由 App 层 DeleteLookupTypeCmdExe 负责）。 */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteById(Long id) {
@@ -62,11 +58,9 @@ public class LookupTypeGatewayImpl implements LookupTypeGateway {
 
     @Override
     public List<LookupItem> findItemsByTypeCode(String typeCode) {
-        return repository.findByCodeAndDeleted(typeCode, 0)
-                .map(LookupTypeDO::getItems)
-                .orElse(List.of())
-                .stream()
-                .sorted(Comparator.comparing(LookupItemDO::getSortOrder, Comparator.nullsLast(Comparator.naturalOrder())))
+        return repository.findByCodeAndDeleted(typeCode, 0).map(LookupTypeDO::getItems).orElse(List.of()).stream()
+                .sorted(Comparator.comparing(
+                        LookupItemDO::getSortOrder, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(LookupConverter::toItemDomain)
                 .toList();
     }

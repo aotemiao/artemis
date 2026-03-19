@@ -1,5 +1,13 @@
 package com.aotemiao.artemis.system.adapter.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.aotemiao.artemis.framework.core.exception.BizException;
 import com.aotemiao.artemis.system.app.command.CreateLookupTypeCmdExe;
 import com.aotemiao.artemis.system.app.command.DeleteLookupTypeCmdExe;
@@ -9,29 +17,21 @@ import com.aotemiao.artemis.system.app.query.GetLookupItemsByTypeCodeQryExe;
 import com.aotemiao.artemis.system.app.query.LookupTypePageQryExe;
 import com.aotemiao.artemis.system.domain.model.LookupItem;
 import com.aotemiao.artemis.system.domain.model.LookupType;
+import jakarta.servlet.ServletException;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import jakarta.servlet.ServletException;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 /**
- * 独立 MockMvc 测试，不依赖 @WebMvcTest / @SpringBootConfiguration，
- * 避免 adapter 模块无 start 时无法解析配置、且 Controller 映射可稳定生效。
- * <p>抛异常场景（NOT_FOUND/BAD_REQUEST）在 standalone 下无 GlobalExceptionHandler 故返回 500；
- * 实际 404/400 由完整上下文中的 GlobalExceptionHandler 提供，可在集成测试中验证。</p>
+ * 独立 MockMvc 测试，不依赖 @WebMvcTest / @SpringBootConfiguration， 避免 adapter 模块无 start 时无法解析配置、且
+ * Controller 映射可稳定生效。
+ *
+ * <p>抛异常场景（NOT_FOUND/BAD_REQUEST）在 standalone 下无 GlobalExceptionHandler 故返回 500； 实际 404/400
+ * 由完整上下文中的 GlobalExceptionHandler 提供，可在集成测试中验证。
  */
 class LookupTypeControllerTest {
 
@@ -50,8 +50,7 @@ class LookupTypeControllerTest {
                 mock(DeleteLookupTypeCmdExe.class),
                 mock(LookupTypePageQryExe.class),
                 findLookupTypeByIdQryExe,
-                getLookupItemsByTypeCodeQryExe
-        );
+                getLookupItemsByTypeCodeQryExe);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -77,15 +76,15 @@ class LookupTypeControllerTest {
     @Test
     void getById_whenNotFound_throwsBizException() {
         when(findLookupTypeByIdQryExe.execute(any())).thenReturn(Optional.empty());
-        ServletException ex = assertThrows(ServletException.class,
-                () -> mockMvc.perform(get(LookupTypeController.BASE_PATH + "/{id}", 999L)));
+        ServletException ex = assertThrows(
+                ServletException.class, () -> mockMvc.perform(get(LookupTypeController.BASE_PATH + "/{id}", 999L)));
         assertThat(ex.getCause()).isInstanceOf(BizException.class);
     }
 
     @Test
     void getById_whenInvalidId_throwsBizException() {
-        ServletException ex = assertThrows(ServletException.class,
-                () -> mockMvc.perform(get(LookupTypeController.BASE_PATH + "/{id}", 0)));
+        ServletException ex = assertThrows(
+                ServletException.class, () -> mockMvc.perform(get(LookupTypeController.BASE_PATH + "/{id}", 0)));
         assertThat(ex.getCause()).isInstanceOf(BizException.class);
     }
 
@@ -121,7 +120,8 @@ class LookupTypeControllerTest {
 
     @Test
     void getItemsByTypeCode_whenTypeCodeBlank_throwsBizException() {
-        ServletException ex = assertThrows(ServletException.class,
+        ServletException ex = assertThrows(
+                ServletException.class,
                 () -> mockMvc.perform(get(LookupTypeController.BASE_PATH + "/{typeCode}/items", " ")));
         assertThat(ex.getCause()).isInstanceOf(BizException.class);
     }

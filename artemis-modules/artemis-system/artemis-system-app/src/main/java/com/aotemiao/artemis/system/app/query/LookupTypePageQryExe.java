@@ -1,8 +1,8 @@
 package com.aotemiao.artemis.system.app.query;
 
 import com.aotemiao.artemis.framework.core.domain.PageResult;
-import com.aotemiao.artemis.system.domain.model.LookupType;
 import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
+import com.aotemiao.artemis.system.domain.model.LookupType;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -14,11 +14,10 @@ public class DeleteLookupTypeCmdExe {
         this.lookupTypeGateway = lookupTypeGateway;
     }
 
-    /**
-     * 若 LookupType 不存在则抛 NOT_FOUND(404)，否则执行逻辑删除。
-     */
+    /** 若 LookupType 不存在则抛 NOT_FOUND(404)，否则执行逻辑删除。 */
     public void execute(DeleteLookupTypeCmd cmd) {
-        lookupTypeGateway.findById(cmd.id())
+        lookupTypeGateway
+                .findById(cmd.id())
                 .orElseThrow(() -> new BizException(CommonErrorCode.NOT_FOUND, "LookupType not found: " + cmd.id()));
         lookupTypeGateway.deleteById(cmd.id());
     }

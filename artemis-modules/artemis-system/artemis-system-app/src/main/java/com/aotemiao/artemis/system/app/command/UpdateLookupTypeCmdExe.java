@@ -3,10 +3,9 @@ package com.aotemiao.artemis.system.app.command;
 import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
 import com.aotemiao.artemis.system.domain.model.LookupItem;
 import com.aotemiao.artemis.system.domain.model.LookupType;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 @Component
 public class UpdateLookupTypeCmdExe {
@@ -18,7 +17,8 @@ public class UpdateLookupTypeCmdExe {
     }
 
     public LookupType execute(UpdateLookupTypeCmd cmd) {
-        LookupType t = lookupTypeGateway.findById(cmd.id())
+        LookupType t = lookupTypeGateway
+                .findById(cmd.id())
                 .orElseThrow(() -> new IllegalArgumentException("LookupType not found: " + cmd.id()));
         t.setCode(cmd.code());
         t.setName(cmd.name());

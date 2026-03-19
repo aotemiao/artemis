@@ -1,14 +1,10 @@
 package com.aotemiao.artemis.system.infra.gateway;
 
 import com.aotemiao.artemis.system.domain.gateway.UserCredentialsGateway;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
-/**
- * 用户凭证校验 Gateway 实现（stub）。
- * 当前仅支持固定账号 admin/123456 返回 userId=1，后续可替换为真实用户表与密码校验。
- */
+/** 用户凭证校验 Gateway 实现（stub）。 当前仅支持固定账号 admin/123456 返回 userId=1，后续可替换为真实用户表与密码校验。 */
 @Component
 public class UserCredentialsGatewayImpl implements UserCredentialsGateway {
 

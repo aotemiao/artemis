@@ -1,10 +1,9 @@
 package com.aotemiao.artemis.system.app.query;
 
-import com.aotemiao.artemis.system.domain.model.LookupType;
 import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
-import org.springframework.stereotype.Component;
-
+import com.aotemiao.artemis.system.domain.model.LookupType;
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 
 @Component
 public class FindLookupTypeByIdQryExe {

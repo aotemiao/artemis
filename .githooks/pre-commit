@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Pre-commit hook: format (Spotless), Checkstyle, OpenSpec sync reminder.
+# Install: cp .githooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+# Or:     git config core.hooksPath .githooks
+# Bypass: git commit --no-verify
+#
+# OpenSpec strict mode (block commit when change out of sync): set OPENSPEC_STRICT=1
+
+set -e
+cd "$(git rev-parse --show-toplevel)"
+
+STAGED=$(git diff --cached --name-only)
+STAGED_JAVA=$(echo "$STAGED" | grep -E '\.java$' || true)
+
+# Resolve Maven modules from staged Java paths (for Spotless and Checkstyle)
+MODULES=""
+if [ -n "$STAGED_JAVA" ]; then
+  while IFS= read -r f; do
+    case "$f" in
+    *"/src/"*) MODULES="$MODULES ${f%%/src/*}" ;;
+    *)         MODULES="$MODULES ${f%%/*}" ;;
+    esac
+  done <<EOF
+$STAGED_JAVA
+EOF
+  MODULES=$(echo "$MODULES" | tr ' ' '\n' | sort -u | grep -v '^$' | tr '\n' ',' | sed 's/,$//')
+fi
+
+# --- 1. Format staged Java (Spotless) ---
+if [ -n "$STAGED_JAVA" ]; then
+  if [ -n "$MODULES" ]; then
+    mvn -q -B com.diffplug.spotless:spotless-maven-plugin:apply -pl "$MODULES" 2>/dev/null || true
+  else
+    mvn -q -B com.diffplug.spotless:spotless-maven-plugin:apply 2>/dev/null || true
+  fi
+  echo "$STAGED_JAVA" | while IFS= read -r f; do [ -f "$f" ] && git add "$f"; done
+fi
+
+# --- 2. Checkstyle for modules that have staged Java ---
+if [ -n "$STAGED_JAVA" ]; then
+  if [ -n "$MODULES" ]; then
+    mvn -q -B checkstyle:check -pl "$MODULES" || { echo "Checkstyle failed. Fix or use --no-verify."; exit 1; }
+  else
+    mvn -q -B checkstyle:check || { echo "Checkstyle failed. Fix or use --no-verify."; exit 1; }
+  fi
+fi
+
+# --- 3. OpenSpec: remind if active change exists and this commit doesn't touch it ---
+OPENSPEC_CHANGES_DIR="openspec/changes"
+if [ ! -d "$OPENSPEC_CHANGES_DIR" ]; then
+  exit 0
+fi
+
+ACTIVE_CHANGES=""
+for d in "$OPENSPEC_CHANGES_DIR"/*/; do
+  [ -d "$d" ] || continue
+  name=$(basename "$d")
+  [ "$name" = "archive" ] && continue
+  ACTIVE_CHANGES="$ACTIVE_CHANGES $d"
+done
+ACTIVE_CHANGES=$(echo "$ACTIVE_CHANGES" | xargs)
+
+if [ -z "$ACTIVE_CHANGES" ]; then
+  exit 0
+fi
+
+# Any staged file under any active change dir?
+TOUCHED_OPENSPEC=0
+while IFS= read -r f; do
+  for dir in $ACTIVE_CHANGES; do
+    case "$f" in
+    "$dir"*) TOUCHED_OPENSPEC=1; break ;;
+    esac
+  done
+  [ "$TOUCHED_OPENSPEC" -eq 1 ] && break
+done <<EOF
+$STAGED
+EOF
+
+if [ "$TOUCHED_OPENSPEC" -eq 0 ]; then
+  echo "---"
+  echo "OpenSpec: 存在进行中变更，但本次提交未包含其目录下文件。请确认是否需更新 tasks/design。"
+  echo "规则见 openspec/docs/pre-commit-openspec-sync-rule.md。严格模式: OPENSPEC_STRICT=1"
+  echo "---"
+  if [ "${OPENSPEC_STRICT:-0}" = "1" ]; then
+    exit 1
+  fi
+fi
+
+exit 0

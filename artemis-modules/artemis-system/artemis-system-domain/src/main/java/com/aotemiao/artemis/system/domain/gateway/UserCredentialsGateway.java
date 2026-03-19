@@ -2,10 +2,7 @@ package com.aotemiao.artemis.system.domain.gateway;
 
 import java.util.Optional;
 
-/**
- * 用户凭证校验 Gateway（供认证服务通过 REST 调用后，由本模块 app 层使用）。
- * 校验用户名与密码，返回对应用户 ID。
- */
+/** 用户凭证校验 Gateway（供认证服务通过 REST 调用后，由本模块 app 层使用）。 校验用户名与密码，返回对应用户 ID。 */
 public interface UserCredentialsGateway {
 
     /**

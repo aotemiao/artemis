@@ -9,10 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-/**
- * 鉴权通过后，向转发请求注入 X-User-Id，供下游读取当前用户。
- * 仅对非白名单路径生效（白名单请求不经过鉴权，无 loginId）。
- */
+/** 鉴权通过后，向转发请求注入 X-User-Id，供下游读取当前用户。 仅对非白名单路径生效（白名单请求不经过鉴权，无 loginId）。 */
 @Component
 public class UserIdHeaderGatewayFilter implements GlobalFilter, Ordered {
 

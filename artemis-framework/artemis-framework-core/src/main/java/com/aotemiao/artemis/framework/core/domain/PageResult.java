@@ -13,8 +13,7 @@ public record PageResult<T>(List<T> content, long total, int totalPages) impleme
 
     public PageResult {
         content = content != null ? content : Collections.emptyList();
-        if (totalPages < 0 && !content.isEmpty())
-            totalPages = (int) ((total + content.size() - 1) / content.size());
+        if (totalPages < 0 && !content.isEmpty()) totalPages = (int) ((total + content.size() - 1) / content.size());
         if (totalPages < 0) totalPages = total == 0 ? 0 : 1;
     }
 

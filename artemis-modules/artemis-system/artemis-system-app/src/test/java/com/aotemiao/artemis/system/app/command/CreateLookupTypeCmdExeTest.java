@@ -1,20 +1,19 @@
 package com.aotemiao.artemis.system.app.command;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
 import com.aotemiao.artemis.system.domain.model.LookupType;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CreateLookupTypeCmdExeTest {
@@ -31,8 +30,7 @@ class CreateLookupTypeCmdExeTest {
                 "user_gender",
                 "User Gender",
                 "Gender options",
-                List.of(new CreateLookupTypeCmd.LookupItemCmd("1", "Male", 1))
-        );
+                List.of(new CreateLookupTypeCmd.LookupItemCmd("1", "Male", 1)));
         LookupType saved = new LookupType();
         saved.setId(100L);
         saved.setCode(cmd.code());

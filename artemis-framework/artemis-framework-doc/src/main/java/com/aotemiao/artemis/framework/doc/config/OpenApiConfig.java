@@ -13,9 +13,6 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
-                .info(new Info()
-                        .title("Artemis API")
-                        .version("1.0")
-                        .description("Artemis management backend API"));
+                .info(new Info().title("Artemis API").version("1.0").description("Artemis management backend API"));
     }
 }

@@ -2,9 +2,7 @@ package com.aotemiao.artemis.framework.core.exception;
 
 import com.aotemiao.artemis.framework.core.constant.ErrorCode;
 
-/**
- * 带 error code 与 message 的异常基类。
- */
+/** 带 error code 与 message 的异常基类。 */
 public class BaseException extends RuntimeException {
 
     private final ErrorCode errorCode;

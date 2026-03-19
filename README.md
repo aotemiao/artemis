@@ -73,6 +73,17 @@ artemis/
 - 静态检查：SpotBugs
 - 架构与工程规范见 `openspec/specs/`（如 ddd-cola-layering、repository-structure、tech-stack 等）。
 
+## Pre-commit 钩子（可选）
+
+仓库提供可选的 pre-commit 钩子，在提交前执行：**格式化**（Spotless，Palantir Java Format）、**Checkstyle**（仅本次改动涉及模块）、**OpenSpec 变更未同步提醒**。钩子为可选，未安装不影响正常开发与 CI。
+
+- **脚本位置**：`.githooks/pre-commit`
+- **安装**（在仓库根目录执行）：
+  - 复制到本地钩子目录：`cp .githooks/pre-commit .git/hooks/pre-commit`（Windows Git Bash 同），然后 `chmod +x .git/hooks/pre-commit`
+  - 或使用仓库钩子目录：`git config core.hooksPath .githooks`
+- **绕过**：确有需要时可使用 `git commit --no-verify` 跳过钩子。
+- 规则与例外见 `openspec/docs/pre-commit-openspec-sync-rule.md`；严格模式（未同步时阻止提交）可通过环境变量 `OPENSPEC_STRICT=1` 启用。
+
 ## 贡献约定
 
 - **注释与文档**：新增或修改的代码注释、配置注释与面向贡献者的文档须使用中文；技术术语（如 stub、contract、DTO）可保留英文。命名（类名、方法名、变量名、配置 key 等）保持英文、符合英语母语习惯。

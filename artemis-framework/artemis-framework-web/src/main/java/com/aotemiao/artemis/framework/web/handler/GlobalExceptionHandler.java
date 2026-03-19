@@ -11,9 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/**
- * 全局异常处理：将异常映射为统一 R 响应。
- */
+/** 全局异常处理：将异常映射为统一 R 响应。 */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -22,32 +20,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BizException.class)
     public ResponseEntity<R<Void>> handleBiz(BizException e) {
         log.warn("BizException: {} - {}", e.getErrorCode().getCode(), e.getMessage());
-        return ResponseEntity
-                .status(e.getErrorCode().getHttpStatus())
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(R.fail(e.getErrorCode().getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(SysException.class)
     public ResponseEntity<R<Void>> handleSys(SysException e) {
         log.error("SysException: {} - {}", e.getErrorCode().getCode(), e.getMessage(), e);
-        return ResponseEntity
-                .status(e.getErrorCode().getHttpStatus())
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(R.fail(e.getErrorCode().getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<R<Void>> handleBase(BaseException e) {
         log.warn("BaseException: {} - {}", e.getErrorCode().getCode(), e.getMessage());
-        return ResponseEntity
-                .status(e.getErrorCode().getHttpStatus())
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(R.fail(e.getErrorCode().getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<R<Void>> handleOther(Exception e) {
         log.error("Unhandled exception", e);
-        return ResponseEntity
-                .status(CommonErrorCode.INTERNAL_ERROR.getHttpStatus())
+        return ResponseEntity.status(CommonErrorCode.INTERNAL_ERROR.getHttpStatus())
                 .body(R.fail(CommonErrorCode.INTERNAL_ERROR.getCode(), CommonErrorCode.INTERNAL_ERROR.getMessage()));
     }
 }

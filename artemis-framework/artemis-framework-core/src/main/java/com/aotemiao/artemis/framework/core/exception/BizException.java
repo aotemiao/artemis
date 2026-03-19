@@ -2,9 +2,7 @@ package com.aotemiao.artemis.framework.core.exception;
 
 import com.aotemiao.artemis.framework.core.constant.ErrorCode;
 
-/**
- * 业务异常，可预期、不重试。例如参数校验失败、业务规则违反。
- */
+/** 业务异常，可预期、不重试。例如参数校验失败、业务规则违反。 */
 public class BizException extends BaseException {
 
     public BizException(ErrorCode errorCode) {
@@ -22,11 +20,19 @@ public class BizException extends BaseException {
     public BizException(String code, String message, int httpStatus) {
         super(new ErrorCode() {
             @Override
-            public String getCode() { return code; }
+            public String getCode() {
+                return code;
+            }
+
             @Override
-            public String getMessage() { return message; }
+            public String getMessage() {
+                return message;
+            }
+
             @Override
-            public int getHttpStatus() { return httpStatus; }
+            public int getHttpStatus() {
+                return httpStatus;
+            }
         });
     }
 }

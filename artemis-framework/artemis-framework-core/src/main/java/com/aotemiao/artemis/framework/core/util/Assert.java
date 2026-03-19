@@ -3,13 +3,10 @@ package com.aotemiao.artemis.framework.core.util;
 import com.aotemiao.artemis.framework.core.constant.CommonErrorCode;
 import com.aotemiao.artemis.framework.core.exception.BizException;
 
-/**
- * 防御式编程用 fail-fast 断言。
- */
+/** 防御式编程用 fail-fast 断言。 */
 public final class Assert {
 
-    private Assert() {
-    }
+    private Assert() {}
 
     public static void notNull(Object obj, String message) {
         if (obj == null) {

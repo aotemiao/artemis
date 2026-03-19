@@ -4,10 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 字典类型聚合根（如 user_gender、order_status）。
- * 包含 LookupItem 选项列表。
- */
+/** 字典类型聚合根（如 user_gender、order_status）。 包含 LookupItem 选项列表。 */
 public class LookupType implements Serializable {
 
     private Long id;

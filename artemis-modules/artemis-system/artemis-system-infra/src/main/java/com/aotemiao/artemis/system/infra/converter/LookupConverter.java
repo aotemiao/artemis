@@ -5,8 +5,6 @@ import com.aotemiao.artemis.system.domain.model.LookupType;
 import com.aotemiao.artemis.system.infra.dataobject.LookupItemDO;
 import com.aotemiao.artemis.system.infra.dataobject.LookupTypeDO;
 
-import java.util.List;
-
 public final class LookupConverter {
 
     private LookupConverter() {}
@@ -43,9 +41,8 @@ public final class LookupConverter {
         d.setName(t.getName());
         d.setDescription(t.getDescription());
         if (t.getItems() != null) {
-            d.setItems(t.getItems().stream()
-                    .map(item -> toItemDO(item, t.getId()))
-                    .toList());
+            d.setItems(
+                    t.getItems().stream().map(item -> toItemDO(item, t.getId())).toList());
         }
         return d;
     }

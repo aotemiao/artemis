@@ -1,7 +1,6 @@
 package com.aotemiao.artemis.framework.core.domain;
 
 import com.aotemiao.artemis.framework.core.constant.CommonErrorCode;
-
 import java.io.Serializable;
 
 /**

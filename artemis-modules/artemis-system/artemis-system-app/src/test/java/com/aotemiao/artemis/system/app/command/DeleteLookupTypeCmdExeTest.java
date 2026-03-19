@@ -1,21 +1,20 @@
 package com.aotemiao.artemis.system.app.command;
 
-import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
-import com.aotemiao.artemis.system.domain.model.LookupType;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
+import com.aotemiao.artemis.system.domain.model.LookupType;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DeleteLookupTypeCmdExeTest {
@@ -45,7 +44,8 @@ class DeleteLookupTypeCmdExeTest {
         Long id = 999L;
         when(lookupTypeGateway.findById(eq(id))).thenReturn(Optional.empty());
 
-        assertThrows(com.aotemiao.artemis.framework.core.exception.BizException.class,
+        assertThrows(
+                com.aotemiao.artemis.framework.core.exception.BizException.class,
                 () -> deleteLookupTypeCmdExe.execute(new DeleteLookupTypeCmd(id)));
 
         verify(lookupTypeGateway).findById(id);

@@ -1,12 +1,10 @@
 package com.aotemiao.artemis.system.client.api;
 
 import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
-
 import java.util.Optional;
 
 /**
- * 用户凭证校验服务（Dubbo 接口），供 artemis-auth 等内部调用方使用。
- * 与 REST 契约 POST /api/system/internal/auth/validate 等价。
+ * 用户凭证校验服务（Dubbo 接口），供 artemis-auth 等内部调用方使用。 与 REST 契约 POST /api/system/internal/auth/validate 等价。
  */
 public interface UserValidateService {
 

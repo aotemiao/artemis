@@ -6,5 +6,4 @@ import org.springframework.context.annotation.Import;
 
 @AutoConfiguration
 @Import(LogAspect.class)
-public class LogAutoConfiguration {
-}
+public class LogAutoConfiguration {}

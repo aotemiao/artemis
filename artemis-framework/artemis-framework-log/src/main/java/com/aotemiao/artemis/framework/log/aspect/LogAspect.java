@@ -22,7 +22,10 @@ public class LogAspect {
 
     @AfterReturning(pointcut = "@annotation(controllerLog)", returning = "result")
     public void doAfterReturning(JoinPoint joinPoint, Log controllerLog, Object result) {
-        log.debug("Operation log: {} - {}", controllerLog.title(), joinPoint.getSignature().getName());
+        log.debug(
+                "Operation log: {} - {}",
+                controllerLog.title(),
+                joinPoint.getSignature().getName());
     }
 
     @AfterThrowing(pointcut = "@annotation(controllerLog)", throwing = "e")

@@ -1,15 +1,13 @@
 package com.aotemiao.artemis.framework.jdbc.callback;
 
 import com.aotemiao.artemis.framework.jdbc.base.Auditable;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.data.relational.core.mapping.event.BeforeConvertCallback;
-import java.time.LocalDateTime;
-import java.util.Optional;
 
-/**
- * 在 insert/update 前为 Auditable 实体填充 audit 字段（createTime、updateTime、createBy、updateBy）。
- */
+/** 在 insert/update 前为 Auditable 实体填充 audit 字段（createTime、updateTime、createBy、updateBy）。 */
 public class AuditEntityCallback implements BeforeConvertCallback<Object>, Ordered {
 
     private final Optional<AuditCallback> auditCallback;

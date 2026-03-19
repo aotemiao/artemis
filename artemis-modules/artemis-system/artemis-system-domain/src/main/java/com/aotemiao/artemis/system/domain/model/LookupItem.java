@@ -2,9 +2,7 @@ package com.aotemiao.artemis.system.domain.model;
 
 import java.io.Serializable;
 
-/**
- * A single option under a lookup type (e.g. value=1, label=Male).
- */
+/** A single option under a lookup type (e.g. value=1, label=Male). */
 public class LookupItem implements Serializable {
 
     private Long id;

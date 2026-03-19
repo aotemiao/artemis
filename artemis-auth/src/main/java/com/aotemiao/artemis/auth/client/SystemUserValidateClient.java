@@ -2,14 +2,13 @@ package com.aotemiao.artemis.auth.client;
 
 import com.aotemiao.artemis.system.client.api.UserValidateService;
 import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
+import java.util.Optional;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 /**
- * 调用 artemis-system 的用户校验能力（通过 Dubbo）。
- * 契约见 artemis-system-client 的 UserValidateService 与 openspec 文档。
+ * 调用 artemis-system 的用户校验能力（通过 Dubbo）。 契约见 artemis-system-client 的 UserValidateService 与 openspec
+ * 文档。
  */
 @Component
 public class SystemUserValidateClient {

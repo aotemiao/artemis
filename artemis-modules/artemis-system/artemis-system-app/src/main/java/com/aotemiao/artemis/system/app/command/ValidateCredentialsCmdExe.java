@@ -1,13 +1,10 @@
 package com.aotemiao.artemis.system.app.command;
 
 import com.aotemiao.artemis.system.domain.gateway.UserCredentialsGateway;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
-/**
- * 校验用户凭证命令执行器。
- */
+/** 校验用户凭证命令执行器。 */
 @Component
 public class ValidateCredentialsCmdExe {
 

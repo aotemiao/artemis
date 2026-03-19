@@ -3,13 +3,10 @@ package com.aotemiao.artemis.framework.mybatis.base;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * 带 audit 字段与 logical delete 的实体基类。
- */
+/** 带 audit 字段与 logical delete 的实体基类。 */
 public abstract class BaseEntity implements Serializable {
 
     @TableField(fill = FieldFill.INSERT)
