@@ -12,25 +12,36 @@ import com.aotemiao.artemis.symphony.workspace.WorkspaceManager;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 /**
- * Runs one agent attempt: workspace + prompt + codex session. SPEC Section 10.7.
+ * 执行单次代理尝试：工作区 + 提示词 + Codex 会话。见 SPEC 第 10.7 节。
  */
 public class AgentRunner {
 
-    private final ServiceConfig config;
+    private final Supplier<ServiceConfig> configSupplier;
     private final WorkspaceManager workspaceManager;
-    private final LinearTrackerClient trackerClient;
+    private final Supplier<LinearTrackerClient> trackerSupplier;
 
-    public AgentRunner(ServiceConfig config, WorkspaceManager workspaceManager, LinearTrackerClient trackerClient) {
-        this.config = config;
+    public AgentRunner(
+            Supplier<ServiceConfig> configSupplier,
+            WorkspaceManager workspaceManager,
+            Supplier<LinearTrackerClient> trackerSupplier) {
+        this.configSupplier = configSupplier;
         this.workspaceManager = workspaceManager;
-        this.trackerClient = trackerClient;
+        this.trackerSupplier = trackerSupplier;
+    }
+
+    private ServiceConfig config() {
+        return configSupplier.get();
+    }
+
+    private LinearTrackerClient tracker() {
+        return trackerSupplier.get();
     }
 
     /**
-     * Run one attempt for the given issue. Returns normally on success; throws or calls onFailure on
-     * error.
+     * 对指定议题执行一次尝试。成功则正常返回；出错则调用 {@code onFailure}（或抛出异常，取决于实现）。
      */
     public void runAttempt(
             Issue issue,
@@ -39,40 +50,41 @@ public class AgentRunner {
             Runnable onSuccess,
             Runnable onFailure) {
         WorkspaceManager.Result<Workspace> wsResult = workspaceManager.createForIssue(issue.identifier());
-        if (!wsResult.success()) {
+        if (!wsResult.isSuccess()) {
             onFailure.run();
             return;
         }
         Path workspacePath = wsResult.value().path();
 
         WorkspaceManager.HookResult beforeRun = workspaceManager.runBeforeRun(workspacePath);
-        if (!beforeRun.success()) {
+        if (!beforeRun.isSuccess()) {
             workspaceManager.runAfterRun(workspacePath);
             onFailure.run();
             return;
         }
 
         try {
-            String promptTemplate = config.getPromptTemplate();
+            String promptTemplate = config().getPromptTemplate();
             Integer attemptForPrompt = attempt != null ? attempt : null;
             String prompt = PromptRenderer.render(promptTemplate, issue, attemptForPrompt);
             String title = issue.identifier() + ": " + (issue.title() != null ? issue.title() : "");
 
+            ServiceConfig cfg = config();
             CodexAppServerClient client = new CodexAppServerClient(
-                    config.getCodexCommand(),
+                    cfg.getCodexCommand(),
                     workspacePath,
-                    config.getReadTimeoutMs(),
-                    config.getTurnTimeoutMs(),
-                    config.getCodexApprovalPolicy(),
-                    config.getCodexThreadSandbox(),
-                    config.getCodexTurnSandboxPolicy());
+                    cfg.getReadTimeoutMs(),
+                    cfg.getTurnTimeoutMs(),
+                    cfg.getCodexApprovalPolicy(),
+                    cfg.getCodexThreadSandbox(),
+                    cfg.getCodexTurnSandboxPolicy());
 
             if (updateListener != null) {
                 client.addListener(updateListener);
             }
 
             String threadId = client.startSession();
-            int maxTurns = config.getMaxTurns();
+            int maxTurns = config().getMaxTurns();
             int turnNumber = 1;
             Issue currentIssue = issue;
             AtomicBoolean success = new AtomicBoolean(false);
@@ -87,12 +99,14 @@ public class AgentRunner {
                     return;
                 }
 
-                var refreshResult = trackerClient.fetchIssueStatesByIds(List.of(currentIssue.id()));
+                var refreshResult = tracker().fetchIssueStatesByIds(List.of(currentIssue.id()));
                 if (!refreshResult.isSuccess() || refreshResult.value() == null || refreshResult.value().isEmpty()) {
                     break;
                 }
                 currentIssue = refreshResult.value().get(0);
-                if (!config.getTrackerActiveStates().contains(currentIssue.state())) {
+                List<String> activeNorm =
+                        config().getTrackerActiveStates().stream().map(String::toLowerCase).toList();
+                if (!activeNorm.contains(currentIssue.stateNormalized())) {
                     break;
                 }
                 if (turnNumber >= maxTurns) {

@@ -10,9 +10,7 @@ import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
 
-/**
- * Reads WORKFLOW.md, parses YAML front matter and prompt body. SPEC Section 5.1, 5.2.
- */
+/** 读取 WORKFLOW.md，解析 YAML 头信息与正文提示模板。见 SPEC 第 5.1、5.2 节。 */
 public final class WorkflowLoader {
 
     private static final String FRONT_MATTER_START = "---";
@@ -21,10 +19,10 @@ public final class WorkflowLoader {
     private WorkflowLoader() {}
 
     /**
-     * Load workflow from the given path.
+     * 从路径加载工作流文件。
      *
-     * @param workflowPath path to WORKFLOW.md (or explicit path)
-     * @return Success with definition or Error with code and message
+     * @param workflowPath WORKFLOW.md 路径（或其它显式路径）
+     * @return 成功则为 {@link WorkflowLoadResult.Success}，否则为带 code/message 的 {@link WorkflowLoadResult.Error}
      */
     public static WorkflowLoadResult load(Path workflowPath) {
         if (workflowPath == null || !Files.isRegularFile(workflowPath)) {
@@ -42,9 +40,7 @@ public final class WorkflowLoader {
         }
     }
 
-    /**
-     * Parse workflow content: optional YAML front matter + prompt body.
-     */
+    /** 解析工作流文本：可选 YAML 头信息 + 正文提示模板。 */
     @SuppressWarnings("unchecked")
     public static WorkflowLoadResult parse(String content) {
         if (content == null) {

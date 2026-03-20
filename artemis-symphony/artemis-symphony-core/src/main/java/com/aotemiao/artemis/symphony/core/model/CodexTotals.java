@@ -1,9 +1,9 @@
 package com.aotemiao.artemis.symphony.core.model;
 
 /**
- * Aggregate token and runtime totals in orchestrator state.
+ * 编排器状态中的 Token 与运行时累计量。
  *
- * @see <a href="https://github.com/openai/symphony/blob/main/SPEC.md">Symphony SPEC</a> Section 4.1.8
+ * @see <a href="https://github.com/openai/symphony/blob/main/SPEC.md">Symphony SPEC</a> 第 4.1.8 节
  */
 public record CodexTotals(
         long inputTokens,

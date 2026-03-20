@@ -4,9 +4,7 @@ import com.aotemiao.artemis.symphony.core.model.Issue;
 
 import java.time.Instant;
 
-/**
- * One running issue in orchestrator state. SPEC Section 4.1.6 / 16.4.
- */
+/** 编排器状态中的一条「运行中」议题。见 SPEC 第 4.1.6 / 16.4 节。 */
 public class RunningEntry {
 
     public final String issueId;

@@ -17,8 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Linear GraphQL client: fetch candidate issues, issue states by IDs, and terminal-state issues.
- * SPEC Section 11.
+ * Linear GraphQL 客户端：拉取候选议题、按 ID 刷新状态、按终态拉取等。见 SPEC 第 11 节。
  */
 public class LinearTrackerClient {
 

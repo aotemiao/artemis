@@ -13,8 +13,7 @@ import io.pebbletemplates.pebble.PebbleEngine;
 import io.pebbletemplates.pebble.template.PebbleTemplate;
 
 /**
- * Renders prompt from workflow template with issue and attempt. Strict mode: unknown variables fail.
- * SPEC Section 5.4, 12.
+ * 根据工作流模板与议题、重试次数渲染提示词；严格模式下未知变量会失败。见 SPEC 第 5.4、12 节。
  */
 public final class PromptRenderer {
 

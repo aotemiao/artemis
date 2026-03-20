@@ -1,8 +1,6 @@
 package com.aotemiao.artemis.symphony.core.model;
 
-/**
- * Run attempt phase / terminal reason per SPEC Section 7.2.
- */
+/** 单次运行阶段 / 终止原因。见 SPEC 第 7.2 节。 */
 public enum RunAttemptStatus {
     PreparingWorkspace,
     BuildingPrompt,

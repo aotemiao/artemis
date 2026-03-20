@@ -26,7 +26,8 @@ artemis/
 ├── artemis-auth             # 认证服务
 ├── artemis-modules          # 业务微服务（按领域拆分，对外通过 REST API 暴露能力）
 │   └── artemis-system       # 系统管理 (adapter / app / domain / infra / start)
-└── artemis-visual           # 运维基础设施（按需扩展）
+├── artemis-visual           # 运维基础设施（按需扩展）
+└── artemis-symphony         # Symphony：编码代理编排（WORKFLOW.md + Linear + Codex，可独立运行；见子目录 README）
 ```
 
 ## 快速开始
@@ -55,6 +56,14 @@ artemis/
 
    ```bash
    cd artemis-modules/artemis-system/artemis-system-start && mvn spring-boot:run
+   ```
+
+5. **（可选）编译 Symphony 子工程**
+
+   须在**仓库根目录**执行，以便继承根 BOM 与 `dependencyManagement`（勿仅在 `artemis-symphony` 目录单独 `mvn compile`）。详见 [`artemis-symphony/README.md`](artemis-symphony/README.md)。
+
+   ```bash
+   mvn compile -pl artemis-symphony/artemis-symphony-start -am
    ```
 
 ## 多环境

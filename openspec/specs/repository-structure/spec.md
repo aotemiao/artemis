@@ -10,11 +10,12 @@
 - `artemis-auth`：认证授权服务
 - `artemis-modules`：业务微服务聚合模块
 - `artemis-visual`：运维基础设施聚合模块
+- `artemis-symphony`：编码代理编排服务（Linear + WORKFLOW.md + Codex app-server，独立可运行；详见 `artemis-symphony/README.md`）
 
 #### Scenario: 根 POM 模块声明完整
 
 - **WHEN** 开发者查看根 `pom.xml` 的 `<modules>` 节
-- **THEN** SHALL 包含上述固定顶层模块列表，不再包含任何集中式 API 契约聚合模块
+- **THEN** SHALL 包含上述固定顶层模块列表（含 `artemis-symphony`），不再包含任何集中式 API 契约聚合模块
 
 ### Requirement: BOM 模块统一依赖版本
 

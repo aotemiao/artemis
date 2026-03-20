@@ -12,9 +12,7 @@ import static com.aotemiao.artemis.symphony.config.ConfigResolver.expandHome;
 import static com.aotemiao.artemis.symphony.config.ConfigResolver.getNested;
 import static com.aotemiao.artemis.symphony.config.ConfigResolver.resolveEnv;
 
-/**
- * Typed getters for workflow config with defaults and env resolution. SPEC Section 5.3, 6.4.
- */
+/** 工作流配置的强类型访问器（默认值与环境变量解析）。见 SPEC 第 5.3、6.4 节。 */
 public final class ServiceConfig {
 
     private static final String LINEAR_DEFAULT_ENDPOINT = "https://api.linear.app/graphql";

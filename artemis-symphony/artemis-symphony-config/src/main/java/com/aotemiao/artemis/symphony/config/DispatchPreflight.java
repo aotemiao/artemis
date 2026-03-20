@@ -5,9 +5,7 @@ import com.aotemiao.artemis.symphony.core.validation.DispatchValidation;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Dispatch preflight validation per SPEC Section 6.3.
- */
+/** 调度前预检验证。见 SPEC 第 6.3 节。 */
 public final class DispatchPreflight {
 
     private DispatchPreflight() {}

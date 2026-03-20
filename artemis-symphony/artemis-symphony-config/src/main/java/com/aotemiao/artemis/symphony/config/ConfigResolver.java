@@ -4,9 +4,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Resolves $VAR_NAME from environment and ~ for home in path-like values. SPEC 6.1.
- */
+/** 解析环境变量 {@code $VAR_NAME} 与路径中的 {@code ~}（用户主目录）。见 SPEC 第 6.1 节。 */
 public final class ConfigResolver {
 
     private static final Pattern ENV_VAR = Pattern.compile("\\$([A-Za-z_][A-Za-z0-9_]*)");
@@ -14,8 +12,7 @@ public final class ConfigResolver {
     private ConfigResolver() {}
 
     /**
-     * Resolve a value: expand $VAR from environment; do not expand URIs or arbitrary strings.
-     * Used for api_key and path fields.
+     * 解析取值：将 {@code $VAR} 展开为环境变量；不对 URI 等随意字符串做额外展开。用于 api_key、路径类字段等。
      */
     public static String resolveEnv(String value) {
         if (value == null || value.isEmpty()) {
@@ -35,9 +32,7 @@ public final class ConfigResolver {
         return sb.toString();
     }
 
-    /**
-     * Expand ~ to user home for path-like values. Path separators trigger expansion.
-     */
+    /** 将路径形式值中的 {@code ~} 展开为用户主目录。 */
     public static String expandHome(String path) {
         if (path == null || path.isEmpty()) {
             return path;

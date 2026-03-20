@@ -1,8 +1,6 @@
 package com.aotemiao.artemis.symphony.core;
 
-/**
- * Workflow/configuration error codes per SPEC Section 5.5.
- */
+/** 工作流/配置相关错误码。见 SPEC 第 5.5 节。 */
 public final class WorkflowErrors {
     public static final String MISSING_WORKFLOW_FILE = "missing_workflow_file";
     public static final String WORKFLOW_PARSE_ERROR = "workflow_parse_error";

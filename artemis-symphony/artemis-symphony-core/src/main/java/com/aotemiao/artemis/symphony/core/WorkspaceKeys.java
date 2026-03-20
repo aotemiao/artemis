@@ -1,7 +1,7 @@
 package com.aotemiao.artemis.symphony.core;
 
 /**
- * Workspace key sanitization per SPEC Section 4.2: replace any character not in [A-Za-z0-9._-] with _.
+ * 工作区目录键清理（SPEC 第 4.2 节）：将不在 [A-Za-z0-9._-] 内的字符替换为 {@code _}。
  */
 public final class WorkspaceKeys {
 

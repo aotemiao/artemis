@@ -2,9 +2,7 @@ package com.aotemiao.artemis.symphony.core.validation;
 
 import java.util.List;
 
-/**
- * Result of dispatch preflight validation (SPEC Section 6.3).
- */
+/** 调度预检校验结果。见 SPEC 第 6.3 节。 */
 public record DispatchValidation(boolean ok, List<String> errors) {
 
     public static DispatchValidation success() {

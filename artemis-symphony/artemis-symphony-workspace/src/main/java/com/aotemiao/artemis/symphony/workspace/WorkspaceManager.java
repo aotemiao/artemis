@@ -4,42 +4,47 @@ import com.aotemiao.artemis.symphony.config.ServiceConfig;
 import com.aotemiao.artemis.symphony.core.WorkspaceKeys;
 import com.aotemiao.artemis.symphony.core.model.Workspace;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
- * Maps issue identifiers to workspace paths, ensures directories exist, runs hooks. SPEC Section 9.
+ * 将议题标识映射到工作区路径、确保目录存在并执行钩子脚本。见 SPEC 第 9 节。
  */
 public class WorkspaceManager {
 
-    private final ServiceConfig config;
-    private final HookRunner hookRunner;
+    private final Supplier<ServiceConfig> configSupplier;
 
-    public WorkspaceManager(ServiceConfig config) {
-        this.config = config;
-        this.hookRunner = new HookRunner(config.getHooksTimeoutMs());
+    public WorkspaceManager(Supplier<ServiceConfig> configSupplier) {
+        this.configSupplier = configSupplier;
+    }
+
+    private ServiceConfig config() {
+        return configSupplier.get();
     }
 
     /**
-     * Create or reuse workspace for the given issue identifier. Runs after_create only when newly
-     * created. SPEC 9.2.
+     * 为议题标识创建或复用工作区；仅在本次新建目录时执行 after_create。见 SPEC 9.2。
      */
     public Result<Workspace> createForIssue(String issueIdentifier) {
+        ServiceConfig config = config();
         Path root = config.getWorkspaceRoot().toAbsolutePath();
         String workspaceKey = WorkspaceKeys.sanitize(issueIdentifier);
         Path workspacePath = root.resolve(workspaceKey).normalize();
 
         if (!workspacePath.startsWith(root)) {
-            return Result.failure("invalid_workspace_path", "Workspace path outside root");
+            return Result.failure("invalid_workspace_path", "工作区路径超出根目录范围");
         }
 
         try {
             boolean createdNow = Files.notExists(workspacePath) || !Files.isDirectory(workspacePath);
             if (createdNow) {
-                java.nio.file.Files.createDirectories(workspacePath);
+                Files.createDirectories(workspacePath);
             }
             Workspace workspace = new Workspace(workspacePath, workspaceKey, createdNow);
+            HookRunner hookRunner = new HookRunner(config.getHooksTimeoutMs());
 
             if (createdNow) {
                 String afterCreate = config.getHookAfterCreate();
@@ -56,48 +61,45 @@ public class WorkspaceManager {
         }
     }
 
-    /**
-     * Run before_run hook. Failure aborts the current attempt.
-     */
+    /** 执行 before_run 钩子；失败则中止当前尝试。 */
     public HookResult runBeforeRun(Path workspacePath) {
+        ServiceConfig config = config();
         String script = config.getHookBeforeRun();
         if (script == null || script.isBlank()) {
             return HookResult.ofSuccess();
         }
-        return hookRunner.run(script, workspacePath);
+        return new HookRunner(config.getHooksTimeoutMs()).run(script, workspacePath);
     }
 
-    /**
-     * Run after_run hook. Failure is logged but ignored.
-     */
+    /** 执行 after_run 钩子；失败仅记录日志，按 SPEC 忽略。 */
     public HookResult runAfterRun(Path workspacePath) {
+        ServiceConfig config = config();
         String script = config.getHookAfterRun();
         if (script == null || script.isBlank()) {
             return HookResult.ofSuccess();
         }
-        return hookRunner.run(script, workspacePath);
+        return new HookRunner(config.getHooksTimeoutMs()).run(script, workspacePath);
     }
 
-    /**
-     * Run before_remove hook then remove workspace directory. SPEC 9.4.
-     */
+    /** 执行 before_remove 钩子后删除工作区目录。见 SPEC 9.4。 */
     public void removeWorkspace(Path workspacePath) {
         if (workspacePath == null) return;
+        ServiceConfig config = config();
         String script = config.getHookBeforeRemove();
         if (script != null && !script.isBlank()) {
-            hookRunner.run(script, workspacePath);
+            new HookRunner(config.getHooksTimeoutMs()).run(script, workspacePath);
         }
         try {
             if (Files.exists(workspacePath) && Files.isDirectory(workspacePath)) {
                 deleteRecursively(workspacePath);
             }
         } catch (Exception e) {
-            // log and ignore per spec
+            // 按 SPEC 记录日志并忽略异常
         }
     }
 
     public Path getWorkspaceRoot() {
-        return config.getWorkspaceRoot().toAbsolutePath();
+        return config().getWorkspaceRoot().toAbsolutePath();
     }
 
     public record Result<T>(boolean success, String errorCode, String errorMessage, T value) {
@@ -121,7 +123,7 @@ public class WorkspaceManager {
             return success;
         }
 
-        /** Static factory to avoid name clash with record accessor success(). */
+        /** 静态工厂方法，避免与 record 访问器 {@code success()} 命名冲突。 */
         public static HookResult ofSuccess() {
             return new HookResult(true, null, null);
         }
@@ -177,27 +179,5 @@ public class WorkspaceManager {
             }
         }
         Files.delete(path);
-    }
-
-    private static final class Files {
-        static boolean exists(Path p) {
-            return java.nio.file.Files.exists(p);
-        }
-
-        static boolean notExists(Path p) {
-            return java.nio.file.Files.notExists(p);
-        }
-
-        static boolean isDirectory(Path p) {
-            return java.nio.file.Files.isDirectory(p);
-        }
-
-        static java.util.stream.Stream<Path> list(Path p) throws java.io.IOException {
-            return java.nio.file.Files.list(p);
-        }
-
-        static void delete(Path p) throws java.io.IOException {
-            java.nio.file.Files.delete(p);
-        }
     }
 }

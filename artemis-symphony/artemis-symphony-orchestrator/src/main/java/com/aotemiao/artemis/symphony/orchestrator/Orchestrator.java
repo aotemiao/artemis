@@ -10,6 +10,10 @@ import com.aotemiao.artemis.symphony.core.validation.DispatchValidation;
 import com.aotemiao.artemis.symphony.tracker.LinearTrackerClient;
 import com.aotemiao.artemis.symphony.workspace.WorkspaceManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,17 +23,17 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Single-authority orchestrator: poll tick, reconcile, dispatch, retry. SPEC Section 7, 8, 16.
+ * 单一权威的编排器：轮询 tick、协调（reconcile）、下发任务、重试。见 SPEC 第 7、8、16 节。
  */
 public class Orchestrator {
 
-    private final ServiceConfig config;
-    private final LinearTrackerClient tracker;
+    private static final Logger log = LoggerFactory.getLogger(Orchestrator.class);
+
+    private final SymphonyRuntimeHolder runtimeHolder;
     private final WorkspaceManager workspaceManager;
     private final AgentRunner agentRunner;
 
@@ -38,64 +42,115 @@ public class Orchestrator {
     private final Map<String, RetryEntry> retryAttempts = new ConcurrentHashMap<>();
     private final Set<String> completed = ConcurrentHashMap.newKeySet();
     private CodexTotals codexTotals = CodexTotals.zero();
+    @SuppressWarnings("unused")
     private Object codexRateLimits = null;
 
     private final ExecutorService workerPool = Executors.newCachedThreadPool();
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private volatile boolean started;
+    private final ScheduledExecutorService retryScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "symphony-retry");
+        t.setDaemon(true);
+        return t;
+    });
 
-    public Orchestrator(ServiceConfig config, LinearTrackerClient tracker, WorkspaceManager workspaceManager, AgentRunner agentRunner) {
-        this.config = config;
-        this.tracker = tracker;
+    private final Object tickMonitor = new Object();
+    private volatile boolean wakeImmediately;
+    private volatile boolean started;
+    private Thread tickThread;
+
+    public Orchestrator(SymphonyRuntimeHolder runtimeHolder, WorkspaceManager workspaceManager, AgentRunner agentRunner) {
+        this.runtimeHolder = runtimeHolder;
         this.workspaceManager = workspaceManager;
         this.agentRunner = agentRunner;
+    }
+
+    private ServiceConfig config() {
+        return runtimeHolder.get().config();
+    }
+
+    private LinearTrackerClient tracker() {
+        return runtimeHolder.get().trackerClient();
     }
 
     public void start() {
         if (started) return;
         started = true;
-        DispatchValidation validation = DispatchPreflight.validate(config);
+        DispatchValidation validation = DispatchPreflight.validate(config());
         if (!validation.ok()) {
-            throw new IllegalStateException("Dispatch validation failed: " + validation.errors());
+            throw new IllegalStateException("调度预检未通过: " + validation.errors());
         }
         startupTerminalWorkspaceCleanup();
-        scheduler.schedule(this::onTick, 0, TimeUnit.MILLISECONDS);
+        tickThread = new Thread(this::runTickLoop, "symphony-orchestrator-tick");
+        tickThread.setDaemon(true);
+        tickThread.start();
     }
 
     public void stop() {
         started = false;
-        scheduler.shutdown();
+        synchronized (tickMonitor) {
+            tickMonitor.notifyAll();
+        }
+        retryScheduler.shutdown();
         workerPool.shutdown();
-        for (RunningEntry e : running.values()) {
-            // could cancel worker if we stored Future
+    }
+
+    /**
+     * 请求立即执行一整轮 tick（协调 + 在验证通过时可能调度）。若已有挂起的立即唤醒，则将本次合并。
+     *
+     * @return 若本次调用与已挂起的立即 tick 合并则返回 true（即 coalesced）
+     */
+    public boolean requestImmediateTick() {
+        synchronized (tickMonitor) {
+            boolean coalesced = wakeImmediately;
+            wakeImmediately = true;
+            tickMonitor.notifyAll();
+            return coalesced;
         }
     }
 
-    private void startupTerminalWorkspaceCleanup() {
-        var result = tracker.fetchIssuesByStates(config.getTrackerProjectSlug(), config.getTrackerTerminalStates());
-        if (!result.isSuccess() || result.value() == null) return;
-        for (Issue issue : result.value()) {
-            if (issue.identifier() != null) {
-                workspaceManager.removeWorkspace(workspaceManager.getWorkspaceRoot().resolve(com.aotemiao.artemis.symphony.core.WorkspaceKeys.sanitize(issue.identifier())));
+    private void runTickLoop() {
+        while (started) {
+            try {
+                runOneTick();
+            } catch (Exception e) {
+                log.error("action=tick_failed outcome=failed reason={}", e.toString(), e);
+            }
+            long delayMs;
+            try {
+                delayMs = config().getPollIntervalMs();
+            } catch (Exception e) {
+                delayMs = 30_000;
+            }
+            synchronized (tickMonitor) {
+                try {
+                    long deadline = System.currentTimeMillis() + delayMs;
+                    while (started && System.currentTimeMillis() < deadline && !wakeImmediately) {
+                        long waitMs = Math.max(1L, deadline - System.currentTimeMillis());
+                        tickMonitor.wait(waitMs);
+                    }
+                    wakeImmediately = false;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
         }
     }
 
-    private void onTick() {
-        if (!started) return;
+    private void runOneTick() {
         reconcileRunningIssues();
-        DispatchValidation validation = DispatchPreflight.validate(config);
+        DispatchValidation validation = DispatchPreflight.validate(config());
         if (!validation.ok()) {
-            scheduler.schedule(this::onTick, config.getPollIntervalMs(), TimeUnit.MILLISECONDS);
+            log.warn("action=dispatch_preflight outcome=skipped errors={}", validation.errors());
             return;
         }
-        var candidateResult = tracker.fetchCandidateIssues(config.getTrackerProjectSlug(), config.getTrackerActiveStates());
+        var candidateResult = tracker().fetchCandidateIssues(config().getTrackerProjectSlug(), config().getTrackerActiveStates());
         if (!candidateResult.isSuccess() || candidateResult.value() == null) {
-            scheduler.schedule(this::onTick, config.getPollIntervalMs(), TimeUnit.MILLISECONDS);
+            log.warn("action=fetch_candidates outcome=failed");
             return;
         }
-        List<Issue> candidates = sortForDispatch(candidateResult.value());
-        int slots = config.getMaxConcurrentAgents() - running.size();
+        List<Issue> candidates =
+                sortForDispatch(candidateResult.value());
+        int slots = config().getMaxConcurrentAgents() - running.size();
         for (Issue issue : candidates) {
             if (slots <= 0) break;
             if (shouldDispatch(issue)) {
@@ -103,11 +158,25 @@ public class Orchestrator {
                 slots--;
             }
         }
-        scheduler.schedule(this::onTick, config.getPollIntervalMs(), TimeUnit.MILLISECONDS);
+    }
+
+    private void startupTerminalWorkspaceCleanup() {
+        var result = tracker().fetchIssuesByStates(config().getTrackerProjectSlug(), config().getTrackerTerminalStates());
+        if (!result.isSuccess() || result.value() == null) return;
+        for (Issue issue : result.value()) {
+            if (issue.identifier() != null) {
+                workspaceManager.removeWorkspace(
+                        workspaceManager
+                                .getWorkspaceRoot()
+                                .resolve(com.aotemiao.artemis.symphony.core.WorkspaceKeys.sanitize(issue.identifier())));
+            }
+        }
     }
 
     private void reconcileRunningIssues() {
-        long stallTimeoutMs = config.getStallTimeoutMs();
+        ServiceConfig cfg = config();
+        LinearTrackerClient tr = tracker();
+        long stallTimeoutMs = cfg.getStallTimeoutMs();
         if (stallTimeoutMs > 0) {
             Instant now = Instant.now();
             for (RunningEntry e : running.values()) {
@@ -115,25 +184,55 @@ public class Orchestrator {
                         ? java.time.Duration.between(e.lastCodexTimestamp, now).toMillis()
                         : java.time.Duration.between(e.startedAt, now).toMillis();
                 if (elapsed > stallTimeoutMs) {
-                    terminateRunning(e.issueId, true);
+                    putIssueMdc(e.issueId, e.identifier, e.sessionId);
+                    try {
+                        log.warn(
+                                "action=stall_detected outcome=terminating issue_id={} issue_identifier={} session_id={}",
+                                e.issueId,
+                                e.identifier,
+                                e.sessionId != null ? e.sessionId : "");
+                        terminateRunning(e.issueId, true);
+                    } finally {
+                        clearIssueMdc();
+                    }
                 }
             }
         }
         if (running.isEmpty()) return;
-        var result = tracker.fetchIssueStatesByIds(new ArrayList<>(running.keySet()));
+        var result = tr.fetchIssueStatesByIds(new ArrayList<>(running.keySet()));
         if (!result.isSuccess() || result.value() == null) return;
-        List<String> terminal = config.getTrackerTerminalStates().stream().map(String::toLowerCase).toList();
-        List<String> active = config.getTrackerActiveStates().stream().map(String::toLowerCase).toList();
+        List<String> terminal = cfg.getTrackerTerminalStates().stream().map(String::toLowerCase).toList();
+        List<String> active = cfg.getTrackerActiveStates().stream().map(String::toLowerCase).toList();
         for (Issue issue : result.value()) {
             RunningEntry entry = running.get(issue.id());
             if (entry == null) continue;
             String stateNorm = issue.state() != null ? issue.state().toLowerCase() : "";
             if (terminal.contains(stateNorm)) {
-                terminateRunning(issue.id(), true);
+                putIssueMdc(issue.id(), issue.identifier(), entry.sessionId);
+                try {
+                    log.info(
+                            "action=reconcile_terminal issue_id={} issue_identifier={} session_id={}",
+                            issue.id(),
+                            issue.identifier(),
+                            entry.sessionId != null ? entry.sessionId : "");
+                    terminateRunning(issue.id(), true);
+                } finally {
+                    clearIssueMdc();
+                }
             } else if (active.contains(stateNorm)) {
                 entry.issue = issue;
             } else {
-                terminateRunning(issue.id(), false);
+                putIssueMdc(issue.id(), issue.identifier(), entry.sessionId);
+                try {
+                    log.info(
+                            "action=reconcile_non_active issue_id={} issue_identifier={} session_id={}",
+                            issue.id(),
+                            issue.identifier(),
+                            entry.sessionId != null ? entry.sessionId : "");
+                    terminateRunning(issue.id(), false);
+                } finally {
+                    clearIssueMdc();
+                }
             }
         }
     }
@@ -143,13 +242,17 @@ public class Orchestrator {
         if (entry == null) return;
         claimed.remove(issueId);
         if (cleanupWorkspace) {
-            workspaceManager.removeWorkspace(workspaceManager.getWorkspaceRoot().resolve(com.aotemiao.artemis.symphony.core.WorkspaceKeys.sanitize(entry.identifier)));
+            workspaceManager.removeWorkspace(
+                    workspaceManager
+                            .getWorkspaceRoot()
+                            .resolve(com.aotemiao.artemis.symphony.core.WorkspaceKeys.sanitize(entry.identifier)));
         }
     }
 
     private List<Issue> sortForDispatch(List<Issue> issues) {
-        List<String> activeLower = config.getTrackerActiveStates().stream().map(String::toLowerCase).toList();
-        List<String> terminalLower = config.getTrackerTerminalStates().stream().map(String::toLowerCase).toList();
+        ServiceConfig cfg = config();
+        List<String> activeLower = cfg.getTrackerActiveStates().stream().map(String::toLowerCase).toList();
+        List<String> terminalLower = cfg.getTrackerTerminalStates().stream().map(String::toLowerCase).toList();
         return issues.stream()
                 .filter(i -> hasRequiredFields(i) && activeLower.contains(i.stateNormalized()) && !terminalLower.contains(i.stateNormalized()))
                 .filter(i -> !running.containsKey(i.id()) && !claimed.contains(i.id()))
@@ -167,18 +270,21 @@ public class Orchestrator {
     }
 
     private boolean shouldDispatch(Issue issue) {
+        ServiceConfig cfg = config();
         if (running.containsKey(issue.id()) || claimed.contains(issue.id())) return false;
-        int globalSlots = config.getMaxConcurrentAgents() - running.size();
+        int globalSlots = cfg.getMaxConcurrentAgents() - running.size();
         if (globalSlots <= 0) return false;
-        Map<String, Integer> byState = config.getMaxConcurrentAgentsByState();
+        Map<String, Integer> byState = cfg.getMaxConcurrentAgentsByState();
         if (!byState.isEmpty()) {
             String stateNorm = issue.stateNormalized();
-            int cap = byState.getOrDefault(stateNorm, config.getMaxConcurrentAgents());
-            long count = running.values().stream().filter(e -> e.issue != null && stateNorm.equals(e.issue.stateNormalized())).count();
+            int cap = byState.getOrDefault(stateNorm, cfg.getMaxConcurrentAgents());
+            long count = running.values().stream()
+                    .filter(e -> e.issue != null && stateNorm.equals(e.issue.stateNormalized()))
+                    .count();
             if (count >= cap) return false;
         }
         if ("todo".equals(issue.stateNormalized()) && issue.blockedBy() != null && !issue.blockedBy().isEmpty()) {
-            List<String> terminal = config.getTrackerTerminalStates().stream().map(String::toLowerCase).toList();
+            List<String> terminal = cfg.getTrackerTerminalStates().stream().map(String::toLowerCase).toList();
             boolean allTerminal = issue.blockedBy().stream()
                     .allMatch(b -> b.state() != null && terminal.contains(b.state().toLowerCase()));
             if (!allTerminal) return false;
@@ -194,8 +300,17 @@ public class Orchestrator {
         RunningEntry entry = new RunningEntry(issue.id(), issue.identifier(), issue, retryAttempt, Instant.now());
         running.put(issue.id(), entry);
 
+        final Map<String, String> parentMdc = MDC.getCopyOfContextMap();
         workerPool.submit(() -> {
+            if (parentMdc != null) {
+                MDC.setContextMap(parentMdc);
+            }
+            putIssueMdc(issue.id(), issue.identifier(), null);
             try {
+                log.info(
+                        "action=worker_start issue_id={} issue_identifier={}",
+                        issue.id(),
+                        issue.identifier());
                 agentRunner.runAttempt(
                         issue,
                         attempt,
@@ -203,9 +318,32 @@ public class Orchestrator {
                         () -> onWorkerExit(issue.id(), true),
                         () -> onWorkerExit(issue.id(), false));
             } catch (Exception e) {
+                log.warn(
+                        "action=worker_exception issue_id={} issue_identifier={} reason={}",
+                        issue.id(),
+                        issue.identifier(),
+                        e.toString());
                 onWorkerExit(issue.id(), false);
+            } finally {
+                clearIssueMdc();
+                if (parentMdc != null) {
+                    MDC.clear();
+                }
             }
         });
+    }
+
+    private static void putIssueMdc(String issueId, String issueIdentifier, String sessionId) {
+        if (issueId != null) MDC.put("issue_id", issueId);
+        if (issueIdentifier != null) MDC.put("issue_identifier", issueIdentifier);
+        if (sessionId != null && !sessionId.isBlank()) MDC.put("session_id", sessionId);
+        else MDC.remove("session_id");
+    }
+
+    private static void clearIssueMdc() {
+        MDC.remove("issue_id");
+        MDC.remove("issue_identifier");
+        MDC.remove("session_id");
     }
 
     private void onCodexUpdate(String issueId, CodexUpdateEvent evt) {
@@ -214,6 +352,13 @@ public class Orchestrator {
         e.lastCodexEvent = evt.event();
         e.lastCodexTimestamp = evt.timestamp();
         e.lastCodexMessage = evt.payload() != null ? evt.payload().toString() : null;
+        if (evt.payload() != null && evt.payload().containsKey("session_id")) {
+            Object sid = evt.payload().get("session_id");
+            if (sid != null) {
+                e.sessionId = sid.toString();
+                MDC.put("session_id", e.sessionId);
+            }
+        }
         if (evt.usage() != null) {
             e.codexInputTokens = ((Number) evt.usage().getOrDefault("input_tokens", 0)).longValue();
             e.codexOutputTokens = ((Number) evt.usage().getOrDefault("output_tokens", 0)).longValue();
@@ -226,6 +371,12 @@ public class Orchestrator {
         if (entry == null) return;
         claimed.remove(issueId);
         completed.add(issueId);
+        log.info(
+                "action=worker_exit outcome={} issue_id={} issue_identifier={} session_id={}",
+                normal ? "completed" : "failed",
+                entry.issueId,
+                entry.identifier,
+                entry.sessionId != null ? entry.sessionId : "");
         if (normal) {
             scheduleRetry(issueId, entry.identifier, 1, null);
         } else {
@@ -235,17 +386,23 @@ public class Orchestrator {
     }
 
     private void scheduleRetry(String issueId, String identifier, int attempt, String error) {
-        long delayMs = attempt == 1 && error == null ? 1000 : Math.min(10_000 * (1L << (attempt - 1)), config.getMaxRetryBackoffMs());
+        ServiceConfig cfg = config();
+        long delayMs = attempt == 1 && error == null
+                ? 1000
+                : Math.min(10_000 * (1L << (attempt - 1)), cfg.getMaxRetryBackoffMs());
         long dueAtMs = System.currentTimeMillis() + delayMs;
         RetryEntry re = new RetryEntry(issueId, identifier, attempt, dueAtMs, null, error);
         retryAttempts.put(issueId, re);
-        scheduler.schedule(() -> onRetryTimer(issueId), dueAtMs - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+        retryScheduler.schedule(
+                () -> onRetryTimer(issueId), delayMs, TimeUnit.MILLISECONDS);
     }
 
     private void onRetryTimer(String issueId) {
         RetryEntry re = retryAttempts.remove(issueId);
         if (re == null) return;
-        var result = tracker.fetchCandidateIssues(config.getTrackerProjectSlug(), config.getTrackerActiveStates());
+        ServiceConfig cfg = config();
+        LinearTrackerClient tr = tracker();
+        var result = tr.fetchCandidateIssues(cfg.getTrackerProjectSlug(), cfg.getTrackerActiveStates());
         if (!result.isSuccess() || result.value() == null) {
             scheduleRetry(issueId, re.identifier(), re.attempt() + 1, "retry poll failed");
             return;
@@ -255,11 +412,32 @@ public class Orchestrator {
             claimed.remove(issueId);
             return;
         }
-        if (running.size() >= config.getMaxConcurrentAgents()) {
+        if (running.size() >= cfg.getMaxConcurrentAgents()) {
             scheduleRetry(issueId, issue.identifier(), re.attempt() + 1, "no available orchestrator slots");
             return;
         }
         dispatchIssue(issue, re.attempt());
+    }
+
+    /** 按人类可读议题编号（如 MT-649）查找运行中条目。 */
+    public RunningEntry findRunningByIdentifier(String identifier) {
+        if (identifier == null) return null;
+        for (RunningEntry e : running.values()) {
+            if (identifier.equals(e.identifier)) return e;
+        }
+        return null;
+    }
+
+    public RetryEntry findRetryByIdentifier(String identifier) {
+        if (identifier == null) return null;
+        for (RetryEntry re : retryAttempts.values()) {
+            if (identifier.equals(re.identifier())) return re;
+        }
+        return null;
+    }
+
+    public SymphonyRuntimeHolder getRuntimeHolder() {
+        return runtimeHolder;
     }
 
     public Map<String, RunningEntry> getRunning() {

@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Codex app-server client: launch subprocess, send initialize/thread/start/turn/start, read
- * line-delimited JSON, emit events. SPEC Section 10.
+ * Codex app-server 客户端：启动子进程，发送 initialize/thread/start/turn 等，按行读取 JSON 并产生事件。
+ * 见 SPEC 第 10 节。
  */
 public class CodexAppServerClient {
 
