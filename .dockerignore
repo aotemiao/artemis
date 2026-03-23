@@ -1,0 +1,12 @@
+.git
+.github
+.idea
+.cursor
+.DS_Store
+target
+**/target
+logs
+symphony_workspaces
+*.iml
+*.ipr
+*.iws

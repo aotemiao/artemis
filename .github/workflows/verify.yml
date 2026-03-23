@@ -1,0 +1,60 @@
+name: Verify
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 1 * * 1'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Shell Syntax Check
+        run: bash -n $(find scripts -type f -name '*.sh' | sort)
+
+      - name: Markdown Links Check
+        run: scripts/harness/check-doc-links.sh
+
+      - name: Docs Consistency Check
+        run: scripts/harness/check-doc-consistency.sh
+
+      - name: Docs Freshness Check
+        run: scripts/harness/check-doc-freshness.sh
+
+      - name: OpenSpec Sync Check (Pull Request)
+        if: github.event_name == 'pull_request'
+        run: scripts/harness/check-openspec-sync.sh range "${{ github.event.pull_request.base.sha }}" "${{ github.sha }}"
+
+      - name: OpenSpec Sync Check (Push)
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        run: scripts/harness/check-openspec-sync.sh range "${{ github.event.before }}" "${{ github.sha }}"
+
+      - name: Full Verify
+        run: scripts/harness/full-verify.sh
+
+      - name: Build Docker Images
+        run: scripts/dev/build-image.sh all ci
+
+      - name: Upload Reports On Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-reports
+          path: |
+            **/surefire-reports/**
+            **/failsafe-reports/**
+            **/spotbugsXml.xml
