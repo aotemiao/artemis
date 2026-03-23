@@ -6,10 +6,20 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/lib/common.sh"
 
 run_in_repo_root
 
+contains_fixed_string() {
+  local pattern="$1"
+  local file="$2"
+  if command -v rg >/dev/null 2>&1; then
+    rg -q --fixed-strings "$pattern" "$file"
+    return
+  fi
+  grep -Fq -- "$pattern" "$file"
+}
+
 require_file_contains() {
   local file="$1"
   local pattern="$2"
-  if ! rg -q --fixed-strings "$pattern" "$file"; then
+  if ! contains_fixed_string "$pattern" "$file"; then
     echo "Missing required content in $file: $pattern" >&2
     exit 1
   fi
@@ -18,7 +28,7 @@ require_file_contains() {
 require_file_not_contains() {
   local file="$1"
   local pattern="$2"
-  if rg -q --fixed-strings "$pattern" "$file"; then
+  if contains_fixed_string "$pattern" "$file"; then
     echo "Outdated content found in $file: $pattern" >&2
     exit 1
   fi
