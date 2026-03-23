@@ -1,5 +1,9 @@
 # Artemis
 
+Status: maintained
+Last Reviewed: 2026-03-23
+Review Cadence: 90 days
+
 Spring Cloud 微服务管理后台脚手架，采用 DDD/COLA 分层架构，参考 RuoYi-Cloud-Plus 与 COLA，面向 Clean Code 与可维护性。
 
 ## 技术栈
@@ -66,6 +70,8 @@ artemis/
    mvn compile -pl artemis-symphony/artemis-symphony-start -am
    ```
 
+说明：项目源码目标版本为 **JDK 21**。`mvn verify` 的质量门也按 **JDK 21** 运行时固化；若本机默认 Java 不是 21，优先使用仓库下的 `scripts/` 入口，它们会在 macOS 上自动优先选择已安装的 Java 21。
+
 ## 多环境
 
 - `dev`（默认）· `test` · `prod`，通过 Maven profile 切换；`spring.profiles.active` 由打包时 `@profiles.active@` 注入。
@@ -81,6 +87,86 @@ artemis/
 - 代码风格：Checkstyle（根目录 `checkstyle.xml`）
 - 静态检查：SpotBugs
 - 架构与工程规范见 `openspec/specs/`（如 ddd-cola-layering、repository-structure、tech-stack 等）。
+
+## Harness Engineering（仓库内落地）
+
+仓库已补齐一组面向 agent 与开发者共用的入口文件与脚本，用于把工程知识、执行步骤和验证回路固化在仓库内：
+
+- `AGENTS.md`：agent 最小稳定入口
+- `ARCHITECTURE.md`：仓库级架构地图
+- `QUALITY_SCORE.md`：当前质量评分与优先补强项
+- `docs/harness-engineering/`：落地清单与阶段路线图
+- `docs/exec-plans/`：复杂任务执行计划目录
+- `scripts/dev/`：本地环境与服务启动入口
+- `scripts/dev/package-service.sh`：统一服务打包入口
+- `scripts/dev/build-image.sh`：统一镜像构建入口
+- `scripts/dev/wait-http.sh`：统一 HTTP 等待 / 启动断言入口
+- `scripts/dev/health.sh`：关键依赖与服务健康检查
+- `scripts/dev/tail-log.sh`：统一日志查看入口
+- `scripts/harness/`：OpenSpec 同步、增量验证、全量验证
+- `scripts/smoke/`：最小 smoke 验证脚本
+- `docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`：服务 smoke 与启动顺序 runbook
+- `docs/harness-engineering/DOC_FRESHNESS_POLICY.md`：核心文档审阅 cadence 与防漂移规则
+- `docs/harness-engineering/DEPLOY_AND_ROLLBACK_RUNBOOK.md`：打包、镜像、部署与回滚 runbook
+- `docs/harness-engineering/SYMPHONY_TROUBLESHOOTING.md`：Symphony 常见故障 runbook
+- `.github/workflows/verify.yml`：CI 标准验证工作流
+- `docker/Dockerfile.*`：关键服务容器化模板
+
+### 架构定位
+
+Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将其视为单独工具。其目标是把工程知识、执行入口、验证回路和 agent 编排统一沉淀在仓库内，使开发者与 agent 共享同一套事实来源和交付流程。
+
+### 架构组成
+
+1. **知识层**
+
+   - `README.md`：仓库总览、启动方式与工程入口
+   - `AGENTS.md`：agent 稳定入口与执行约束
+   - `ARCHITECTURE.md`：模块边界、服务拓扑、依赖方向
+   - `QUALITY_SCORE.md`：当前质量状态、封板结论与扩展方向
+   - `openspec/specs/`：分层、测试、工程约束等规范事实
+
+2. **执行层**
+
+   - `scripts/dev/`：基础设施、服务启动、健康检查、日志查看
+   - `scripts/dev/package-service.sh`：统一服务打包入口
+   - `scripts/dev/build-image.sh`：统一镜像构建入口
+   - `scripts/dev/wait-http.sh`：HTTP 等待与启动断言入口
+   - `scripts/smoke/`：system、auth、gateway、symphony 等最小 smoke 入口
+   - `docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`：启动顺序与 smoke 组合标准
+
+3. **验证层**
+
+   - `scripts/harness/verify-changed.sh`：增量验证入口
+   - `scripts/harness/full-verify.sh`：仓库级全量验证入口
+   - `mvn verify`：测试、Spotless、Checkstyle、SpotBugs 统一质量门
+   - `docs/harness-engineering/DOC_FRESHNESS_POLICY.md`：核心文档审阅 cadence 与防漂移规则
+   - `.github/workflows/verify.yml`：CI 中的文档守门、OpenSpec 差异检查、全量验证与镜像构建
+
+4. **编排层**
+
+   - `artemis-symphony`：任务编排、隔离 workspace、状态观测与 workflow 驱动执行
+   - `artemis-symphony/WORKFLOW.md.example`：编排器默认读取的仓库级执行模型
+   - `docs/exec-plans/`：复杂任务计划、决策与归档目录
+
+### 标准工作流
+
+1. 阅读 `README.md`、`AGENTS.md`、`ARCHITECTURE.md` 与相关 OpenSpec
+2. 对跨模块或多步骤任务，在 `docs/exec-plans/active/` 建立执行计划
+3. 通过 `scripts/dev/` 启动依赖、服务并完成健康检查
+4. 通过 `scripts/smoke/` 或 `SERVICE_SMOKE_RUNBOOK.md` 完成最小行为验证
+5. 实施代码、测试、脚本和文档的成组变更
+6. 优先执行 `scripts/harness/verify-changed.sh`
+7. 对高风险或跨模块改动执行 `scripts/harness/full-verify.sh`
+8. 通过 CI 工作流重复执行仓库级守门
+
+### 适用范围
+
+这套结构同时服务于人工开发与 agent 驱动开发：
+
+- 对开发者，提供统一的启动、验证、交付与排障入口
+- 对 agent，提供稳定上下文、执行顺序、验证约束与回放路径
+- 对仓库本身，提供低漂移的知识沉淀与持续守门机制
 
 ## Pre-commit 钩子（可选）
 
