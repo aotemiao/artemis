@@ -15,32 +15,32 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(BizException.class)
     public ResponseEntity<R<Void>> handleBiz(BizException e) {
-        log.warn("BizException: {} - {}", e.getErrorCode().getCode(), e.getMessage());
+        LOGGER.warn("BizException: {} - {}", e.getErrorCode().getCode(), e.getMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(R.fail(e.getErrorCode().getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(SysException.class)
     public ResponseEntity<R<Void>> handleSys(SysException e) {
-        log.error("SysException: {} - {}", e.getErrorCode().getCode(), e.getMessage(), e);
+        LOGGER.error("SysException: {} - {}", e.getErrorCode().getCode(), e.getMessage(), e);
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(R.fail(e.getErrorCode().getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<R<Void>> handleBase(BaseException e) {
-        log.warn("BaseException: {} - {}", e.getErrorCode().getCode(), e.getMessage());
+        LOGGER.warn("BaseException: {} - {}", e.getErrorCode().getCode(), e.getMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(R.fail(e.getErrorCode().getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<R<Void>> handleOther(Exception e) {
-        log.error("Unhandled exception", e);
+        LOGGER.error("Unhandled exception", e);
         return ResponseEntity.status(CommonErrorCode.INTERNAL_ERROR.getHttpStatus())
                 .body(R.fail(CommonErrorCode.INTERNAL_ERROR.getCode(), CommonErrorCode.INTERNAL_ERROR.getMessage()));
     }

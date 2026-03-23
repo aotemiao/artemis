@@ -8,4 +8,9 @@ public record UpdateLookupTypeRequest(
         String code,
         String name,
         String description,
-        List<CreateLookupTypeRequest.LookupItemRequest> items) {}
+        List<CreateLookupTypeRequest.LookupItemRequest> items) {
+
+    public UpdateLookupTypeRequest {
+        items = items != null ? List.copyOf(items) : null;
+    }
+}

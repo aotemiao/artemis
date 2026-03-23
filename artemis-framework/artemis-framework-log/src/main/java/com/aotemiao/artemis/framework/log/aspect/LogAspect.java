@@ -18,11 +18,11 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "artemis.log.enabled", havingValue = "true", matchIfMissing = true)
 public class LogAspect {
 
-    private static final Logger log = LoggerFactory.getLogger(LogAspect.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogAspect.class);
 
     @AfterReturning(pointcut = "@annotation(controllerLog)", returning = "result")
     public void doAfterReturning(JoinPoint joinPoint, Log controllerLog, Object result) {
-        log.debug(
+        LOGGER.debug(
                 "Operation log: {} - {}",
                 controllerLog.title(),
                 joinPoint.getSignature().getName());
@@ -30,6 +30,6 @@ public class LogAspect {
 
     @AfterThrowing(pointcut = "@annotation(controllerLog)", throwing = "e")
     public void doAfterThrowing(JoinPoint joinPoint, Log controllerLog, Exception e) {
-        log.warn("Operation log (exception): {} - {}", controllerLog.title(), e.getMessage());
+        LOGGER.warn("Operation log (exception): {} - {}", controllerLog.title(), e.getMessage());
     }
 }

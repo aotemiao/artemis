@@ -1,6 +1,7 @@
 package com.aotemiao.artemis.framework.core.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
 public record PageResult<T>(List<T> content, long total, int totalPages) implements Serializable {
 
     public PageResult {
-        content = content != null ? content : Collections.emptyList();
+        content = content != null ? Collections.unmodifiableList(new ArrayList<>(content)) : Collections.emptyList();
         if (totalPages < 0 && !content.isEmpty()) totalPages = (int) ((total + content.size() - 1) / content.size());
         if (totalPages < 0) totalPages = total == 0 ? 0 : 1;
     }
@@ -24,7 +25,7 @@ public record PageResult<T>(List<T> content, long total, int totalPages) impleme
 
     /** 当前页内容（行数据）。 */
     public List<T> content() {
-        return content;
+        return new ArrayList<>(content);
     }
 
     /** 总页数。 */
@@ -34,7 +35,7 @@ public record PageResult<T>(List<T> content, long total, int totalPages) impleme
 
     /** content 的别名，用于向后兼容。 */
     public List<T> rows() {
-        return content;
+        return new ArrayList<>(content);
     }
 
     public static <T> PageResult<T> of(long total, List<T> rows) {

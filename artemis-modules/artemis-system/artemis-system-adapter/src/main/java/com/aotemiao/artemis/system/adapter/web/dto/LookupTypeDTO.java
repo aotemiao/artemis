@@ -4,4 +4,9 @@ import java.io.Serializable;
 import java.util.List;
 
 public record LookupTypeDTO(Long id, String code, String name, String description, List<LookupItemDTO> items)
-        implements Serializable {}
+        implements Serializable {
+
+    public LookupTypeDTO {
+        items = items != null ? List.copyOf(items) : null;
+    }
+}

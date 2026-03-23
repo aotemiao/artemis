@@ -1,6 +1,7 @@
 package com.aotemiao.artemis.system.app.command;
 
 import com.aotemiao.artemis.system.domain.gateway.UserCredentialsGateway;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 
@@ -8,6 +9,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class ValidateCredentialsCmdExe {
 
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "Spring injects the gateway as a managed collaborator; this executor does not expose it.")
     private final UserCredentialsGateway userCredentialsGateway;
 
     public ValidateCredentialsCmdExe(UserCredentialsGateway userCredentialsGateway) {

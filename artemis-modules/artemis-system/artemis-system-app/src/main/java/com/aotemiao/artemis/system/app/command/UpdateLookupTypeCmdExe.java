@@ -3,6 +3,7 @@ package com.aotemiao.artemis.system.app.command;
 import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
 import com.aotemiao.artemis.system.domain.model.LookupItem;
 import com.aotemiao.artemis.system.domain.model.LookupType;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class UpdateLookupTypeCmdExe {
 
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "Spring injects the gateway as a managed collaborator; this executor does not expose it.")
     private final LookupTypeGateway lookupTypeGateway;
 
     public UpdateLookupTypeCmdExe(LookupTypeGateway lookupTypeGateway) {

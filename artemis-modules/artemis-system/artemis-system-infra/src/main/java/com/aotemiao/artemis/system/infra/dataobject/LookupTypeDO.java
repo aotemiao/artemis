@@ -60,10 +60,10 @@ public class LookupTypeDO extends AuditAndSoftDeleteBase {
     }
 
     public List<LookupItemDO> getItems() {
-        return items;
+        return new ArrayList<>(items);
     }
 
     public void setItems(List<LookupItemDO> items) {
-        this.items = items != null ? items : new ArrayList<>();
+        this.items = items != null ? new ArrayList<>(items) : new ArrayList<>();
     }
 }

@@ -46,10 +46,10 @@ public class LookupType implements Serializable {
     }
 
     public List<LookupItem> getItems() {
-        return items;
+        return new ArrayList<>(items);
     }
 
     public void setItems(List<LookupItem> items) {
-        this.items = items != null ? items : new ArrayList<>();
+        this.items = items != null ? new ArrayList<>(items) : new ArrayList<>();
     }
 }

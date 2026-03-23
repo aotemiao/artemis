@@ -21,15 +21,15 @@ public class UserIdHeaderGatewayFilter implements GlobalFilter, Ordered {
         if (SaTokenGatewayConfig.isWhitelistPath(path)) {
             return chain.filter(exchange);
         }
-        try {
-            Object loginId = StpUtil.getLoginIdDefaultNull();
-            if (loginId != null) {
-                exchange = exchange.mutate()
-                        .request(r -> r.header(X_USER_ID, String.valueOf(loginId)))
-                        .build();
-            }
-        } catch (Exception ignored) {
-            // 未登录时由 SaReactorFilter 已返回 401，此处不重复处理
+        if (!StpUtil.isLogin()) {
+            return chain.filter(exchange);
+        }
+
+        Object loginId = StpUtil.getLoginIdDefaultNull();
+        if (loginId != null) {
+            exchange = exchange.mutate()
+                    .request(r -> r.header(X_USER_ID, String.valueOf(loginId)))
+                    .build();
         }
         return chain.filter(exchange);
     }
