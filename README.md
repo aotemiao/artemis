@@ -9,7 +9,7 @@ Spring Cloud 微服务管理后台脚手架，采用 DDD/COLA 分层架构，参
 ## 技术栈
 
 - **JDK 21** · **Spring Boot 3.5** · **Spring Cloud 2025**
-- **PostgreSQL** 数据库（本地默认）· **Nacos** 注册/配置中心 · **Sa-Token** 认证 · **MyBatis-Plus** ORM · **Redisson** 缓存与分布式锁
+- **PostgreSQL** 数据库（本地默认）· **Nacos** 注册/配置中心 · **Sa-Token** 认证 · **Spring Data JDBC**（默认持久化）· **MyBatis-Plus**（可选）· **Redisson** 缓存与分布式锁
 - **Spring Cloud Gateway** 网关
 
 ## 模块结构
@@ -28,8 +28,8 @@ artemis/
 │   └── artemis-framework-doc
 ├── artemis-gateway          # 网关
 ├── artemis-auth             # 认证服务
-├── artemis-modules          # 业务微服务（按领域拆分，对外通过 REST API 暴露能力）
-│   └── artemis-system       # 系统管理 (adapter / app / domain / infra / start)
+├── artemis-modules          # 业务微服务（按领域拆分，对外 REST API、对内 *-client + Dubbo）
+│   └── artemis-system       # 系统管理 (client / adapter / app / domain / infra / start)
 ├── artemis-visual           # 运维基础设施（按需扩展）
 └── artemis-symphony         # Symphony：编码代理编排（WORKFLOW.md + Linear + Codex，可独立运行；见子目录 README）
 ```
