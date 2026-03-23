@@ -49,7 +49,7 @@
 #### Scenario: 本地一键启动依赖
 
 - **WHEN** 开发者执行 `docker-compose up`
-- **THEN** SHALL 启动 MySQL、Redis、Nacos 等基础设施，业务微服务可直接连接
+- **THEN** SHALL 启动 PostgreSQL、Redis、Nacos 等基础设施，业务微服务可直接连接
 
 ### Requirement: 代码质量工具集成
 

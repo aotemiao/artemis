@@ -45,19 +45,19 @@ Nacos 配置 SHALL 按层级组织（参考 RuoYi-Cloud-Plus script/config/nacos
 
 需要随 Nacos 配置变更而生效的 Bean SHALL 使用 `@RefreshScope`（或项目约定的等效机制）。详见 [coding-standards](../coding-standards/spec.md) 中「Nacos 配置动态刷新」约定。
 
-### Requirement: Nacos 配置拉取方式统一
+### Requirement: Nacos 配置拉取方式统一为 config.import
 
-所有需要从 Nacos 配置中心加载配置的业务微服务（如 artemis-system、artemis-gateway、artemis-auth）SHALL 采用统一的接入方式：使用 `spring.config.import` 指定 optional nacos Data ID，或统一使用 bootstrap 配置；同一项目内 SHALL 只采用其中一种方式，不得混用。
+所有需要从 Nacos 配置中心加载配置的业务微服务（如 artemis-system、artemis-gateway、artemis-auth）SHALL 使用 `spring.config.import` 指定 optional nacos Data ID。仓库内 MUST NOT 重新引入 bootstrap 配置，也 MUST NOT 混用 bootstrap 与 `config.import`。
 
 #### Scenario: 服务从 Nacos 拉取配置
 
-- **WHEN** 某业务微服务已声明 Nacos config 依赖并配置了 config.import 或 bootstrap 中的 Nacos config
+- **WHEN** 某业务微服务已声明 Nacos config 依赖并配置了 `spring.config.import`
 - **THEN** 该服务启动时 SHALL 从 Nacos 拉取对应 Data ID 的配置并合并到 Spring Environment
 
 #### Scenario: 拉取方式一致性
 
 - **WHEN** 存在多个需 Nacos 配置的微服务
-- **THEN** 各服务 SHALL 均使用 config.import 或均使用 bootstrap，不得部分用 config.import、部分用 bootstrap 且无文档说明
+- **THEN** 各服务 SHALL 均使用 `spring.config.import`，不得部分用 `config.import`、部分重新引入 bootstrap
 
 ### Requirement: Nacos 连接信息外置
 

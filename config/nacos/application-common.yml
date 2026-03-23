@@ -30,7 +30,7 @@ spring:
       database: 0
       timeout: 10000ms
 
-# Redisson（与 artemis-common-redis 一致）
+# Redisson（与 artemis-framework-redis 一致）
 redisson:
   threads: 4
   nettyThreads: 8

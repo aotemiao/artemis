@@ -51,16 +51,21 @@
 - **WHEN** 业务微服务需要默认持久化能力
 - **THEN** SHALL 在 POM 中添加 `artemis-framework-jdbc` 依赖及 PostgreSQL 驱动，无需额外配置即可使用 Spring Data JDBC 与分页转换
 
-### Requirement: 跨服务调用通过对外 REST API
+### Requirement: 跨服务调用区分内部契约与对外 REST API
 
-跨服务 API 契约 SHALL 通过各业务领域对外暴露的 REST API 定义和暴露。需要被其他微服务调用的能力 SHALL 由该领域的 adapter 层提供 REST 接口；调用方 SHALL 通过 HTTP 客户端（如 RestTemplate、WebClient）或基于 OpenAPI 生成的客户端调用上述 REST API，MUST NOT 依赖被调用方的 app/domain/infra 等实现模块。
+内部微服务之间的调用 SHALL 通过各业务领域 colocated 的 `*-client` 模块暴露契约。`*-client` 模块 SHALL 承载供内部调用的 Dubbo 接口与 DTO/Result；调用方 SHALL 仅依赖该 `*-client` 模块，MUST NOT 直接依赖被调用方的 app/domain/infra 等实现模块。
 
-各领域 SHALL 通过 SpringDoc/OpenAPI 维护 REST API 文档，契约变更 SHALL 遵循语义化版本规则。
+面向网关、浏览器、第三方系统或开放 API 的对外能力 SHALL 通过 adapter 层暴露的 REST API 定义和发布。外部调用方 SHALL 通过 HTTP 客户端或基于 OpenAPI 生成的客户端访问上述 REST API，而不是直接依赖 Java `*-client` 模块。各领域对外 REST 契约 SHALL 通过 SpringDoc/OpenAPI 维护，契约变更 SHALL 遵循语义化版本规则。
 
-#### Scenario: 其他微服务调用系统服务
+#### Scenario: 内部微服务调用系统服务
 
-- **WHEN** 其他微服务需要调用系统服务（如查询用户信息）
-- **THEN** SHALL 通过系统服务对外暴露的 REST API 进行 HTTP 调用，或依赖基于 OpenAPI 生成的客户端，MUST NOT 直接依赖 `artemis-system-app`、`artemis-system-domain` 或 `artemis-system-infra`
+- **WHEN** `artemis-auth` 等内部微服务需要调用系统服务（如校验用户凭证）
+- **THEN** SHALL 通过 `artemis-system-client` 暴露的 Dubbo 接口进行调用，MUST NOT 直接依赖 `artemis-system-app`、`artemis-system-domain` 或 `artemis-system-infra`，也 MUST NOT 通过 HTTP 调用 internal REST 接口
+
+#### Scenario: 网关或外部系统调用系统服务
+
+- **WHEN** 网关或第三方系统需要调用系统服务对外能力
+- **THEN** SHALL 通过系统服务 adapter 层暴露的 REST API 进行 HTTP 调用，或依赖基于 OpenAPI 生成的客户端，而不是依赖 `artemis-system-client`
 
 ### Requirement: 业务微服务聚合结构
 
@@ -73,7 +78,7 @@
 #### Scenario: 新增业务微服务
 
 - **WHEN** 需要新增资源管理微服务
-- **THEN** SHALL 在 `artemis-modules` 下创建 `artemis-resource`，内含 adapter、app、domain、infra、start 等子模块
+- **THEN** SHALL 在 `artemis-modules` 下创建 `artemis-resource`，内含 `artemis-resource-client`、adapter、app、domain、infra、start 等子模块
 
 ### Requirement: 版本管理使用 revision 机制
 

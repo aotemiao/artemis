@@ -2,7 +2,7 @@
 
 ### Requirement: JDK 版本锁定
 
-项目 SHALL 使用 JDK 21 作为编译和运行时版本。根 POM SHALL 配置 `maven.compiler.source` 和 `maven.compiler.target` 为 21。SHALL 启用 preview features 以便使用 pattern matching、record patterns 等语言特性。
+项目 SHALL 使用 JDK 21 作为编译和运行时版本。根 POM SHALL 配置 `maven.compiler.source` 和 `maven.compiler.target` 为 21。项目 MAY 使用 Java 21 已正式发布的语言特性（如 `record`、`sealed class`、pattern matching）；MUST NOT 依赖 preview features，除非仓库显式补齐 `--enable-preview` 等构建与运行配置。
 
 #### Scenario: 编译环境验证
 
@@ -43,7 +43,7 @@
 
 ### Requirement: 认证授权框架
 
-项目 SHALL 使用 Sa-Token 作为认证授权框架。SHALL 通过 `artemis-common-security` starter 封装集成，支持 Token 认证、权限校验、角色校验。
+项目 SHALL 使用 Sa-Token 作为认证授权框架。SHALL 通过 `artemis-framework-security` starter 封装集成，支持 Token 认证、权限校验、角色校验。
 
 #### Scenario: API 接口鉴权
 
@@ -58,6 +58,8 @@
 - 审计字段自动填充（createTime, updateTime, createBy, updateBy）
 - 逻辑删除支持（deleted 字段及查询过滤）
 - 与 artemis-framework-core 中分页类型的转换（PageRequest、PageResult）
+
+`artemis-framework-mybatis` MAY 作为可选能力保留，用于明确选择 MyBatis-Plus 的特殊场景；但业务模块当前默认持久化路径 SHALL 为 Spring Data JDBC。
 
 #### Scenario: 数据访问层使用 Spring Data JDBC
 
@@ -84,7 +86,7 @@
 
 ### Requirement: 缓存与分布式锁
 
-项目 SHALL 使用 Redisson 作为 Redis 客户端，提供缓存操作和分布式锁能力。SHALL 通过 `artemis-common-redis` starter 封装。
+项目 SHALL 使用 Redisson 作为 Redis 客户端，提供缓存操作和分布式锁能力。SHALL 通过 `artemis-framework-redis` starter 封装。
 
 #### Scenario: 分布式锁使用
 
@@ -114,7 +116,7 @@
 
 ### Requirement: 跨服务调用方式
 
-内部微服务之间的调用 SHALL 通过 Dubbo RPC 进行；各业务领域在 `*-client` 模块中暴露 Dubbo 接口，调用方使用 `@Reference` 注入并调用，MUST NOT 通过 HTTP 调用内部 REST 接口。对外暴露（面向网关、开放 API）SHALL 仍通过各业务领域 adapter 层暴露的 REST API 进行；调用方使用 HTTP 客户端（RestTemplate、WebClient）或基于 OpenAPI 生成的客户端发起请求。Dubbo 与 Nacos 的集成方式及 BOM 管理见 internal-rpc-dubbo 能力规范。
+内部微服务之间的调用 SHALL 通过 Dubbo RPC 进行；各业务领域在 `*-client` 模块中暴露 Dubbo 接口，调用方使用 `@DubboReference`（或项目约定的等效封装）注入并调用，MUST NOT 通过 HTTP 调用内部 REST 接口。对外暴露（面向网关、开放 API）SHALL 仍通过各业务领域 adapter 层暴露的 REST API 进行；调用方使用 HTTP 客户端（RestTemplate、WebClient）或基于 OpenAPI 生成的客户端发起请求。Dubbo 与 Nacos 的集成方式及 BOM 管理见 internal-rpc-dubbo 能力规范。
 
 #### Scenario: 跨服务调用契约
 

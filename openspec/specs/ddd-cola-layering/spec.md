@@ -1,11 +1,12 @@
 ## ADDED Requirements
 
-### Requirement: 业务微服务内部 COLA 四层分模块
+### Requirement: 业务微服务采用 client 契约模块与 COLA 五模块拆分
 
-每个业务微服务（如 `artemis-system`）SHALL 拆分为以下 5 个 Maven 子模块：
+每个业务微服务（如 `artemis-system`）SHALL 至少包含一个用于内部跨服务调用的 `*-client` 契约模块，并将服务内部实现拆分为以下 5 个 Maven 子模块：
 
 | 模块后缀 | 层 | 职责 |
 |----------|-----|------|
+| `-client` | 契约模块 | 内部 Dubbo 接口、跨服务 DTO/Result、对内发布的 Java 契约 |
 | `-adapter` | Adapter 层 | REST Controller、协议适配、参数校验、DTO 组装 |
 | `-app` | Application 层 | 用例编排、CmdExe / QryExe 执行器、事务边界 |
 | `-domain` | Domain 层 | 聚合根、实体、值对象、领域服务、Gateway 接口、领域事件 |
@@ -15,7 +16,7 @@
 #### Scenario: 系统管理微服务模块结构
 
 - **WHEN** 查看 `artemis-modules/artemis-system` 目录
-- **THEN** SHALL 包含 `artemis-system-adapter`、`artemis-system-app`、`artemis-system-domain`、`artemis-system-infra`、`artemis-system-start` 五个子模块
+- **THEN** SHALL 包含 `artemis-system-client`、`artemis-system-adapter`、`artemis-system-app`、`artemis-system-domain`、`artemis-system-infra`、`artemis-system-start` 六个子模块
 
 ### Requirement: 层间依赖方向强制约束
 
@@ -27,12 +28,18 @@ adapter → app → domain ← infra
 start (组装所有模块)
 ```
 
+`client` 作为对外发布的内部契约模块独立于上述内部分层：
+
+- `client` MUST NOT 依赖 `adapter`、`app`、`domain`、`infra`、`start`
+- 其他微服务 SHALL 仅依赖 `client`，不得依赖内部实现层
+
 具体规则：
 - `adapter` SHALL 依赖 `app`，MUST NOT 直接依赖 `domain` 或 `infra`
+- `adapter` MAY 依赖 `client`，用于实现 Dubbo 服务接口或复用跨服务 DTO
 - `app` SHALL 依赖 `domain`，MUST NOT 依赖 `infra`（通过 domain 的 Gateway 接口解耦）
 - `infra` SHALL 依赖 `domain`（实现 Gateway 接口），MUST NOT 依赖 `app` 或 `adapter`
 - `domain` MUST NOT 依赖 `infra`、`app`、`adapter` 中的任何一个
-- `start` SHALL 依赖所有其他 4 个模块，负责 Spring Boot 应用组装
+- `start` SHALL 依赖所有需要被组装的模块（通常包含 `adapter`、`infra`、`client`），负责 Spring Boot 应用组装
 
 #### Scenario: Domain 层纯净性验证
 
@@ -134,6 +141,7 @@ Infra 层 MUST NOT：
 
 | 层 | 包路径 |
 |----|--------|
+| client | `com.aotemiao.artemis.system.client.api` / `.client.dto` |
 | adapter | `com.aotemiao.artemis.system.adapter.web` |
 | app | `com.aotemiao.artemis.system.app.service` / `.app.command` / `.app.query` |
 | domain | `com.aotemiao.artemis.system.domain.model` / `.domain.service` / `.domain.gateway` / `.domain.event` |

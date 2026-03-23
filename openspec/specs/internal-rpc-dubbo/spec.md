@@ -2,7 +2,7 @@
 
 ### Requirement: 内部服务间使用 Dubbo RPC
 
-微服务之间的内部调用 SHALL 通过 Apache Dubbo RPC 进行。调用方 SHALL 仅依赖被调用方业务领域的 `*-client` 模块中暴露的 Dubbo 接口（Java interface）及 DTO，通过 `@Reference` 注入并调用，MUST NOT 通过 HTTP 调用内部 REST 接口或直接依赖被调用方的 app/domain/infra 模块。
+微服务之间的内部调用 SHALL 通过 Apache Dubbo RPC 进行。调用方 SHALL 仅依赖被调用方业务领域的 `*-client` 模块中暴露的 Dubbo 接口（Java interface）及 DTO，通过 `@DubboReference`（或项目约定的等效封装）注入并调用，MUST NOT 通过 HTTP 调用内部 REST 接口或直接依赖被调用方的 app/domain/infra 模块。
 
 #### Scenario: 认证服务调用系统服务用户校验
 
@@ -26,7 +26,7 @@ Dubbo 服务发现 SHALL 使用 Nacos 作为注册中心。SHALL 通过 `dubbo-r
 #### Scenario: 微服务消费 Dubbo 服务
 
 - **WHEN** 某业务微服务需要调用另一服务的 Dubbo 接口
-- **THEN** SHALL 通过 `@Reference` 注入该接口，Dubbo 从 Nacos 发现提供方并建立调用
+- **THEN** SHALL 通过 `@DubboReference` 注入该接口，Dubbo 从 Nacos 发现提供方并建立调用
 
 ### Requirement: Dubbo 版本与依赖管理
 

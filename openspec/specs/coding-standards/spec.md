@@ -74,7 +74,7 @@ MUST NOT 允许非法状态的对象通过校验点继续流转。
 #### Scenario: 分页查询响应
 
 - **WHEN** 分页查询用户列表
-- **THEN** SHALL 返回包含 `total`、`pageNum`、`pageSize`、`rows` 的分页结构
+- **THEN** SHALL 返回统一响应包装中的 `PageResult` 结构，默认字段至少包含 `content`、`total`、`totalPages`
 
 ### Requirement: 类命名后缀约定
 
@@ -84,7 +84,7 @@ MUST NOT 允许非法状态的对象通过校验点继续流转。
 |----|------|------|------|
 | adapter | 控制器 | `Controller` | `UserController` |
 | adapter | 请求 DTO | `Request` / `Cmd` | `CreateUserRequest` |
-| adapter | 响应 DTO | `VO` | `UserVO` |
+| adapter | 响应 DTO | `DTO` / `Response` / `VO` | `UserDTO`、`LoginResponse` |
 | adapter | 转换器 | `Assembler` | `UserAssembler` |
 | app | 命令执行器 | `CmdExe` | `CreateUserCmdExe` |
 | app | 查询执行器 | `QryExe` | `ListUserQryExe` |
@@ -96,13 +96,14 @@ MUST NOT 允许非法状态的对象通过校验点继续流转。
 | domain | 领域事件 | `Event` | `UserCreatedEvent` |
 | infra | Gateway 实现 | `GatewayImpl` | `UserGatewayImpl` |
 | infra | 数据对象 | `DO` | `UserDO` |
-| infra | Mapper | `Mapper` | `UserMapper` |
+| infra | Repository | `Repository` | `UserRepository` |
+| infra | Mapper（仅 MyBatis 场景） | `Mapper` | `UserMapper` |
 | infra | 对象转换器 | `Converter` | `UserConverter` |
 
 #### Scenario: 按约定命名新类
 
 - **WHEN** 在 infra 层实现角色持久化
-- **THEN** SHALL 创建 `RoleGatewayImpl`（实现 `RoleGateway`）、`RoleDO`（数据对象）、`RoleMapper`（MyBatis 接口）、`RoleConverter`（DO-Entity 转换）
+- **THEN** 默认 SHALL 创建 `RoleGatewayImpl`（实现 `RoleGateway`）、`RoleDO`（数据对象）、`RoleRepository`（Spring Data JDBC 仓库）、`RoleConverter`（DO-Entity 转换）；若该模块已明确选择 MyBatis 持久化，则 MAY 使用 `RoleMapper`
 
 ### Requirement: 禁止跨层引用
 
@@ -116,7 +117,7 @@ MUST NOT 允许非法状态的对象通过校验点继续流转。
 
 #### Scenario: 编译期依赖检查
 
-- **WHEN** 开发者在 app 层代码中 import infra 层的 Mapper 类
+- **WHEN** 开发者在 app 层代码中 import infra 层的 Repository 类或 Mapper 类
 - **THEN** Maven 编译 SHALL 失败，因为 app 模块未依赖 infra 模块
 
 ### Requirement: Nacos 配置动态刷新
