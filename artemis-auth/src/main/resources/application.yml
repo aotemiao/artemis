@@ -14,7 +14,7 @@ dubbo:
   application:
     name: artemis-auth
   registry:
-    address: nacos://127.0.0.1:8848
+    address: nacos://${spring.cloud.nacos.server-addr:127.0.0.1:8848}
 
 --- # nacos 配置
 spring:

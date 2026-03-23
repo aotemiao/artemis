@@ -14,7 +14,7 @@ dubbo:
   application:
     name: artemis-system
   registry:
-    address: nacos://127.0.0.1:8848
+    address: nacos://${spring.cloud.nacos.server-addr:127.0.0.1:8848}
 
 # Spring Data JDBC 仓库扫描包（Ant 风格：com.aotemiao.artemis.*.infra.repository 覆盖所有业务模块）
 artemis:
