@@ -1,8 +1,11 @@
 package com.aotemiao.artemis.symphony.agent;
 
 import com.aotemiao.artemis.symphony.core.model.CodexUpdateEvent;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -13,10 +16,6 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Codex app-server 客户端：启动子进程，发送 initialize/thread/start/turn 等，按行读取 JSON 并产生事件。
@@ -67,11 +66,10 @@ public class CodexAppServerClient {
      */
     public String startSession() throws CodexClientException {
         try {
-            ProcessBuilder pb =
-                    new ProcessBuilder()
-                            .command("bash", "-lc", command)
-                            .directory(workspacePath.toFile())
-                            .redirectErrorStream(false);
+            ProcessBuilder pb = new ProcessBuilder()
+                    .command("bash", "-lc", command)
+                    .directory(workspacePath.toFile())
+                    .redirectErrorStream(false);
             process = pb.start();
             running.set(true);
 
@@ -80,7 +78,8 @@ public class CodexAppServerClient {
             stdoutReader.setDaemon(true);
             stdoutReader.start();
 
-            sendLine("{\"id\":1,\"method\":\"initialize\",\"params\":{\"clientInfo\":{\"name\":\"symphony\",\"version\":\"1.0\"},\"capabilities\":{}}}");
+            sendLine(
+                    "{\"id\":1,\"method\":\"initialize\",\"params\":{\"clientInfo\":{\"name\":\"symphony\",\"version\":\"1.0\"},\"capabilities\":{}}}");
             JsonNode initResp = readResponse(1);
             if (initResp == null) {
                 throw new CodexClientException("response_timeout", "initialize response timeout");
@@ -201,7 +200,8 @@ public class CodexAppServerClient {
         return null;
     }
 
-    private final java.util.concurrent.BlockingQueue<JsonNode> messageQueue = new java.util.concurrent.LinkedBlockingQueue<>();
+    private final java.util.concurrent.BlockingQueue<JsonNode> messageQueue =
+            new java.util.concurrent.LinkedBlockingQueue<>();
 
     private JsonNode readMessage() {
         try {
@@ -224,8 +224,10 @@ public class CodexAppServerClient {
                     if (!s.isEmpty()) {
                         try {
                             JsonNode node = MAPPER.readTree(s);
-                            messageQueue.offer(node);
-                        } catch (Exception e) {
+                            if (!messageQueue.offer(node)) {
+                                emit("malformed", Map.of("error", "message_queue_full"));
+                            }
+                        } catch (IOException e) {
                             emit("malformed", Map.of("line", truncate(s, 200)));
                         }
                     }

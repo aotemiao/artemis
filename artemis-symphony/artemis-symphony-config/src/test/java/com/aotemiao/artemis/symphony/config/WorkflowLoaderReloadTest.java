@@ -1,22 +1,19 @@
 package com.aotemiao.artemis.symphony.config;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class WorkflowLoaderReloadTest {
 
     @Test
     void load_validMinimalWorkflow_succeeds(@TempDir Path dir) throws Exception {
         Path wf = dir.resolve("WORKFLOW.md");
-        Files.writeString(
-                wf,
-                """
+        Files.writeString(wf, """
                 ---
                 tracker:
                   kind: linear
@@ -32,9 +29,7 @@ class WorkflowLoaderReloadTest {
     @Test
     void load_invalidYamlFrontMatter_fails(@TempDir Path dir) throws Exception {
         Path wf = dir.resolve("WORKFLOW.md");
-        Files.writeString(
-                wf,
-                """
+        Files.writeString(wf, """
                 ---
                 [ not valid yaml
                 ---

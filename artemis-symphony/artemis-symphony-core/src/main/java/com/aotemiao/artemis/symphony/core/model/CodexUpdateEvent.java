@@ -9,4 +9,20 @@ public record CodexUpdateEvent(
         Instant timestamp,
         String codexAppServerPid,
         Map<String, Object> usage,
-        Map<String, Object> payload) {}
+        Map<String, Object> payload) {
+
+    public CodexUpdateEvent {
+        usage = usage != null ? Map.copyOf(usage) : Map.of();
+        payload = payload != null ? Map.copyOf(payload) : Map.of();
+    }
+
+    @Override
+    public Map<String, Object> usage() {
+        return Map.copyOf(usage);
+    }
+
+    @Override
+    public Map<String, Object> payload() {
+        return Map.copyOf(payload);
+    }
+}

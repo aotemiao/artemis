@@ -1,14 +1,13 @@
 package com.aotemiao.artemis.symphony.orchestrator;
 
+import com.aotemiao.artemis.symphony.agent.CodexAppServerClient;
 import com.aotemiao.artemis.symphony.config.PromptRenderer;
 import com.aotemiao.artemis.symphony.config.ServiceConfig;
-import com.aotemiao.artemis.symphony.core.model.CodexUpdateEvent;
 import com.aotemiao.artemis.symphony.core.model.Issue;
 import com.aotemiao.artemis.symphony.core.model.Workspace;
-import com.aotemiao.artemis.symphony.agent.CodexAppServerClient;
 import com.aotemiao.artemis.symphony.tracker.LinearTrackerClient;
 import com.aotemiao.artemis.symphony.workspace.WorkspaceManager;
-
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,7 +19,12 @@ import java.util.function.Supplier;
 public class AgentRunner {
 
     private final Supplier<ServiceConfig> configSupplier;
+
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "WorkspaceManager is a shared orchestrator collaborator injected and not exposed.")
     private final WorkspaceManager workspaceManager;
+
     private final Supplier<LinearTrackerClient> trackerSupplier;
 
     public AgentRunner(
@@ -100,12 +104,15 @@ public class AgentRunner {
                 }
 
                 var refreshResult = tracker().fetchIssueStatesByIds(List.of(currentIssue.id()));
-                if (!refreshResult.isSuccess() || refreshResult.value() == null || refreshResult.value().isEmpty()) {
+                if (!refreshResult.isSuccess()
+                        || refreshResult.value() == null
+                        || refreshResult.value().isEmpty()) {
                     break;
                 }
                 currentIssue = refreshResult.value().get(0);
-                List<String> activeNorm =
-                        config().getTrackerActiveStates().stream().map(String::toLowerCase).toList();
+                List<String> activeNorm = config().getTrackerActiveStates().stream()
+                        .map(String::toLowerCase)
+                        .toList();
                 if (!activeNorm.contains(currentIssue.stateNormalized())) {
                     break;
                 }

@@ -7,4 +7,14 @@ import java.util.Map;
  *
  * @see <a href="https://github.com/openai/symphony/blob/main/SPEC.md">Symphony SPEC</a> 第 4.1.2 节
  */
-public record WorkflowDefinition(Map<String, Object> config, String promptTemplate) {}
+public record WorkflowDefinition(Map<String, Object> config, String promptTemplate) {
+
+    public WorkflowDefinition {
+        config = config != null ? Map.copyOf(config) : Map.of();
+    }
+
+    @Override
+    public Map<String, Object> config() {
+        return Map.copyOf(config);
+    }
+}

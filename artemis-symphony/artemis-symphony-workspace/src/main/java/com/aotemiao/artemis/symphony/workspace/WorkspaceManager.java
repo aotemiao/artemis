@@ -3,7 +3,7 @@ package com.aotemiao.artemis.symphony.workspace;
 import com.aotemiao.artemis.symphony.config.ServiceConfig;
 import com.aotemiao.artemis.symphony.core.WorkspaceKeys;
 import com.aotemiao.artemis.symphony.core.model.Workspace;
-
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -142,13 +142,12 @@ public class WorkspaceManager {
 
         HookResult run(String script, Path cwd) {
             try {
-                ProcessBuilder pb =
-                        new ProcessBuilder()
-                                .command("bash", "-lc", script)
-                                .directory(cwd.toFile())
-                                .redirectErrorStream(true);
+                ProcessBuilder pb = new ProcessBuilder()
+                        .command("bash", "-lc", script)
+                        .directory(cwd.toFile())
+                        .redirectErrorStream(true);
                 Process p = pb.start();
-                String output = new String(p.getInputStream().readAllBytes());
+                String output = new String(p.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
                 boolean finished = p.waitFor(timeoutMs, TimeUnit.MILLISECONDS);
                 if (!finished) {
                     p.destroyForcibly();

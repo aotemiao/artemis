@@ -2,7 +2,9 @@ package com.aotemiao.artemis.symphony.tracker;
 
 import com.aotemiao.artemis.symphony.core.model.BlockerRef;
 import com.aotemiao.artemis.symphony.core.model.Issue;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -12,9 +14,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Linear GraphQL 客户端：拉取候选议题、按 ID 刷新状态、按终态拉取等。见 SPEC 第 11 节。
@@ -32,10 +31,9 @@ public class LinearTrackerClient {
     public LinearTrackerClient(String endpoint, String apiKey) {
         this.endpoint = endpoint != null && !endpoint.isBlank() ? endpoint : "https://api.linear.app/graphql";
         this.apiKey = apiKey;
-        this.httpClient =
-                HttpClient.newBuilder()
-                        .connectTimeout(Duration.ofMillis(REQUEST_TIMEOUT_MS))
-                        .build();
+        this.httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofMillis(REQUEST_TIMEOUT_MS))
+                .build();
         this.objectMapper = new ObjectMapper();
     }
 
@@ -49,8 +47,7 @@ public class LinearTrackerClient {
         List<Issue> all = new ArrayList<>();
         String cursor = null;
         do {
-            String query =
-                    """
+            String query = """
                     query CandidateIssues($projectSlug: String!, $first: Int!, $after: String, $stateNames: [String!]) {
                       issues(
                         first: $first
@@ -114,8 +111,7 @@ public class LinearTrackerClient {
         if (projectSlug == null || projectSlug.isBlank() || stateNames == null || stateNames.isEmpty()) {
             return Result.success(List.of());
         }
-        String query =
-                """
+        String query = """
                 query IssuesByStates($projectSlug: String!, $first: Int!, $stateNames: [String!]) {
                   issues(
                     first: $first
@@ -138,7 +134,8 @@ public class LinearTrackerClient {
             String id = node.path("id").asText(null);
             String identifier = node.path("identifier").asText(null);
             if (id != null && identifier != null) {
-                list.add(new Issue(id, identifier, null, null, null, null, null, null, List.of(), List.of(), null, null));
+                list.add(new Issue(
+                        id, identifier, null, null, null, null, null, null, List.of(), List.of(), null, null));
             }
         }
         return Result.success(list);
@@ -151,8 +148,7 @@ public class LinearTrackerClient {
         if (issueIds == null || issueIds.isEmpty()) {
             return Result.success(List.of());
         }
-        String query =
-                """
+        String query = """
                 query IssueStates($ids: [ID!]!) {
                   issues(filter: { id: { in: $ids } }) {
                     nodes {
@@ -227,14 +223,13 @@ public class LinearTrackerClient {
             ObjectNode body = objectMapper.createObjectNode();
             body.put("query", query);
             body.set("variables", objectMapper.valueToTree(variables));
-            HttpRequest request =
-                    HttpRequest.newBuilder()
-                            .uri(URI.create(endpoint))
-                            .header("Content-Type", "application/json")
-                            .header("Authorization", apiKey != null ? apiKey : "")
-                            .timeout(Duration.ofMillis(REQUEST_TIMEOUT_MS))
-                            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
-                            .build();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(endpoint))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", apiKey != null ? apiKey : "")
+                    .timeout(Duration.ofMillis(REQUEST_TIMEOUT_MS))
+                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
+                    .build();
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             JsonNode root = objectMapper.readTree(response.body());
 
@@ -242,7 +237,8 @@ public class LinearTrackerClient {
                 return Result.failure("linear_api_status", "HTTP " + response.statusCode());
             }
             if (root.has("errors")) {
-                return Result.failure("linear_graphql_errors", root.get("errors").toString());
+                return Result.failure(
+                        "linear_graphql_errors", root.get("errors").toString());
             }
             return Result.success(root);
         } catch (Exception e) {
@@ -277,20 +273,29 @@ public class LinearTrackerClient {
                 if (!"blocks".equals(rel.path("type").asText(null))) continue;
                 JsonNode related = rel.path("relatedIssue");
                 if (related.isMissingNode()) continue;
-                blockedBy.add(
-                        new BlockerRef(
-                                related.path("id").asText(null),
-                                related.path("identifier").asText(null),
-                                related.has("state") && related.get("state").has("name")
-                                        ? related.get("state").get("name").asText(null)
-                                        : null));
+                blockedBy.add(new BlockerRef(
+                        related.path("id").asText(null),
+                        related.path("identifier").asText(null),
+                        related.has("state") && related.get("state").has("name")
+                                ? related.get("state").get("name").asText(null)
+                                : null));
             }
         }
         Instant createdAt = parseIso(node.path("createdAt").asText(null));
         Instant updatedAt = parseIso(node.path("updatedAt").asText(null));
         return new Issue(
-                id, identifier, title, description, priority <= 0 ? null : priority, state,
-                branchName, url, List.copyOf(labels), List.copyOf(blockedBy), createdAt, updatedAt);
+                id,
+                identifier,
+                title,
+                description,
+                priority <= 0 ? null : priority,
+                state,
+                branchName,
+                url,
+                List.copyOf(labels),
+                List.copyOf(blockedBy),
+                createdAt,
+                updatedAt);
     }
 
     private static Instant parseIso(String s) {

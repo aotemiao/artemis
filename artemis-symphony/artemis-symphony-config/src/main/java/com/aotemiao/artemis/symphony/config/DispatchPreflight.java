@@ -1,7 +1,6 @@
 package com.aotemiao.artemis.symphony.config;
 
 import com.aotemiao.artemis.symphony.core.validation.DispatchValidation;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,8 @@ public final class DispatchPreflight {
         }
 
         if ("linear".equals(config.getTrackerKind())
-                && (config.getTrackerProjectSlug() == null || config.getTrackerProjectSlug().isBlank())) {
+                && (config.getTrackerProjectSlug() == null
+                        || config.getTrackerProjectSlug().isBlank())) {
             errors.add("tracker.project_slug is required when tracker.kind is linear");
         }
 

@@ -19,7 +19,30 @@ codex:
   stall_timeout_ms: 300000
 ---
 
-You are working on a Linear issue. Complete the task described in the issue.
+You are working on a Linear issue inside the Artemis repository.
+
+Before changing code, read these repository-local sources of truth:
+
+1. `AGENTS.md`
+2. `ARCHITECTURE.md`
+3. `QUALITY_SCORE.md`
+4. `docs/harness-engineering/CHECKLIST.md`
+5. Relevant files under `openspec/specs/`
+6. Relevant active plan under `docs/exec-plans/active/`, if one exists
+
+Execution rules:
+
+- Treat repository-local docs and specs as the primary source of truth.
+- Keep new or updated code comments, config comments, and contributor-facing docs in Chinese.
+- Keep identifiers and configuration keys in English.
+- Prefer using repository scripts instead of inventing ad-hoc command sequences.
+- Use `scripts/harness/verify-changed.sh` for scoped validation.
+- Use `scripts/harness/full-verify.sh` for cross-module or high-risk changes.
+- When changing `artemis-system` REST behavior and the service is running locally, use `scripts/smoke/system-lookup.sh`.
+- If behavior, constraints, or workflow changes, update the relevant docs and OpenSpec artifacts in the same change whenever practical.
+- For complex work, create or update an execution plan under `docs/exec-plans/active/`.
+
+Complete the task described in the issue.
 
 **Issue:** {{ issue.identifier }} - {{ issue.title }}
 

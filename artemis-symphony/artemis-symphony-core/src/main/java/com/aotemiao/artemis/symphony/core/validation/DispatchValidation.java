@@ -5,6 +5,15 @@ import java.util.List;
 /** 调度预检校验结果。见 SPEC 第 6.3 节。 */
 public record DispatchValidation(boolean ok, List<String> errors) {
 
+    public DispatchValidation {
+        errors = errors != null ? List.copyOf(errors) : List.of();
+    }
+
+    @Override
+    public List<String> errors() {
+        return List.copyOf(errors);
+    }
+
     public static DispatchValidation success() {
         return new DispatchValidation(true, List.of());
     }

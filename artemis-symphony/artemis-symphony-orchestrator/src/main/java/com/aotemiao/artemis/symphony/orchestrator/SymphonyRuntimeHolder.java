@@ -5,19 +5,17 @@ import com.aotemiao.artemis.symphony.config.WorkflowLoadResult;
 import com.aotemiao.artemis.symphony.config.WorkflowLoader;
 import com.aotemiao.artemis.symphony.core.model.WorkflowDefinition;
 import com.aotemiao.artemis.symphony.tracker.LinearTrackerClient;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 线程安全地持有当前 {@link SymphonyRuntimeSnapshot}，并支持从磁盘热重载。
  */
 public class SymphonyRuntimeHolder {
 
-    private static final Logger log = LoggerFactory.getLogger(SymphonyRuntimeHolder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SymphonyRuntimeHolder.class);
 
     private final Path workflowPath;
     private final AtomicReference<SymphonyRuntimeSnapshot> ref;
@@ -42,8 +40,7 @@ public class SymphonyRuntimeHolder {
     /** 根据已加载的 {@link WorkflowDefinition} 构建快照（用于启动阶段）。 */
     public static SymphonyRuntimeSnapshot buildSnapshot(WorkflowDefinition definition) {
         ServiceConfig config = new ServiceConfig(definition);
-        LinearTrackerClient tracker =
-                new LinearTrackerClient(config.getTrackerEndpoint(), config.getTrackerApiKey());
+        LinearTrackerClient tracker = new LinearTrackerClient(config.getTrackerEndpoint(), config.getTrackerApiKey());
         return new SymphonyRuntimeSnapshot(definition, config, tracker);
     }
 
@@ -55,7 +52,7 @@ public class SymphonyRuntimeHolder {
     public boolean tryReloadFromDisk() {
         WorkflowLoadResult result = WorkflowLoader.load(workflowPath);
         if (result instanceof WorkflowLoadResult.Error err) {
-            log.warn(
+            LOGGER.warn(
                     "action=workflow_reload outcome=failed code={} message={} path={}",
                     err.code(),
                     err.message(),

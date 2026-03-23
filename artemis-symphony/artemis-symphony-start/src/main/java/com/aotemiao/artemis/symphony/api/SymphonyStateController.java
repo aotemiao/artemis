@@ -6,7 +6,13 @@ import com.aotemiao.artemis.symphony.core.model.RetryEntry;
 import com.aotemiao.artemis.symphony.orchestrator.Orchestrator;
 import com.aotemiao.artemis.symphony.orchestrator.RunningEntry;
 import com.aotemiao.artemis.symphony.workspace.WorkspaceManager;
-
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,19 +21,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.nio.file.Path;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 /** 可选的 HTTP 可观测性接口。见 SPEC 第 13.7 节。 */
 @RestController
 @RequestMapping("/api/v1")
 public class SymphonyStateController {
 
     private final Orchestrator orchestrator;
+
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "WorkspaceManager is a Spring-managed shared collaborator and is not mutated here.")
     private final WorkspaceManager workspaceManager;
 
     public SymphonyStateController(Orchestrator orchestrator, WorkspaceManager workspaceManager) {
@@ -40,16 +43,26 @@ public class SymphonyStateController {
         List<Map<String, Object>> runningList = new ArrayList<>();
         for (RunningEntry e : orchestrator.getRunning().values()) {
             runningList.add(Map.of(
-                    "issue_id", e.issueId,
-                    "issue_identifier", e.identifier,
-                    "state", e.issue != null && e.issue.state() != null ? e.issue.state() : "",
-                    "session_id", e.sessionId != null ? e.sessionId : "",
-                    "turn_count", e.turnCount,
-                    "last_event", e.lastCodexEvent != null ? e.lastCodexEvent : "",
-                    "last_message", e.lastCodexMessage != null ? e.lastCodexMessage : "",
-                    "started_at", e.startedAt.toString(),
-                    "last_event_at", e.lastCodexTimestamp != null ? e.lastCodexTimestamp.toString() : "",
-                    "tokens", Map.of(
+                    "issue_id",
+                    e.issueId,
+                    "issue_identifier",
+                    e.identifier,
+                    "state",
+                    e.issue != null && e.issue.state() != null ? e.issue.state() : "",
+                    "session_id",
+                    e.sessionId != null ? e.sessionId : "",
+                    "turn_count",
+                    e.turnCount,
+                    "last_event",
+                    e.lastCodexEvent != null ? e.lastCodexEvent : "",
+                    "last_message",
+                    e.lastCodexMessage != null ? e.lastCodexMessage : "",
+                    "started_at",
+                    e.startedAt.toString(),
+                    "last_event_at",
+                    e.lastCodexTimestamp != null ? e.lastCodexTimestamp.toString() : "",
+                    "tokens",
+                    Map.of(
                             "input_tokens", e.codexInputTokens,
                             "output_tokens", e.codexOutputTokens,
                             "total_tokens", e.codexTotalTokens)));
@@ -70,12 +83,18 @@ public class SymphonyStateController {
                 "total_tokens", totals.totalTokens(),
                 "seconds_running", totals.secondsRunning());
         Map<String, Object> body = Map.of(
-                "generated_at", Instant.now().toString(),
-                "counts", Map.of("running", runningList.size(), "retrying", retryingList.size()),
-                "running", runningList,
-                "retrying", retryingList,
-                "codex_totals", codexTotals,
-                "rate_limits", (Object) null);
+                "generated_at",
+                Instant.now().toString(),
+                "counts",
+                Map.of("running", runningList.size(), "retrying", retryingList.size()),
+                "running",
+                runningList,
+                "retrying",
+                retryingList,
+                "codex_totals",
+                codexTotals,
+                "rate_limits",
+                (Object) null);
         return ResponseEntity.ok(body);
     }
 
@@ -84,10 +103,14 @@ public class SymphonyStateController {
         boolean coalesced = orchestrator.requestImmediateTick();
         return ResponseEntity.accepted()
                 .body(Map.of(
-                        "queued", true,
-                        "coalesced", coalesced,
-                        "requested_at", Instant.now().toString(),
-                        "operations", List.of("poll", "reconcile")));
+                        "queued",
+                        true,
+                        "coalesced",
+                        coalesced,
+                        "requested_at",
+                        Instant.now().toString(),
+                        "operations",
+                        List.of("poll", "reconcile")));
     }
 
     @GetMapping("/issues/{identifier}")
@@ -98,10 +121,7 @@ public class SymphonyStateController {
         RunningEntry running = orchestrator.findRunningByIdentifier(identifier);
         RetryEntry retry = running != null ? null : orchestrator.findRetryByIdentifier(identifier);
         if (running == null && retry == null) {
-            return errorResponse(
-                    HttpStatus.NOT_FOUND,
-                    "not_found",
-                    "未找到运行中或重试中的议题，identifier=" + identifier);
+            return errorResponse(HttpStatus.NOT_FOUND, "not_found", "未找到运行中或重试中的议题，identifier=" + identifier);
         }
 
         String issueId = running != null ? running.issueId : retry.issueId();
@@ -115,17 +135,16 @@ public class SymphonyStateController {
 
         if (running != null) {
             body.put("phase", "running");
-            body.put("tracker_state", running.issue != null && running.issue.state() != null ? running.issue.state() : "");
+            body.put(
+                    "tracker_state",
+                    running.issue != null && running.issue.state() != null ? running.issue.state() : "");
             body.put("session_id", running.sessionId != null ? running.sessionId : "");
             body.put("started_at", running.startedAt.toString());
             body.put(
                     "last_codex",
                     Map.of(
                             "event", running.lastCodexEvent != null ? running.lastCodexEvent : "",
-                            "at",
-                                    running.lastCodexTimestamp != null
-                                            ? running.lastCodexTimestamp.toString()
-                                            : "",
+                            "at", running.lastCodexTimestamp != null ? running.lastCodexTimestamp.toString() : "",
                             "tokens",
                                     Map.of(
                                             "input", running.codexInputTokens,
@@ -133,10 +152,12 @@ public class SymphonyStateController {
                                             "total", running.codexTotalTokens)));
         } else {
             body.put("phase", "retrying");
-            body.put("retry", Map.of(
-                    "attempt", retry.attempt(),
-                    "due_at", Instant.ofEpochMilli(retry.dueAtMs()).toString(),
-                    "error", retry.error() != null ? retry.error() : ""));
+            body.put(
+                    "retry",
+                    Map.of(
+                            "attempt", retry.attempt(),
+                            "due_at", Instant.ofEpochMilli(retry.dueAtMs()).toString(),
+                            "error", retry.error() != null ? retry.error() : ""));
         }
 
         return ResponseEntity.ok(body);
@@ -148,8 +169,7 @@ public class SymphonyStateController {
         return root.resolve(key).normalize();
     }
 
-    private static ResponseEntity<Map<String, Object>> errorResponse(
-            HttpStatus status, String code, String message) {
+    private static ResponseEntity<Map<String, Object>> errorResponse(HttpStatus status, String code, String message) {
         return ResponseEntity.status(status)
                 .body(Map.of(
                         "error", code,

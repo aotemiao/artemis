@@ -1,22 +1,20 @@
 package com.aotemiao.artemis.symphony.orchestrator;
 
-import com.aotemiao.artemis.symphony.config.WorkflowLoadResult;
-import com.aotemiao.artemis.symphony.config.WorkflowLoader;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.aotemiao.artemis.symphony.config.WorkflowLoadResult;
+import com.aotemiao.artemis.symphony.config.WorkflowLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 class SymphonyRuntimeHolderTest {
 
-    private static final String VALID =
-            """
+    private static final String VALID = """
             ---
             tracker:
               kind: linear
@@ -32,13 +30,11 @@ class SymphonyRuntimeHolderTest {
         Files.writeString(wf, VALID);
         WorkflowLoadResult first = WorkflowLoader.load(wf);
         assertInstanceOf(WorkflowLoadResult.Success.class, first);
-        var holder =
-                new SymphonyRuntimeHolder(wf, SymphonyRuntimeHolder.buildSnapshot(((WorkflowLoadResult.Success) first).definition()));
+        var holder = new SymphonyRuntimeHolder(
+                wf, SymphonyRuntimeHolder.buildSnapshot(((WorkflowLoadResult.Success) first).definition()));
         assertEquals("alpha", holder.get().config().getTrackerProjectSlug());
 
-        Files.writeString(
-                wf,
-                """
+        Files.writeString(wf, """
                 ---
                 [ broken
                 ---
@@ -53,13 +49,11 @@ class SymphonyRuntimeHolderTest {
         Path wf = dir.resolve("WORKFLOW.md");
         Files.writeString(wf, VALID);
         WorkflowLoadResult first = WorkflowLoader.load(wf);
-        var holder =
-                new SymphonyRuntimeHolder(wf, SymphonyRuntimeHolder.buildSnapshot(((WorkflowLoadResult.Success) first).definition()));
+        var holder = new SymphonyRuntimeHolder(
+                wf, SymphonyRuntimeHolder.buildSnapshot(((WorkflowLoadResult.Success) first).definition()));
         assertEquals("alpha", holder.get().config().getTrackerProjectSlug());
 
-        Files.writeString(
-                wf,
-                VALID.replace("project_slug: \"alpha\"", "project_slug: \"beta\""));
+        Files.writeString(wf, VALID.replace("project_slug: \"alpha\"", "project_slug: \"beta\""));
         assertTrue(holder.tryReloadFromDisk());
         assertEquals("beta", holder.get().config().getTrackerProjectSlug());
     }

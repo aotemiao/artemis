@@ -2,12 +2,9 @@ package com.aotemiao.artemis.symphony.config;
 
 import com.aotemiao.artemis.symphony.core.WorkflowErrors;
 import com.aotemiao.artemis.symphony.core.model.WorkflowDefinition;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
-
 import org.yaml.snakeyaml.Yaml;
 
 /** 读取 WORKFLOW.md，解析 YAML 头信息与正文提示模板。见 SPEC 第 5.1、5.2 节。 */
@@ -27,8 +24,7 @@ public final class WorkflowLoader {
     public static WorkflowLoadResult load(Path workflowPath) {
         if (workflowPath == null || !Files.isRegularFile(workflowPath)) {
             return new WorkflowLoadResult.Error(
-                    WorkflowErrors.MISSING_WORKFLOW_FILE,
-                    "Workflow file not found: " + workflowPath);
+                    WorkflowErrors.MISSING_WORKFLOW_FILE, "Workflow file not found: " + workflowPath);
         }
         try {
             String content = Files.readString(workflowPath);
@@ -54,11 +50,12 @@ public final class WorkflowLoader {
             int firstEnd = trimmed.indexOf(FRONT_MATTER_END, FRONT_MATTER_START.length());
             if (firstEnd == -1) {
                 return new WorkflowLoadResult.Error(
-                        WorkflowErrors.WORKFLOW_PARSE_ERROR,
-                        "Unclosed YAML front matter (missing closing ---)");
+                        WorkflowErrors.WORKFLOW_PARSE_ERROR, "Unclosed YAML front matter (missing closing ---)");
             }
-            String yamlBlock = trimmed.substring(FRONT_MATTER_START.length(), firstEnd).trim();
-            String afterFrontMatter = trimmed.substring(firstEnd + FRONT_MATTER_END.length()).stripLeading();
+            String yamlBlock =
+                    trimmed.substring(FRONT_MATTER_START.length(), firstEnd).trim();
+            String afterFrontMatter =
+                    trimmed.substring(firstEnd + FRONT_MATTER_END.length()).stripLeading();
 
             if (yamlBlock.isEmpty()) {
                 config = Map.of();
@@ -78,7 +75,9 @@ public final class WorkflowLoader {
                 } catch (Exception e) {
                     return new WorkflowLoadResult.Error(
                             WorkflowErrors.WORKFLOW_PARSE_ERROR,
-                            e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
+                            e.getMessage() != null
+                                    ? e.getMessage()
+                                    : e.getClass().getSimpleName());
                 }
             }
             promptTemplate = afterFrontMatter.trim();

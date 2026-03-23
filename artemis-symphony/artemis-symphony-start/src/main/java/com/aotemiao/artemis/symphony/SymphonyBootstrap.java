@@ -8,7 +8,7 @@ import com.aotemiao.artemis.symphony.orchestrator.AgentRunner;
 import com.aotemiao.artemis.symphony.orchestrator.Orchestrator;
 import com.aotemiao.artemis.symphony.orchestrator.SymphonyRuntimeHolder;
 import com.aotemiao.artemis.symphony.workspace.WorkspaceManager;
-
+import java.nio.file.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,13 +16,11 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.nio.file.Path;
-
 /** Symphony Spring 装配：运行时快照、编排器与各 Bean 的依赖关系。 */
 @Configuration
 public class SymphonyBootstrap {
 
-    private static final Logger log = LoggerFactory.getLogger(SymphonyBootstrap.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SymphonyBootstrap.class);
 
     @Bean
     public SymphonyRuntimeHolder symphonyRuntimeHolder(
@@ -43,7 +41,8 @@ public class SymphonyBootstrap {
 
     @Bean
     public AgentRunner agentRunner(SymphonyRuntimeHolder holder, WorkspaceManager workspaceManager) {
-        return new AgentRunner(() -> holder.get().config(), workspaceManager, () -> holder.get().trackerClient());
+        return new AgentRunner(() -> holder.get().config(), workspaceManager, () -> holder.get()
+                .trackerClient());
     }
 
     @Bean
@@ -55,13 +54,14 @@ public class SymphonyBootstrap {
     @Bean
     public ApplicationRunner orchestratorStarter(Orchestrator orchestrator, SymphonyRuntimeHolder holder) {
         return args -> {
-            DispatchValidation validation = DispatchPreflight.validate(holder.get().config());
+            DispatchValidation validation =
+                    DispatchPreflight.validate(holder.get().config());
             if (!validation.ok()) {
-                log.error("调度预检未通过: {}", validation.errors());
+                LOGGER.error("调度预检未通过: {}", validation.errors());
                 throw new IllegalStateException("调度预检未通过: " + validation.errors());
             }
             orchestrator.start();
-            log.info("Symphony 编排器已启动 workflow_path={}", holder.getWorkflowPath());
+            LOGGER.info("Symphony 编排器已启动 workflow_path={}", holder.getWorkflowPath());
         };
     }
 }

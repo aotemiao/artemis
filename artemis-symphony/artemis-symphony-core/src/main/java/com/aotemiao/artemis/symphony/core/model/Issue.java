@@ -22,6 +22,21 @@ public record Issue(
         Instant createdAt,
         Instant updatedAt) {
 
+    public Issue {
+        labels = labels != null ? List.copyOf(labels) : List.of();
+        blockedBy = blockedBy != null ? List.copyOf(blockedBy) : List.of();
+    }
+
+    @Override
+    public List<String> labels() {
+        return List.copyOf(labels);
+    }
+
+    @Override
+    public List<BlockerRef> blockedBy() {
+        return List.copyOf(blockedBy);
+    }
+
     /** 用于比较的状态归一化形式（小写）。 */
     public String stateNormalized() {
         return state == null ? "" : state.toLowerCase();

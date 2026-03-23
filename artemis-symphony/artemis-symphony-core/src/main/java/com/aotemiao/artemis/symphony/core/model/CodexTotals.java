@@ -5,11 +5,7 @@ package com.aotemiao.artemis.symphony.core.model;
  *
  * @see <a href="https://github.com/openai/symphony/blob/main/SPEC.md">Symphony SPEC</a> 第 4.1.8 节
  */
-public record CodexTotals(
-        long inputTokens,
-        long outputTokens,
-        long totalTokens,
-        double secondsRunning) {
+public record CodexTotals(long inputTokens, long outputTokens, long totalTokens, double secondsRunning) {
 
     public static CodexTotals zero() {
         return new CodexTotals(0, 0, 0, 0.0);
