@@ -29,7 +29,11 @@ else
 fi
 
 print_step "Checking OpenSpec sync"
-scripts/harness/check-openspec-sync.sh "$mode" "${shift_args[@]}"
+if ((${#shift_args[@]} > 0)); then
+  scripts/harness/check-openspec-sync.sh "$mode" "${shift_args[@]}"
+else
+  scripts/harness/check-openspec-sync.sh "$mode"
+fi
 
 changed_java="$(printf "%s\n" "$changed_files" | grep -E '\.java$' || true)"
 changed_poms="$(printf "%s\n" "$changed_files" | grep -E '(^|/)pom\.xml$' || true)"
