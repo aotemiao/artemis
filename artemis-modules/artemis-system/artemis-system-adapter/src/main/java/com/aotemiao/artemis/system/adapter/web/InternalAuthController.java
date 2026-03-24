@@ -3,9 +3,9 @@ package com.aotemiao.artemis.system.adapter.web;
 import com.aotemiao.artemis.framework.core.constant.CommonErrorCode;
 import com.aotemiao.artemis.framework.core.domain.R;
 import com.aotemiao.artemis.framework.core.exception.BizException;
-import com.aotemiao.artemis.system.adapter.web.dto.ValidateCredentialsRequest;
 import com.aotemiao.artemis.system.app.command.ValidateCredentialsCmd;
 import com.aotemiao.artemis.system.app.command.ValidateCredentialsCmdExe;
+import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 内部认证校验接口，供 artemis-auth 调用。 契约见
- * openspec/changes/auth-and-gateway-design/docs/system-auth-validate-api.md
+ * 内部认证校验接口，供 artemis-auth 调用。 契约见 `artemis-system-client` 与仓库内 API 文档。
  */
 @RestController
 @RequestMapping(InternalAuthController.BASE_PATH)

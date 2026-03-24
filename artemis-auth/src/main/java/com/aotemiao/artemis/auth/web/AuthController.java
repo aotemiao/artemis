@@ -2,8 +2,8 @@ package com.aotemiao.artemis.auth.web;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.aotemiao.artemis.auth.client.SystemUserValidateClient;
-import com.aotemiao.artemis.auth.web.dto.LoginRequest;
 import com.aotemiao.artemis.auth.web.dto.LoginResponse;
+import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +25,7 @@ public class AuthController {
 
     /** 登录：校验用户名密码后签发 Token，会话存 Redis。 */
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+    public LoginResponse login(@Valid @RequestBody ValidateCredentialsRequest request) {
         Long userId = systemUserValidateClient
                 .validate(request.username(), request.password())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
