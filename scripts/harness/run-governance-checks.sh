@@ -12,6 +12,9 @@ scripts/harness/check-doc-consistency.sh
 scripts/harness/check-doc-freshness.sh
 scripts/harness/check-api-doc-sync.sh
 scripts/harness/check-client-contracts.sh
+scripts/harness/check-domain-service-scaffold.sh
+scripts/harness/check-service-catalog.sh
+scripts/harness/check-symphony-assets.sh
 scripts/harness/check-critical-path-tests.sh
 scripts/harness/check-duplicate-patterns.sh
 scripts/harness/check-quality-issue-archive.sh

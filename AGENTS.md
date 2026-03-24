@@ -1,7 +1,7 @@
 # Artemis Agent Guide
 
 Status: maintained
-Last Reviewed: 2026-03-23
+Last Reviewed: 2026-03-24
 Review Cadence: 90 days
 
 本文件是仓库内 agent 的稳定入口，目标是让任何自动化执行都先找到地图，再开始改代码。
@@ -38,6 +38,8 @@ Review Cadence: 90 days
   先读 `ARCHITECTURE.md`、`openspec/specs/ddd-cola-layering/spec.md`、`openspec/specs/lookup-tdd-testing/spec.md`
 - 工程规则、测试约束、容器化、环境配置：
   先读 `openspec/specs/engineering-constraints/spec.md`
+- 内部客户端聚合、BOM 或新增领域服务模板：
+  先读 `openspec/specs/repository-structure/spec.md`、`docs/harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md`
 - 契约文档、覆盖率、readiness 或治理守门：
   先读 `openspec/specs/contract-doc-guardrails/spec.md`、`openspec/specs/service-readiness-automation/spec.md`、`openspec/specs/harness-governance/spec.md`
 - 编码代理编排与自动化：
@@ -62,16 +64,23 @@ Review Cadence: 90 days
 - 启动认证服务：`scripts/dev/run-auth.sh`
 - 启动网关：`scripts/dev/run-gateway.sh`
 - 启动 Symphony：`scripts/dev/run-symphony.sh`
-- 打包服务：`scripts/dev/package-service.sh <gateway|auth|system|symphony|all>`
-- 构建镜像：`scripts/dev/build-image.sh <gateway|auth|system|all>`
+- 新增领域服务模板：`scripts/dev/new-domain-service.sh <domain>`
+- 打包服务：`scripts/dev/package-service.sh <gateway|auth|system|symphony|all|<domain>>`
+- 构建镜像：`scripts/dev/build-image.sh <gateway|auth|system|all|<domain>>`
+- 服务状态总览：`scripts/dev/service-status.sh [all|<service>]`
+- 部署演练：`scripts/dev/deploy-drill.sh <all|service> [tag_suffix] [--skip-smoke]`
+- 回滚演练：`scripts/dev/rollback-drill.sh <service> <image-tag|jar-path>`
 - 等待 HTTP 端点：`scripts/dev/wait-http.sh`
-- 检查服务配置：`scripts/dev/check-service-config.sh <system|auth|gateway|symphony>`
-- 检查服务就绪：`scripts/dev/check-service-readiness.sh <system|auth|gateway|symphony>`
+- 检查服务配置：`scripts/dev/check-service-config.sh <system|auth|gateway|symphony|<domain>>`
+- 检查服务就绪：`scripts/dev/check-service-readiness.sh <system|auth|gateway|symphony|<domain>>`
 - 健康检查：`scripts/dev/health.sh`
-- 查看服务日志：`scripts/dev/tail-log.sh <gateway|auth|system>`
+- 查看服务日志：`scripts/dev/tail-log.sh <gateway|auth|system|<domain>>`
 - 检查 OpenSpec 同步：`scripts/harness/check-openspec-sync.sh`
 - 检查 API 文档同步：`scripts/harness/check-api-doc-sync.sh`
 - 检查 Dubbo client 契约：`scripts/harness/check-client-contracts.sh`
+- 检查领域服务脚手架：`scripts/harness/check-domain-service-scaffold.sh`
+- 检查领域服务运行资产：`scripts/harness/check-service-catalog.sh`
+- 检查 Symphony 任务资产：`scripts/harness/check-symphony-assets.sh`
 - 检查关键路径测试基线：`scripts/harness/check-critical-path-tests.sh`
 - 扫描重复模式：`scripts/harness/check-duplicate-patterns.sh`
 - 执行治理检查：`scripts/harness/run-governance-checks.sh`

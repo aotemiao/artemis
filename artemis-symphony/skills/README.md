@@ -7,3 +7,6 @@
 - `new-domain-service.md`
 - `new-dubbo-client.md`
 - `add-archunit-rule.md`
+- `contract-change.md`
+- `deploy-drill.md`
+- `expand-existing-service.md`

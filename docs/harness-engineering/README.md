@@ -1,7 +1,7 @@
 # Harness Engineering
 
 Status: maintained
-Last Reviewed: 2026-03-23
+Last Reviewed: 2026-03-24
 Review Cadence: 90 days
 
 这个目录用于沉淀 Artemis 在 Harness Engineering 方向上的仓库内结构、路线图和执行标准。
@@ -26,6 +26,8 @@ Review Cadence: 90 days
   核心文档审阅 cadence、过期标准与 CI 防漂移守门
 - `DEPLOY_AND_ROLLBACK_RUNBOOK.md`
   服务打包、镜像构建、部署与回滚的标准入口
+- `deploy-drills/`
+  部署 / 回滚演练报告目录
 - `SYMPHONY_TROUBLESHOOTING.md`
   Symphony 常见问题与排查入口
 - `QUALITY_ISSUE_STANDARD.md`
@@ -37,5 +39,5 @@ Review Cadence: 90 days
 
 1. 新增工程能力前，先对照 `CHECKLIST.md`
 2. 涉及多步推进的工作，在 `docs/exec-plans/active/` 建计划
-3. 需要套用标准动作时，优先从 runbook、skills 和 prompts 中找现成入口
+3. 需要套用标准动作时，优先从 runbook、`scripts/dev/new-domain-service.sh`、skills 和 prompts 中找现成入口
 4. 完成一轮补强后，回写 `QUALITY_SCORE.md` 与相关 checklist 状态

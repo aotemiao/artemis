@@ -23,6 +23,17 @@
 - `prompts/`
   自评与 reviewer handoff 等 prompt 模版
 
+当前重点资产：
+
+- `skills/new-domain-service.md`
+- `skills/expand-existing-service.md`
+- `skills/contract-change.md`
+- `skills/deploy-drill.md`
+- `prompts/self-review-and-handoff.md`
+- `prompts/contract-change-review.md`
+- `prompts/deploy-drill-report.md`
+- `prompts/phase-delivery-plan.md`
+
 ## 运行
 
 1. 在仓库根或工作目录放置 `WORKFLOW.md`（或复制 `WORKFLOW.md.example` 为 `WORKFLOW.md` 并填写 `tracker.project_slug`）。

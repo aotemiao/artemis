@@ -1,7 +1,7 @@
 # Artemis
 
 Status: maintained
-Last Reviewed: 2026-03-23
+Last Reviewed: 2026-03-24
 Review Cadence: 90 days
 
 Spring Cloud 微服务管理后台脚手架，采用 DDD/COLA 分层架构，参考 RuoYi-Cloud-Plus 与 COLA，面向 Clean Code 与可维护性。
@@ -17,6 +17,7 @@ Spring Cloud 微服务管理后台脚手架，采用 DDD/COLA 分层架构，参
 ```
 artemis/
 ├── artemis-dependencies     # BOM 依赖版本
+├── artemis-api              # 内部契约聚合与客户端 BOM
 ├── artemis-framework        # 公共 starter
 │   ├── artemis-framework-core
 │   ├── artemis-framework-web
@@ -30,6 +31,7 @@ artemis/
 ├── artemis-auth             # 认证服务
 ├── artemis-modules          # 业务微服务（按领域拆分，对外 REST API、对内 *-client + Dubbo）
 │   └── artemis-system       # 系统管理 (client / adapter / app / domain / infra / start)
+│   └── artemis-resource     # 资源管理样板服务 (client / adapter / app / domain / infra / start)
 ├── artemis-visual           # 运维基础设施（按需扩展）
 └── artemis-symphony         # Symphony：编码代理编排（WORKFLOW.md + Linear + Codex，可独立运行；见子目录 README）
 ```
@@ -102,11 +104,16 @@ artemis/
 - `AGENTS.md`：agent 最小稳定入口
 - `ARCHITECTURE.md`：仓库级架构地图
 - `QUALITY_SCORE.md`：当前质量评分与优先补强项
+- `artemis-api/`：内部调用方的统一 API bridge 与客户端 BOM
 - `docs/harness-engineering/`：落地清单与阶段路线图
 - `docs/exec-plans/`：复杂任务执行计划目录
 - `scripts/dev/`：本地环境与服务启动入口
+- `scripts/dev/new-domain-service.sh`：新增领域服务脚手架入口
 - `scripts/dev/package-service.sh`：统一服务打包入口
 - `scripts/dev/build-image.sh`：统一镜像构建入口
+- `scripts/dev/service-status.sh`：统一查看服务状态、端口、smoke 与日志入口
+- `scripts/dev/deploy-drill.sh`：打包、镜像、配置与 smoke 的部署演练入口
+- `scripts/dev/rollback-drill.sh`：回滚目标检查与演练报告入口
 - `scripts/dev/wait-http.sh`：统一 HTTP 等待 / 启动断言入口
 - `scripts/dev/check-service-config.sh`：配置缺失检查入口
 - `scripts/dev/check-service-readiness.sh`：启动成功 / 慢启动 / 关键端点可达性断言入口
@@ -114,6 +121,8 @@ artemis/
 - `scripts/dev/tail-log.sh`：统一日志查看入口
 - `scripts/harness/`：OpenSpec 同步、增量验证、全量验证
 - `scripts/harness/run-governance-checks.sh`：文档、契约、重复模式与质量问题治理入口
+- `scripts/harness/check-service-catalog.sh`：领域服务运行资产守门入口
+- `scripts/harness/check-symphony-assets.sh`：Symphony 任务资产守门入口
 - `scripts/smoke/`：最小 smoke 验证脚本
 - `scripts/smoke/all-services.sh`：关键服务聚合 smoke 入口
 - `docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`：服务 smoke 与启动顺序 runbook
@@ -124,6 +133,7 @@ artemis/
 - `docs/harness-engineering/QUALITY_ISSUE_STANDARD.md`：质量问题归档与关闭标准
 - `docs/harness-engineering/DOC_FRESHNESS_POLICY.md`：核心文档审阅 cadence 与防漂移规则
 - `docs/harness-engineering/DEPLOY_AND_ROLLBACK_RUNBOOK.md`：打包、镜像、部署与回滚 runbook
+- `docs/harness-engineering/deploy-drills/`：部署 / 回滚演练报告目录
 - `docs/harness-engineering/SYMPHONY_TROUBLESHOOTING.md`：Symphony 常见故障 runbook
 - `.github/workflows/governance.yml`：周期性文档 / 工程治理工作流
 - `.github/workflows/verify.yml`：CI 标准验证工作流
@@ -141,13 +151,18 @@ Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将
    - `AGENTS.md`：agent 稳定入口与执行约束
    - `ARCHITECTURE.md`：模块边界、服务拓扑、依赖方向
    - `QUALITY_SCORE.md`：当前质量状态、封板结论与扩展方向
+   - `artemis-api/`：内部客户端聚合入口与 BOM
    - `openspec/specs/`：分层、测试、工程约束等规范事实
 
 2. **执行层**
 
-   - `scripts/dev/`：基础设施、服务启动、健康检查、日志查看
+  - `scripts/dev/`：基础设施、服务启动、健康检查、日志查看
+  - `scripts/dev/new-domain-service.sh`：新增领域服务脚手架入口
   - `scripts/dev/package-service.sh`：统一服务打包入口
   - `scripts/dev/build-image.sh`：统一镜像构建入口
+  - `scripts/dev/service-status.sh`：服务状态总览入口
+  - `scripts/dev/deploy-drill.sh`：部署演练入口
+  - `scripts/dev/rollback-drill.sh`：回滚演练入口
   - `scripts/dev/wait-http.sh`：HTTP 等待与启动断言入口
   - `scripts/dev/check-service-config.sh`：配置模板检查入口
   - `scripts/dev/check-service-readiness.sh`：服务就绪断言入口
@@ -159,6 +174,8 @@ Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将
   - `scripts/harness/verify-changed.sh`：增量验证入口
   - `scripts/harness/full-verify.sh`：仓库级全量验证入口
   - `scripts/harness/run-governance-checks.sh`：治理与文档守门入口
+  - `scripts/harness/check-service-catalog.sh`：领域服务运行资产守门
+  - `scripts/harness/check-symphony-assets.sh`：Symphony 任务资产守门
   - `mvn verify`：测试、Spotless、Checkstyle、SpotBugs 统一质量门
   - `docs/harness-engineering/DOC_FRESHNESS_POLICY.md`：核心文档审阅 cadence 与防漂移规则
   - `.github/workflows/verify.yml`：CI 中的 OpenSpec 差异检查、全量验证与镜像构建

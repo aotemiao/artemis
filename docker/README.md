@@ -7,6 +7,7 @@
 - `Dockerfile.gateway`
 - `Dockerfile.auth`
 - `Dockerfile.system`
+- `Dockerfile.resource`
 
 ## 构建示例
 
@@ -16,6 +17,7 @@
 docker build -f docker/Dockerfile.gateway -t artemis-gateway:local .
 docker build -f docker/Dockerfile.auth -t artemis-auth:local .
 docker build -f docker/Dockerfile.system -t artemis-system:local .
+docker build -f docker/Dockerfile.resource -t artemis-resource:local .
 ```
 
 ## 说明

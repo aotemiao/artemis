@@ -17,6 +17,7 @@ artemis-xxx.yml          ← 各服务专属（端口、路由、数据源引用
 | artemis-gateway   | application-common → artemis-gateway |
 | artemis-auth      | application-common → artemis-auth |
 | artemis-system    | application-common → datasource → artemis-system |
+| artemis-resource  | application-common → datasource → artemis-resource |
 
 ## 文件与 Data ID 对应关系
 
@@ -25,6 +26,7 @@ artemis-xxx.yml          ← 各服务专属（端口、路由、数据源引用
 | `application-common.yml`  | `application-common.yml`  | 公共配置，所有服务 config.import 首位 |
 | `datasource.yml`          | `datasource.yml`          | 数据源定义，仅 system 等需库的服务引用 |
 | `artemis-system.yml`      | `artemis-system.yml`      | 系统服务专属（引用 datasource 中的 system-master） |
+| `artemis-resource.yml`    | `artemis-resource.yml`    | 资源服务专属（样板服务，默认也引用 datasource） |
 | `artemis-gateway.yml`     | `artemis-gateway.yml`     | 网关专属（路由等），不引用 datasource |
 | `artemis-auth.yml`        | `artemis-auth.yml`        | 认证服务专属，不引用 datasource |
 
@@ -35,7 +37,7 @@ artemis-xxx.yml          ← 各服务专属（端口、路由、数据源引用
 
 1. **application-common.yml**（先传，被后续引用）
 2. **datasource.yml**（数据源为 PostgreSQL，与本地 docker-compose 一致）
-3. **artemis-system.yml**、**artemis-gateway.yml**、**artemis-auth.yml**
+3. **artemis-system.yml**、**artemis-resource.yml**、**artemis-gateway.yml**、**artemis-auth.yml**
 
 与 RuoYi 一致：将此目录下所有配置文件按上表 Data ID 复制到 Nacos 配置列表中即可。
 

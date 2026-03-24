@@ -1,7 +1,7 @@
 # 新增领域服务 Runbook
 
 Status: maintained
-Last Reviewed: 2026-03-23
+Last Reviewed: 2026-03-24
 Review Cadence: 90 days
 
 本 runbook 用于指导在 Artemis 中新增一个符合 DDD/COLA 约束的领域服务，避免只补一个 `-start` 模块或只补 REST Controller。
@@ -33,11 +33,19 @@ Review Cadence: 90 days
 
 ## 推荐步骤
 
-1. 先建聚合、Gateway 接口和 client 契约，再补 app/adapter/start。
-2. 优先从最小闭环开始：
+1. 优先使用 `scripts/dev/new-domain-service.sh <domain>` 生成骨架。
+2. 生成后先检查以下默认产物是否存在：
+   - `artemis-api/artemis-api-<domain>`
+   - `artemis-modules/artemis-<domain>/artemis-<domain>-client`
+   - `SERVICE_API.md`
+   - `config/nacos/artemis-<domain>.yml`
+   - `scripts/dev/run-<domain>.sh`
+   - `scripts/smoke/<domain>-ping.sh`
+3. 先建聚合、Gateway 接口和 client 契约，再补 app/adapter/start。
+4. 优先从最小闭环开始：
    一个领域用例、一个对外入口、一个持久化实现、一个 smoke 或最小测试。
-3. 同步补 Nacos 模板、Dockerfile、run script 与验证入口。
-4. 同步更新相关 OpenSpec、README 或模块文档。
+5. 同步补 Nacos 模板、Dockerfile、run script 与验证入口。
+6. 同步更新相关 OpenSpec、README 或模块文档。
 
 ## 至少要补的验证
 
@@ -48,6 +56,7 @@ Review Cadence: 90 days
 
 ## 推荐命令
 
+- `scripts/dev/new-domain-service.sh <domain>`
 - `scripts/harness/verify-changed.sh`
 - `scripts/harness/full-verify.sh`
 - `scripts/dev/package-service.sh <service>`

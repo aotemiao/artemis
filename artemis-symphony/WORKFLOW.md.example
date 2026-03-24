@@ -35,6 +35,9 @@ When the task matches a common engineering pattern, also read the corresponding 
 - New domain service: `artemis-symphony/skills/new-domain-service.md`
 - New Dubbo client: `artemis-symphony/skills/new-dubbo-client.md`
 - New ArchUnit rule: `artemis-symphony/skills/add-archunit-rule.md`
+- Contract change: `artemis-symphony/skills/contract-change.md`
+- Deploy or rollback drill: `artemis-symphony/skills/deploy-drill.md`
+- Expand existing service: `artemis-symphony/skills/expand-existing-service.md`
 
 Execution rules:
 
@@ -50,6 +53,7 @@ Execution rules:
 - If behavior, constraints, or workflow changes, update the relevant docs and OpenSpec artifacts in the same change whenever practical.
 - For complex work, create or update an execution plan under `docs/exec-plans/active/`.
 - Before the final handoff, answer the self-review questions in `docs/harness-engineering/AGENT_REVIEW_LOOP.md` and use `artemis-symphony/prompts/self-review-and-handoff.md` as the output template.
+- When the task is Phase-sized or multi-checklist, use `artemis-symphony/prompts/phase-delivery-plan.md` to structure the plan.
 
 Complete the task described in the issue.
 

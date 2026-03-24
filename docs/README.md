@@ -1,7 +1,7 @@
 # Docs Index
 
 Status: maintained
-Last Reviewed: 2026-03-23
+Last Reviewed: 2026-03-24
 Review Cadence: 90 days
 
 这个目录是 Artemis 的文档总入口，目标是让人和 agent 都能快速找到“现在该读哪份文档”。
@@ -39,6 +39,8 @@ Review Cadence: 90 days
   核心文档审阅 cadence 与防漂移守门
 - `harness-engineering/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
   打包、镜像、部署与回滚 runbook
+- `harness-engineering/deploy-drills/`
+  部署与回滚演练报告目录
 - `harness-engineering/SYMPHONY_TROUBLESHOOTING.md`
   Symphony 常见故障与排查路径
 - `harness-engineering/QUALITY_ISSUE_STANDARD.md`
@@ -52,6 +54,14 @@ Review Cadence: 90 days
   执行计划目录说明
 - `exec-plans/active/`
   进行中的复杂任务计划
+- `exec-plans/active/2026-03-24-phase1-checklist.md`
+  Phase 1 落地 checklist 与交付结果
+- `exec-plans/active/2026-03-24-phase2-checklist.md`
+  Phase 2 落地 checklist 与交付结果
+- `exec-plans/active/2026-03-24-phase3-checklist.md`
+  Phase 3 落地 checklist 与交付结果
+- `exec-plans/active/2026-03-24-phase4-checklist.md`
+  Phase 4 落地 checklist 与交付结果
 - `exec-plans/completed/`
   已完成计划归档目录
 - `exec-plans/templates/execution-plan-template.md`
