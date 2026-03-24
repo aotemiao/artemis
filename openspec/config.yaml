@@ -5,9 +5,9 @@ schema: spec-driven
 context: |
   Tech stack: Java 21, Spring Boot 3.x, Spring Cloud 2025.x, Nacos, Sa-Token, Spring Data JDBC, Redisson. See openspec/specs/tech-stack and openspec/specs/ddd-cola-layering for full constraints.
   Reference projects (align architecture and patterns; local paths for AI to read when generating artifacts):
-  - ruoyi-cloud-plus: C:\Users\aotem\IdeaProjects\ruoyi-cloud-plus
-  - COLA: C:\Users\aotem\IdeaProjects\COLA
-  - aws-sdk-java-v2: C:\Users\aotem\IdeaProjects\aws-sdk-java-v2
+  - ruoyi-cloud-plus: /Users/aotemiao/IdeaProjects/RuoYi-Cloud-Plus
+  - COLA: /Users/aotemiao/IdeaProjects/COLA
+  - aws-sdk-java-v2: /Users/aotemiao/IdeaProjects/aws-sdk-java-v2
   - Spring Cloud / Spring Framework: follow official BOM and design patterns (no local path; use project BOM and docs).
 
 # Per-artifact rules (optional)

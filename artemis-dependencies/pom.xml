@@ -132,7 +132,27 @@
             <!-- Artemis 内部模块 -->
             <dependency>
                 <groupId>com.aotemiao</groupId>
+                <artifactId>artemis-api-resource</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aotemiao</groupId>
+                <artifactId>artemis-resource-client</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aotemiao</groupId>
                 <artifactId>artemis-framework-core</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aotemiao</groupId>
+                <artifactId>artemis-api-system</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aotemiao</groupId>
+                <artifactId>artemis-system-client</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
