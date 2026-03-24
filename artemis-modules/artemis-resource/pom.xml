@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.aotemiao</groupId>
+        <artifactId>artemis-modules</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>artemis-resource</artifactId>
+    <packaging>pom</packaging>
+    <name>Artemis Resource</name>
+    <description>Resource domain service scaffold</description>
+
+    <modules>
+        <module>artemis-resource-client</module>
+        <module>artemis-resource-domain</module>
+        <module>artemis-resource-infra</module>
+        <module>artemis-resource-app</module>
+        <module>artemis-resource-adapter</module>
+        <module>artemis-resource-start</module>
+    </modules>
+</project>

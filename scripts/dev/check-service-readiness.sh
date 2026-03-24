@@ -5,56 +5,58 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/lib/common.sh"
 
 usage() {
-  echo "Usage: $0 <system|auth|gateway|symphony> [attempts] [sleep_seconds]" >&2
+  echo "Usage: $0 <system|auth|gateway|symphony|<domain>> [attempts] [sleep_seconds]" >&2
 }
 
 run_in_repo_root
 
-service="${1:-}"
+service="$(normalize_service_name "${1:-}")"
 attempts="${2:-30}"
 sleep_seconds="${3:-2}"
+smoke_script=""
+log_file=""
+log_hint=""
+url=""
+expected=""
+method=""
 
-case "$service" in
-  system)
-    url="http://127.0.0.1:9300/api/lookup-types?page=0&size=1"
-    expected="200"
-    method="GET"
-    log_file="logs/artemis-system.log"
-    log_hint="scripts/dev/tail-log.sh system"
-    ;;
-  auth)
-    url="http://127.0.0.1:9200/auth/refresh"
-    expected="200,401,403"
-    method="POST"
-    log_file="logs/artemis-auth.log"
-    log_hint="scripts/dev/tail-log.sh auth"
-    ;;
-  gateway)
-    url="http://127.0.0.1:8080/auth/refresh"
-    expected="200,401,403"
-    method="POST"
-    log_file="logs/artemis-gateway.log"
-    log_hint="scripts/dev/tail-log.sh gateway"
-    ;;
-  symphony)
-    url="http://127.0.0.1:9500/api/v1/state"
-    expected="200"
-    method="GET"
-    log_file=""
+if service_catalog_has "$service"; then
+  smoke_script="$(service_catalog_field "$service" smoke_script)"
+  log_file="$(service_catalog_field "$service" log_file)"
+  log_hint="scripts/dev/tail-log.sh ${service}"
+  if [[ "$(service_catalog_field "$service" readiness_mode)" == "http" ]]; then
+    url="$(service_catalog_field "$service" readiness_url)"
+    expected="$(service_catalog_field "$service" readiness_expected)"
+    method="$(service_catalog_field "$service" readiness_method)"
+    smoke_script=""
+  fi
+  if [[ "$service" == "symphony" ]]; then
     log_hint="重新执行 scripts/dev/run-symphony.sh，并观察当前终端输出"
-    ;;
-  *)
+  fi
+else
+  smoke_script="scripts/smoke/${service}-ping.sh"
+  if [[ ! -f "$smoke_script" ]]; then
     usage
     exit 1
-    ;;
-esac
+  fi
+  log_file="logs/artemis-${service}.log"
+  log_hint="scripts/dev/tail-log.sh ${service}"
+fi
 
 scripts/dev/check-service-config.sh "$service"
 
+if [[ -n "$smoke_script" ]]; then
+  print_step "Running readiness smoke for $service"
+  if "$smoke_script"; then
+    print_step "Service readiness check completed for $service"
+    exit 0
+  fi
+else
 print_step "Waiting for $service readiness"
 if scripts/dev/wait-http.sh "$url" "$expected" "$attempts" "$sleep_seconds" "$method"; then
   print_step "Service readiness check completed for $service"
   exit 0
+fi
 fi
 
 echo "Service readiness failed for $service." >&2

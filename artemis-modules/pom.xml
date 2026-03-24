@@ -18,5 +18,6 @@
 
     <modules>
         <module>artemis-system</module>
+        <module>artemis-resource</module>
     </modules>
 </project>

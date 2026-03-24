@@ -1,0 +1,10 @@
+# artemis-resource 专属配置模板
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+logging:
+  level:
+    com.aotemiao.artemis.resource: INFO

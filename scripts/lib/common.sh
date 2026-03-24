@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/service-catalog.sh"
+
 repo_root() {
   git rev-parse --show-toplevel
 }
@@ -70,4 +72,31 @@ compose_cmd() {
 print_step() {
   echo
   echo "==> $1"
+}
+
+normalize_service_name() {
+  local raw="${1:-}"
+  raw="${raw#artemis-}"
+  echo "$raw"
+}
+
+resolve_service_start_module() {
+  local normalized
+  normalized="$(normalize_service_name "${1:-}")"
+
+  if service_catalog_has "$normalized"; then
+    service_catalog_field "$normalized" start_module
+    return 0
+  fi
+
+  case "$normalized" in
+    *)
+      local module="artemis-modules/artemis-${normalized}/artemis-${normalized}-start"
+      if [[ -d "$module" ]]; then
+        echo "$module"
+        return 0
+      fi
+      return 1
+      ;;
+  esac
 }

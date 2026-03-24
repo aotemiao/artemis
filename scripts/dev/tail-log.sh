@@ -6,17 +6,23 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/lib/common.sh"
 
 run_in_repo_root
 
-service="${1:-}"
+service="$(normalize_service_name "${1:-}")"
 
-case "$service" in
-  gateway) log_file="logs/artemis-gateway.log" ;;
-  auth) log_file="logs/artemis-auth.log" ;;
-  system) log_file="logs/artemis-system.log" ;;
-  *)
-    echo "Usage: $0 <gateway|auth|system>" >&2
-    exit 1
-    ;;
-esac
+if [[ -z "$service" ]]; then
+  echo "Usage: $0 <gateway|auth|system|<domain>>" >&2
+  exit 1
+fi
+
+if service_catalog_has "$service"; then
+  log_file="$(service_catalog_field "$service" log_file)"
+else
+  log_file="logs/artemis-${service}.log"
+fi
+
+if [[ -z "$log_file" ]]; then
+  echo "No file log is configured for service: $service" >&2
+  exit 1
+fi
 
 if [[ ! -f "$log_file" ]]; then
   echo "Log file not found: $log_file" >&2

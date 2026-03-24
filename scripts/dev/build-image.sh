@@ -5,7 +5,7 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/lib/common.sh"
 
 usage() {
-  echo "Usage: $0 <gateway|auth|system|all> [image_tag_suffix]" >&2
+  echo "Usage: $0 <gateway|auth|system|all|<domain>> [image_tag_suffix]" >&2
 }
 
 run_in_repo_root
@@ -13,6 +13,7 @@ require_cmd docker
 
 target="${1:-}"
 tag_suffix="${2:-local}"
+normalized_target="$(normalize_service_name "$target")"
 
 if ! docker info >/dev/null 2>&1; then
   echo "Docker daemon is not available. Start Docker Desktop / OrbStack and rerun: scripts/dev/build-image.sh ${target:-all} ${tag_suffix}" >&2
@@ -27,7 +28,7 @@ build_one() {
   docker build -f "$dockerfile" -t "$image" .
 }
 
-case "$target" in
+case "$normalized_target" in
   gateway)
     build_one "gateway" "docker/Dockerfile.gateway"
     ;;
@@ -43,9 +44,13 @@ case "$target" in
     build_one "system" "docker/Dockerfile.system"
     ;;
   *)
-    usage
-    exit 1
+    dockerfile="docker/Dockerfile.${normalized_target}"
+    if [[ ! -f "$dockerfile" ]]; then
+      usage
+      exit 1
+    fi
+    build_one "$normalized_target" "$dockerfile"
     ;;
 esac
 
-print_step "Image build completed for: $target"
+print_step "Image build completed for: $normalized_target"

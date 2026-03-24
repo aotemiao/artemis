@@ -28,6 +28,13 @@ TARGETS = [
     ),
 ]
 
+for service_doc in sorted(REPO.glob("artemis-modules/artemis-*/SERVICE_API.md")):
+    service_root = service_doc.parent
+    controller_candidates = sorted(service_root.glob("artemis-*-adapter/src/main/java/**/adapter/web/*PingController.java"))
+    if len(controller_candidates) != 1:
+        continue
+    TARGETS.append((controller_candidates[0].relative_to(REPO), service_doc.relative_to(REPO)))
+
 
 def normalize_signature(value: str) -> str:
     return " ".join(value.strip().strip("`").split())

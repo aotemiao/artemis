@@ -56,8 +56,9 @@ check_tcp 127.0.0.1 6379 "Redis"
 check_http_exact "http://127.0.0.1:8848/nacos/v1/console/health/readiness" "200" "Nacos readiness"
 
 print_step "Checking local services"
-check_http_exact "http://127.0.0.1:9300/api/lookup-types?page=0&size=1" "200" "System lookup page"
-check_http_any "POST" "http://127.0.0.1:9200/auth/refresh" "200,401,403" "Auth refresh"
-check_tcp 127.0.0.1 8080 "Gateway port"
+while IFS= read -r service; do
+  [[ -z "$service" ]] && continue
+  scripts/dev/check-service-readiness.sh "$service" 3 1
+done < <(service_catalog_names)
 
 print_step "Health check completed"
