@@ -11,8 +11,8 @@
 ## 说明
 
 - `POST /auth/login`
-  请求体为 `username`、`password`，成功返回当前登录 Token。
+  请求体为 `username`、`password`，成功返回当前登录 Token、`userId` 与 `roleKeys`。
 - `POST /auth/logout`
   使当前 Token 对应会话失效，成功返回 `204 No Content`。
 - `POST /auth/refresh`
-  用于续期当前登录态；未登录时返回鉴权失败状态。
+  用于续期当前登录态，并返回当前登录用户的 `userId` 与 `roleKeys`；未登录时返回鉴权失败状态。

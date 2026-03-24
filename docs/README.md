@@ -1,7 +1,7 @@
 # Docs Index
 
 Status: maintained
-Last Reviewed: 2026-03-24
+Last Reviewed: 2026-03-25
 Review Cadence: 90 days
 
 这个目录是 Artemis 的文档总入口，目标是让人和 agent 都能快速找到“现在该读哪份文档”。
@@ -54,8 +54,6 @@ Review Cadence: 90 days
   执行计划目录说明
 - `exec-plans/active/`
   进行中的复杂任务计划
-- `exec-plans/active/2026-03-24-phase7-internal-authorization-checklist.md`
-  当前业务落地阶段的内部授权快照 checklist
 - `exec-plans/completed/`
   已完成计划归档目录
 - `exec-plans/completed/2026-03-24-artemis-evolution-with-local-references.md`
@@ -72,5 +70,7 @@ Review Cadence: 90 days
   Phase 5 落地 checklist 与交付结果
 - `exec-plans/completed/2026-03-24-phase6-role-directory-checklist.md`
   Phase 6 落地 checklist 与交付结果
+- `exec-plans/completed/2026-03-24-phase7-internal-authorization-checklist.md`
+  Phase 7 落地 checklist 与交付结果
 - `exec-plans/templates/execution-plan-template.md`
   计划模板

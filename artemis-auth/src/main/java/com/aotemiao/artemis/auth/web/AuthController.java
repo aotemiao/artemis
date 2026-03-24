@@ -1,8 +1,10 @@
 package com.aotemiao.artemis.auth.web;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.aotemiao.artemis.auth.client.SystemUserAuthorizationClient;
 import com.aotemiao.artemis.auth.client.SystemUserValidateClient;
 import com.aotemiao.artemis.auth.web.dto.LoginResponse;
+import com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO;
 import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,9 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final SystemUserValidateClient systemUserValidateClient;
+    private final SystemUserAuthorizationClient systemUserAuthorizationClient;
 
-    public AuthController(SystemUserValidateClient systemUserValidateClient) {
+    public AuthController(
+            SystemUserValidateClient systemUserValidateClient,
+            SystemUserAuthorizationClient systemUserAuthorizationClient) {
         this.systemUserValidateClient = systemUserValidateClient;
+        this.systemUserAuthorizationClient = systemUserAuthorizationClient;
     }
 
     /** 登录：校验用户名密码后签发 Token，会话存 Redis。 */
@@ -29,8 +35,9 @@ public class AuthController {
         Long userId = systemUserValidateClient
                 .validate(request.username(), request.password())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
+        UserAuthorizationSnapshotDTO snapshot = getAuthorizationSnapshot(userId);
         StpUtil.login(userId);
-        return new LoginResponse(StpUtil.getTokenValue());
+        return new LoginResponse(StpUtil.getTokenValue(), snapshot.userId(), snapshot.roleKeys());
     }
 
     /** 登出：使当前 Token 对应会话失效。 */
@@ -44,7 +51,15 @@ public class AuthController {
     @PostMapping("/refresh")
     public LoginResponse refresh() {
         StpUtil.checkLogin();
-        return new LoginResponse(StpUtil.getTokenValue());
+        Long userId = Long.parseLong(StpUtil.getLoginId().toString());
+        UserAuthorizationSnapshotDTO snapshot = getAuthorizationSnapshot(userId);
+        return new LoginResponse(StpUtil.getTokenValue(), snapshot.userId(), snapshot.roleKeys());
+    }
+
+    private UserAuthorizationSnapshotDTO getAuthorizationSnapshot(Long userId) {
+        return systemUserAuthorizationClient
+                .getByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("Authorization snapshot not found: " + userId));
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)

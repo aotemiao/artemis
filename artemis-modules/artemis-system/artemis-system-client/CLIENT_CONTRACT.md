@@ -6,10 +6,13 @@
 
 - `INTERFACE: com.aotemiao.artemis.system.client.api.UserValidateService`
 - `METHOD: Optional<Long> validate(ValidateCredentialsRequest request)`
+- `INTERFACE: com.aotemiao.artemis.system.client.api.UserAuthorizationService`
+- `METHOD: Optional<UserAuthorizationSnapshotDTO> getByUserId(Long userId)`
 
 ## DTO 清单
 
 - `DTO: com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest(String username, String password)`
+- `DTO: com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO(Long userId, String username, String displayName, List<String> roleKeys)`
 
 ## 契约说明
 
@@ -17,3 +20,7 @@
   供 `artemis-auth` 等内部调用方通过 Dubbo 校验用户名与密码，成功时返回 `userId`。
 - `ValidateCredentialsRequest`
   作为 Dubbo 契约请求体，与系统服务内部 REST 校验接口保持字段对齐。
+- `UserAuthorizationService`
+  供 `artemis-auth` 等内部调用方按 `userId` 查询最小授权快照，成功时返回用户基础信息与启用中的 `roleKeys`。
+- `UserAuthorizationSnapshotDTO`
+  作为内部授权快照结果体，与系统服务内部 REST 授权查询接口保持字段对齐。
