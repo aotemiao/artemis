@@ -1,5 +1,6 @@
 package com.aotemiao.artemis.auth.web;
 
+import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
 import com.aotemiao.artemis.auth.client.SystemUserAuthorizationClient;
 import com.aotemiao.artemis.auth.client.SystemUserValidateClient;
@@ -7,6 +8,8 @@ import com.aotemiao.artemis.auth.web.dto.LoginResponse;
 import com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO;
 import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
 import jakarta.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,7 +40,8 @@ public class AuthController {
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
         UserAuthorizationSnapshotDTO snapshot = getAuthorizationSnapshot(userId);
         StpUtil.login(userId);
-        return new LoginResponse(StpUtil.getTokenValue(), snapshot.userId(), snapshot.roleKeys());
+        syncAuthorizationSession(snapshot);
+        return buildLoginResponse(snapshot);
     }
 
     /** 登出：使当前 Token 对应会话失效。 */
@@ -53,13 +57,32 @@ public class AuthController {
         StpUtil.checkLogin();
         Long userId = Long.parseLong(StpUtil.getLoginId().toString());
         UserAuthorizationSnapshotDTO snapshot = getAuthorizationSnapshot(userId);
-        return new LoginResponse(StpUtil.getTokenValue(), snapshot.userId(), snapshot.roleKeys());
+        syncAuthorizationSession(snapshot);
+        return buildLoginResponse(snapshot);
     }
 
     private UserAuthorizationSnapshotDTO getAuthorizationSnapshot(Long userId) {
         return systemUserAuthorizationClient
                 .getByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("Authorization snapshot not found: " + userId));
+    }
+
+    private LoginResponse buildLoginResponse(UserAuthorizationSnapshotDTO snapshot) {
+        return new LoginResponse(StpUtil.getTokenValue(), snapshot.userId(), snapshot.roleKeys());
+    }
+
+    /**
+     * 将最小授权快照同步进登录会话，供 gateway 等后续请求复用。
+     */
+    private void syncAuthorizationSession(UserAuthorizationSnapshotDTO snapshot) {
+        SaSession session = StpUtil.getSessionByLoginId(snapshot.userId());
+        session.set(SaSession.ROLE_LIST, snapshot.roleKeys());
+
+        Map<String, Object> userProfile = new HashMap<>();
+        userProfile.put("userId", snapshot.userId());
+        userProfile.put("username", snapshot.username());
+        userProfile.put("displayName", snapshot.displayName());
+        session.set(SaSession.USER, userProfile);
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)

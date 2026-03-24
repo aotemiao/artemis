@@ -14,6 +14,8 @@ Review Cadence: 90 days
   agent 的最小稳定入口
 - `../ARCHITECTURE.md`
   架构地图、模块边界、运行拓扑
+- `../artemis-gateway/GATEWAY_AUTHORIZATION.md`
+  网关最小 RBAC、内部接口阻断与上下文头透传约定
 - `../QUALITY_SCORE.md`
   当前工程质量状态与优先补强方向
 
@@ -72,5 +74,7 @@ Review Cadence: 90 days
   Phase 6 落地 checklist 与交付结果
 - `exec-plans/completed/2026-03-24-phase7-internal-authorization-checklist.md`
   Phase 7 落地 checklist 与交付结果
+- `exec-plans/completed/2026-03-25-phase8-gateway-rbac-checklist.md`
+  Phase 8 落地 checklist 与交付结果
 - `exec-plans/templates/execution-plan-template.md`
   计划模板

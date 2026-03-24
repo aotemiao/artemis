@@ -1,7 +1,7 @@
 # Artemis Agent Guide
 
 Status: maintained
-Last Reviewed: 2026-03-24
+Last Reviewed: 2026-03-25
 Review Cadence: 90 days
 
 本文件是仓库内 agent 的稳定入口，目标是让任何自动化执行都先找到地图，再开始改代码。
@@ -89,6 +89,7 @@ Review Cadence: 90 days
 - 系统服务 smoke：`scripts/smoke/system-lookup.sh`
 - 认证服务 smoke：`scripts/smoke/auth-refresh.sh`
 - 网关路由 smoke：`scripts/smoke/gateway-auth-refresh.sh`
+- 网关 RBAC smoke：`scripts/smoke/gateway-system-admin.sh`
 - Symphony 状态 smoke：`scripts/smoke/symphony-state.sh`
 - 聚合 smoke：`scripts/smoke/all-services.sh`
 - 服务 smoke runbook：`docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`

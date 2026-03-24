@@ -9,6 +9,7 @@ import cn.dev33.satoken.context.SaTokenContext;
 import cn.dev33.satoken.context.model.SaRequest;
 import cn.dev33.satoken.context.model.SaResponse;
 import cn.dev33.satoken.context.model.SaStorage;
+import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
 import com.aotemiao.artemis.auth.client.SystemUserAuthorizationClient;
 import com.aotemiao.artemis.auth.client.SystemUserValidateClient;
@@ -73,6 +74,11 @@ class AuthControllerTest {
         assertThat(response.token()).isNotBlank();
         assertThat(response.userId()).isEqualTo(1L);
         assertThat(response.roleKeys()).containsExactly("super-admin");
+        assertThat(StpUtil.getSessionByLoginId(1L).get(SaSession.ROLE_LIST)).isEqualTo(List.of("super-admin"));
+        assertThat((Map<String, Object>) StpUtil.getSessionByLoginId(1L).get(SaSession.USER))
+                .containsEntry("userId", 1L)
+                .containsEntry("username", "admin")
+                .containsEntry("displayName", "管理员");
     }
 
     @Test
@@ -81,11 +87,13 @@ class AuthControllerTest {
                 .thenReturn(Optional.of(new UserAuthorizationSnapshotDTO(1L, "admin", "管理员", List.of("super-admin"))));
 
         StpUtil.login(1L);
+        StpUtil.getSessionByLoginId(1L).set(SaSession.ROLE_LIST, List.of("legacy-role"));
         LoginResponse response = authController.refresh();
 
         assertThat(response.token()).isNotBlank();
         assertThat(response.userId()).isEqualTo(1L);
         assertThat(response.roleKeys()).containsExactly("super-admin");
+        assertThat(StpUtil.getSessionByLoginId(1L).get(SaSession.ROLE_LIST)).isEqualTo(List.of("super-admin"));
     }
 
     private static final class TestSaTokenContext implements SaTokenContext {

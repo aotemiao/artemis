@@ -1,7 +1,7 @@
 # Service Smoke Runbook
 
 Status: maintained
-Last Reviewed: 2026-03-23
+Last Reviewed: 2026-03-25
 Review Cadence: 90 days
 
 本 runbook 用于把本地服务的启动顺序、等待方式和 smoke 命令固定下来，供开发者与 agent 共用。
@@ -31,6 +31,7 @@ Review Cadence: 90 days
 - 系统服务：`scripts/smoke/system-lookup.sh`
 - 认证服务：`scripts/smoke/auth-refresh.sh`
 - 网关路由：`scripts/smoke/gateway-auth-refresh.sh`
+- 网关最小 RBAC：`scripts/smoke/gateway-system-admin.sh`
 - Symphony 状态页：`scripts/smoke/symphony-state.sh`
 - 聚合 smoke：`scripts/smoke/all-services.sh`
 
@@ -47,6 +48,7 @@ scripts/smoke/system-lookup.sh
 ```bash
 scripts/smoke/auth-refresh.sh
 scripts/smoke/gateway-auth-refresh.sh
+scripts/smoke/gateway-system-admin.sh
 ```
 
 验证 Symphony HTTP 可观测性：
