@@ -15,9 +15,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.aotemiao.artemis.framework.core.domain.PageResult;
 import com.aotemiao.artemis.framework.core.exception.BizException;
 import com.aotemiao.artemis.system.app.command.CreateSystemUserCmdExe;
+import com.aotemiao.artemis.system.app.command.ReplaceUserRolesCmdExe;
 import com.aotemiao.artemis.system.app.command.UpdateSystemUserCmdExe;
 import com.aotemiao.artemis.system.app.query.FindSystemUserByIdQryExe;
+import com.aotemiao.artemis.system.app.query.ListUserRolesQryExe;
 import com.aotemiao.artemis.system.app.query.SystemUserPageQryExe;
+import com.aotemiao.artemis.system.domain.model.SystemRole;
 import com.aotemiao.artemis.system.domain.model.SystemUser;
 import jakarta.servlet.ServletException;
 import java.util.List;
@@ -36,6 +39,8 @@ class SystemUserControllerTest {
     private UpdateSystemUserCmdExe updateSystemUserCmdExe;
     private FindSystemUserByIdQryExe findSystemUserByIdQryExe;
     private SystemUserPageQryExe systemUserPageQryExe;
+    private ListUserRolesQryExe listUserRolesQryExe;
+    private ReplaceUserRolesCmdExe replaceUserRolesCmdExe;
 
     @BeforeEach
     void setUp() {
@@ -43,8 +48,15 @@ class SystemUserControllerTest {
         updateSystemUserCmdExe = mock(UpdateSystemUserCmdExe.class);
         findSystemUserByIdQryExe = mock(FindSystemUserByIdQryExe.class);
         systemUserPageQryExe = mock(SystemUserPageQryExe.class);
+        listUserRolesQryExe = mock(ListUserRolesQryExe.class);
+        replaceUserRolesCmdExe = mock(ReplaceUserRolesCmdExe.class);
         mockMvc = MockMvcBuilders.standaloneSetup(new SystemUserController(
-                        createSystemUserCmdExe, updateSystemUserCmdExe, findSystemUserByIdQryExe, systemUserPageQryExe))
+                        createSystemUserCmdExe,
+                        updateSystemUserCmdExe,
+                        findSystemUserByIdQryExe,
+                        systemUserPageQryExe,
+                        listUserRolesQryExe,
+                        replaceUserRolesCmdExe))
                 .build();
     }
 
@@ -135,5 +147,40 @@ class SystemUserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.total").value(1))
                 .andExpect(jsonPath("$.data.content[0].username").value("admin"));
+    }
+
+    @Test
+    void listRoles_returnsRoleList() throws Exception {
+        SystemRole role = new SystemRole();
+        role.setId(10L);
+        role.setRoleKey("super-admin");
+        role.setRoleName("超级管理员");
+        role.setEnabled(true);
+        when(listUserRolesQryExe.execute(any())).thenReturn(List.of(role));
+
+        mockMvc.perform(get(SystemUserController.BASE_PATH + "/{userId}/roles", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].roleKey").value("super-admin"))
+                .andExpect(jsonPath("$.data[0].roleName").value("超级管理员"));
+    }
+
+    @Test
+    void replaceRoles_returnsUpdatedRoleList() throws Exception {
+        SystemRole role = new SystemRole();
+        role.setId(10L);
+        role.setRoleKey("super-admin");
+        role.setRoleName("超级管理员");
+        role.setEnabled(true);
+        when(replaceUserRolesCmdExe.execute(any())).thenReturn(List.of(role));
+
+        mockMvc.perform(put(SystemUserController.BASE_PATH + "/{userId}/roles", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "roleIds": [10]
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].roleKey").value("super-admin"));
     }
 }

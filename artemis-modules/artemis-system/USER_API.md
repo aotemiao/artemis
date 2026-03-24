@@ -8,6 +8,8 @@
 - `ROUTE: PUT /api/users/{id}`
 - `ROUTE: GET /api/users/{id}`
 - `ROUTE: GET /api/users`
+- `ROUTE: GET /api/users/{userId}/roles`
+- `ROUTE: PUT /api/users/{userId}/roles`
 
 ## 说明
 
@@ -17,3 +19,5 @@
 | `PUT` | `/api/users/{id}` | 更新指定用户的 `displayName`、`password` 与 `enabled` |
 | `GET` | `/api/users/{id}` | 按 ID 查询系统用户 |
 | `GET` | `/api/users` | 分页查询系统用户，使用 `page`、`size` 参数 |
+| `GET` | `/api/users/{userId}/roles` | 查询指定用户当前绑定的角色列表 |
+| `PUT` | `/api/users/{userId}/roles` | 批量替换指定用户的角色绑定，请求体包含 `roleIds` |

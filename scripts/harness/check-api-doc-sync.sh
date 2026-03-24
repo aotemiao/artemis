@@ -30,6 +30,10 @@ TARGETS = [
         Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemUserController.java"),
         Path("artemis-modules/artemis-system/USER_API.md"),
     ),
+    (
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemRoleController.java"),
+        Path("artemis-modules/artemis-system/ROLE_API.md"),
+    ),
 ]
 
 for service_doc in sorted(REPO.glob("artemis-modules/artemis-*/SERVICE_API.md")):

@@ -6,17 +6,14 @@ import com.aotemiao.artemis.framework.core.domain.PageRequest;
 import com.aotemiao.artemis.framework.core.domain.PageResult;
 import com.aotemiao.artemis.system.domain.gateway.SystemUserGateway;
 import com.aotemiao.artemis.system.domain.model.SystemUser;
-import com.aotemiao.artemis.system.infra.repository.SystemUserRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.test.context.TestPropertySource;
 
 @DataJdbcTest
-@EnableJdbcRepositories(basePackageClasses = SystemUserRepository.class)
 @Import({
     com.aotemiao.artemis.framework.jdbc.config.JdbcAutoConfiguration.class,
     com.aotemiao.artemis.system.infra.gateway.SystemUserGatewayImpl.class
@@ -26,7 +23,8 @@ import org.springframework.test.context.TestPropertySource;
             "spring.datasource.url=jdbc:h2:mem:system_user_test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE",
             "spring.datasource.driver-class-name=org.h2.Driver",
             "spring.sql.init.mode=always",
-            "spring.sql.init.schema-locations=classpath:schema.sql"
+            "spring.sql.init.schema-locations=classpath:schema.sql",
+            "artemis.jdbc.repositories.base-packages=com.aotemiao.artemis.system.infra.repository"
         })
 class SystemUserGatewayImplIntegrationTest {
 
