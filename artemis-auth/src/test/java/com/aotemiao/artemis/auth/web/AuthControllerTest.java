@@ -75,10 +75,12 @@ class AuthControllerTest {
         assertThat(response.userId()).isEqualTo(1L);
         assertThat(response.roleKeys()).containsExactly("super-admin");
         assertThat(StpUtil.getSessionByLoginId(1L).get(SaSession.ROLE_LIST)).isEqualTo(List.of("super-admin"));
-        assertThat((Map<String, Object>) StpUtil.getSessionByLoginId(1L).get(SaSession.USER))
-                .containsEntry("userId", 1L)
-                .containsEntry("username", "admin")
-                .containsEntry("displayName", "管理员");
+        Object userProfile = StpUtil.getSessionByLoginId(1L).get(SaSession.USER);
+        assertThat(userProfile).isInstanceOf(Map.class);
+        Map<?, ?> userProfileMap = (Map<?, ?>) userProfile;
+        assertThat(userProfileMap.get("userId")).isEqualTo(1L);
+        assertThat(userProfileMap.get("username")).isEqualTo("admin");
+        assertThat(userProfileMap.get("displayName")).isEqualTo("管理员");
     }
 
     @Test
