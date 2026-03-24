@@ -9,4 +9,4 @@
 ## 说明
 
 - `POST /api/system/internal/auth/validate`
-  供内部调用方提交用户名与密码，校验成功返回 `userId`，校验失败返回未授权错误。
+  供内部调用方提交用户名与密码，基于 `system_users` 表校验成功返回 `userId`，校验失败返回未授权错误。

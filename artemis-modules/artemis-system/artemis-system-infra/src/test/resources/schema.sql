@@ -29,3 +29,17 @@ CREATE TABLE IF NOT EXISTS "lookup_items" (
     CONSTRAINT "fk_lookup_items_type" FOREIGN KEY ("lookup_type_id") REFERENCES "lookup_types" ("id")
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "uk_lookup_items_type_value" ON "lookup_items" ("lookup_type_id", "value");
+
+CREATE TABLE IF NOT EXISTS "system_users" (
+    "id"           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    "username"     VARCHAR(64) NOT NULL,
+    "display_name" VARCHAR(128) NOT NULL,
+    "password"     VARCHAR(128) NOT NULL,
+    "enabled"      BOOLEAN NOT NULL DEFAULT TRUE,
+    "create_time"  TIMESTAMP,
+    "update_time"  TIMESTAMP,
+    "create_by"    VARCHAR(64),
+    "update_by"    VARCHAR(64),
+    "deleted"      INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "uk_system_users_username" ON "system_users" ("username");

@@ -2,7 +2,7 @@
 
 ## 背景
 
-本 checklist 对应 [Artemis 演进计划（基于本地参考源）](/Users/aotemiao/Documents/artemis/docs/exec-plans/active/2026-03-24-artemis-evolution-with-local-references.md) 中的 Phase 1：把 `artemis-system` 产品化成服务模板，让新增一个领域服务不再依赖手工拼装。
+本 checklist 对应 [Artemis 演进计划（基于本地参考源）](/Users/aotemiao/Documents/artemis/docs/exec-plans/completed/2026-03-24-artemis-evolution-with-local-references.md) 中的 Phase 1：把 `artemis-system` 产品化成服务模板，让新增一个领域服务不再依赖手工拼装。
 
 ## Checklist
 
