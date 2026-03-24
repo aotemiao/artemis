@@ -54,8 +54,8 @@ Review Cadence: 90 days
   执行计划目录说明
 - `exec-plans/active/`
   进行中的复杂任务计划
-- `exec-plans/active/2026-03-24-phase5-user-directory-checklist.md`
-  当前业务落地阶段的用户目录 checklist
+- `exec-plans/active/2026-03-24-phase7-internal-authorization-checklist.md`
+  当前业务落地阶段的内部授权快照 checklist
 - `exec-plans/completed/`
   已完成计划归档目录
 - `exec-plans/completed/2026-03-24-artemis-evolution-with-local-references.md`
@@ -68,5 +68,9 @@ Review Cadence: 90 days
   Phase 3 落地 checklist 与交付结果
 - `exec-plans/completed/2026-03-24-phase4-checklist.md`
   Phase 4 落地 checklist 与交付结果
+- `exec-plans/completed/2026-03-24-phase5-user-directory-checklist.md`
+  Phase 5 落地 checklist 与交付结果
+- `exec-plans/completed/2026-03-24-phase6-role-directory-checklist.md`
+  Phase 6 落地 checklist 与交付结果
 - `exec-plans/templates/execution-plan-template.md`
   计划模板
