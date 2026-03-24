@@ -18,9 +18,18 @@ docs=(
   "docs/harness-engineering/CHECKLIST.md"
   "docs/harness-engineering/ROADMAP.md"
   "docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md"
+  "docs/harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md"
+  "docs/harness-engineering/ADD_DUBBO_CLIENT_RUNBOOK.md"
+  "docs/harness-engineering/ADD_ARCHUNIT_RULE_RUNBOOK.md"
+  "docs/harness-engineering/AGENT_REVIEW_LOOP.md"
   "docs/harness-engineering/DOC_FRESHNESS_POLICY.md"
   "docs/harness-engineering/DEPLOY_AND_ROLLBACK_RUNBOOK.md"
   "docs/harness-engineering/SYMPHONY_TROUBLESHOOTING.md"
+  "docs/harness-engineering/QUALITY_ISSUE_STANDARD.md"
+  "docs/harness-engineering/quality-issues/README.md"
+  "docs/harness-engineering/quality-issues/active/README.md"
+  "docs/harness-engineering/quality-issues/archive/README.md"
+  "docs/harness-engineering/quality-issues/archive/2026-03-23-credential-request-duplication.md"
 )
 
 max_cadence_days=90

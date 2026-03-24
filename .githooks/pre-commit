@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
-# Pre-commit hook: format (Spotless), Checkstyle, OpenSpec sync reminder.
-# Install: cp .githooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
-# Or:     git config core.hooksPath .githooks
-# Bypass: git commit --no-verify
+# pre-commit hook：格式化、Checkstyle、脚本语法与仓库级治理守门。
+# 安装：cp .githooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+# 或：  git config core.hooksPath .githooks
+# 绕过：git commit --no-verify
 #
-# OpenSpec strict mode (block commit when change out of sync): set OPENSPEC_STRICT=1
+# OpenSpec 严格模式（未同步时阻止提交）：OPENSPEC_STRICT=1
 
-set -e
-cd "$(git rev-parse --show-toplevel)"
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+source "$REPO_ROOT/scripts/lib/common.sh"
+
+run_in_repo_root
 
 STAGED=$(git diff --cached --name-only)
 STAGED_JAVA=$(echo "$STAGED" | grep -E '\.java$' || true)
+STAGED_SHELL=$(echo "$STAGED" | grep -E '\.sh$' || true)
 
 # Resolve Maven modules from staged Java paths (for Spotless and Checkstyle)
 MODULES=""
@@ -29,9 +34,9 @@ fi
 # --- 1. Format staged Java (Spotless) ---
 if [ -n "$STAGED_JAVA" ]; then
   if [ -n "$MODULES" ]; then
-    mvn -q -B com.diffplug.spotless:spotless-maven-plugin:apply -pl "$MODULES" 2>/dev/null || true
+    run_mvn -q -B com.diffplug.spotless:spotless-maven-plugin:apply -pl "$MODULES" 2>/dev/null || true
   else
-    mvn -q -B com.diffplug.spotless:spotless-maven-plugin:apply 2>/dev/null || true
+    run_mvn -q -B com.diffplug.spotless:spotless-maven-plugin:apply 2>/dev/null || true
   fi
   echo "$STAGED_JAVA" | while IFS= read -r f; do [ -f "$f" ] && git add "$f"; done
 fi
@@ -39,13 +44,28 @@ fi
 # --- 2. Checkstyle for modules that have staged Java ---
 if [ -n "$STAGED_JAVA" ]; then
   if [ -n "$MODULES" ]; then
-    mvn -q -B checkstyle:check -pl "$MODULES" || { echo "Checkstyle failed. Fix or use --no-verify."; exit 1; }
+    run_mvn -q -B checkstyle:check -pl "$MODULES" || { echo "Checkstyle failed. Fix or use --no-verify."; exit 1; }
   else
-    mvn -q -B checkstyle:check || { echo "Checkstyle failed. Fix or use --no-verify."; exit 1; }
+    run_mvn -q -B checkstyle:check || { echo "Checkstyle failed. Fix or use --no-verify."; exit 1; }
   fi
 fi
 
-# --- 3. OpenSpec: remind if active change exists and this commit doesn't touch it ---
+# --- 3. Shell syntax for staged scripts ---
+if [ -n "$STAGED_SHELL" ]; then
+  echo "$STAGED_SHELL" | while IFS= read -r f; do
+    [ -f "$f" ] || continue
+    bash -n "$f"
+  done
+fi
+
+# --- 4. Repository-level governance checks ---
+scripts/harness/check-api-doc-sync.sh
+scripts/harness/check-client-contracts.sh
+scripts/harness/check-critical-path-tests.sh
+scripts/harness/check-duplicate-patterns.sh
+scripts/harness/check-quality-issue-archive.sh
+
+# --- 5. OpenSpec: remind if active change exists and this commit doesn't touch it ---
 OPENSPEC_CHANGES_DIR="openspec/changes"
 if [ ! -d "$OPENSPEC_CHANGES_DIR" ]; then
   exit 0

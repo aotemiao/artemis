@@ -22,6 +22,8 @@ Review Cadence: 90 days
 ## 启动断言
 
 - 等待任意 HTTP 端点：`scripts/dev/wait-http.sh <url> [expected_csv] [attempts] [sleep_seconds] [method]`
+- 检查服务配置模板：`scripts/dev/check-service-config.sh <system|auth|gateway|symphony>`
+- 检查服务就绪：`scripts/dev/check-service-readiness.sh <system|auth|gateway|symphony> [attempts] [sleep_seconds]`
 - 一般场景优先用默认重试次数；对慢启动服务可以临时把 `attempts` 调大
 
 ## 推荐 smoke
@@ -30,6 +32,7 @@ Review Cadence: 90 days
 - 认证服务：`scripts/smoke/auth-refresh.sh`
 - 网关路由：`scripts/smoke/gateway-auth-refresh.sh`
 - Symphony 状态页：`scripts/smoke/symphony-state.sh`
+- 聚合 smoke：`scripts/smoke/all-services.sh`
 
 ## 常见组合
 
@@ -50,4 +53,10 @@ scripts/smoke/gateway-auth-refresh.sh
 
 ```bash
 scripts/smoke/symphony-state.sh
+```
+
+一次性串行验证全部关键服务：
+
+```bash
+scripts/smoke/all-services.sh
 ```

@@ -27,12 +27,24 @@ Review Cadence: 90 days
   阶段路线图
 - `harness-engineering/SERVICE_SMOKE_RUNBOOK.md`
   服务启动顺序与 smoke 标准入口
+- `harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md`
+  新增领域服务 runbook
+- `harness-engineering/ADD_DUBBO_CLIENT_RUNBOOK.md`
+  新增 Dubbo client runbook
+- `harness-engineering/ADD_ARCHUNIT_RULE_RUNBOOK.md`
+  ArchUnit 约束 runbook
+- `harness-engineering/AGENT_REVIEW_LOOP.md`
+  agent 自评与 reviewer 回路
 - `harness-engineering/DOC_FRESHNESS_POLICY.md`
   核心文档审阅 cadence 与防漂移守门
 - `harness-engineering/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
   打包、镜像、部署与回滚 runbook
 - `harness-engineering/SYMPHONY_TROUBLESHOOTING.md`
   Symphony 常见故障与排查路径
+- `harness-engineering/QUALITY_ISSUE_STANDARD.md`
+  质量问题归档与关闭标准
+- `harness-engineering/quality-issues/`
+  质量问题记录目录
 
 ## Execution Plans
 

@@ -38,8 +38,10 @@ Review Cadence: 90 days
   先读 `ARCHITECTURE.md`、`openspec/specs/ddd-cola-layering/spec.md`、`openspec/specs/lookup-tdd-testing/spec.md`
 - 工程规则、测试约束、容器化、环境配置：
   先读 `openspec/specs/engineering-constraints/spec.md`
+- 契约文档、覆盖率、readiness 或治理守门：
+  先读 `openspec/specs/contract-doc-guardrails/spec.md`、`openspec/specs/service-readiness-automation/spec.md`、`openspec/specs/harness-governance/spec.md`
 - 编码代理编排与自动化：
-  先读 `artemis-symphony/README.md`、`docs/harness-engineering/ROADMAP.md`
+  先读 `artemis-symphony/README.md`、`docs/harness-engineering/ROADMAP.md`、`openspec/specs/agent-task-assets/spec.md`
 - 复杂任务或多步迁移：
   先在 `docs/exec-plans/active/` 建立或更新执行计划
 
@@ -63,16 +65,29 @@ Review Cadence: 90 days
 - 打包服务：`scripts/dev/package-service.sh <gateway|auth|system|symphony|all>`
 - 构建镜像：`scripts/dev/build-image.sh <gateway|auth|system|all>`
 - 等待 HTTP 端点：`scripts/dev/wait-http.sh`
+- 检查服务配置：`scripts/dev/check-service-config.sh <system|auth|gateway|symphony>`
+- 检查服务就绪：`scripts/dev/check-service-readiness.sh <system|auth|gateway|symphony>`
 - 健康检查：`scripts/dev/health.sh`
 - 查看服务日志：`scripts/dev/tail-log.sh <gateway|auth|system>`
 - 检查 OpenSpec 同步：`scripts/harness/check-openspec-sync.sh`
+- 检查 API 文档同步：`scripts/harness/check-api-doc-sync.sh`
+- 检查 Dubbo client 契约：`scripts/harness/check-client-contracts.sh`
+- 检查关键路径测试基线：`scripts/harness/check-critical-path-tests.sh`
+- 扫描重复模式：`scripts/harness/check-duplicate-patterns.sh`
+- 执行治理检查：`scripts/harness/run-governance-checks.sh`
 - 增量验证：`scripts/harness/verify-changed.sh`
 - 全量验证：`scripts/harness/full-verify.sh`
 - 系统服务 smoke：`scripts/smoke/system-lookup.sh`
 - 认证服务 smoke：`scripts/smoke/auth-refresh.sh`
 - 网关路由 smoke：`scripts/smoke/gateway-auth-refresh.sh`
 - Symphony 状态 smoke：`scripts/smoke/symphony-state.sh`
+- 聚合 smoke：`scripts/smoke/all-services.sh`
 - 服务 smoke runbook：`docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`
+- 新增领域服务 runbook：`docs/harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md`
+- 新增 Dubbo client runbook：`docs/harness-engineering/ADD_DUBBO_CLIENT_RUNBOOK.md`
+- ArchUnit 约束 runbook：`docs/harness-engineering/ADD_ARCHUNIT_RULE_RUNBOOK.md`
+- Agent review loop：`docs/harness-engineering/AGENT_REVIEW_LOOP.md`
+- 质量问题标准：`docs/harness-engineering/QUALITY_ISSUE_STANDARD.md`
 - 部署 / 回滚 runbook：`docs/harness-engineering/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
 - Symphony 故障 runbook：`docs/harness-engineering/SYMPHONY_TROUBLESHOOTING.md`
 

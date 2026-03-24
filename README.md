@@ -50,19 +50,26 @@ artemis/
    mvn clean install -DskipTests
    ```
 
-3. **运行网关**
+3. **运行系统服务**
 
    ```bash
-   cd artemis-gateway && mvn spring-boot:run
+   scripts/dev/run-system.sh
    ```
 
-4. **运行系统服务**
+4. **运行认证服务与网关**
 
    ```bash
-   cd artemis-modules/artemis-system/artemis-system-start && mvn spring-boot:run
+   scripts/dev/run-auth.sh
+   scripts/dev/run-gateway.sh
    ```
 
-5. **（可选）编译 Symphony 子工程**
+5. **（可选）运行 Symphony**
+
+   ```bash
+   scripts/dev/run-symphony.sh
+   ```
+
+6. **（可选）编译 Symphony 子工程**
 
    须在**仓库根目录**执行，以便继承根 BOM 与 `dependencyManagement`（勿仅在 `artemis-symphony` 目录单独 `mvn compile`）。详见 [`artemis-symphony/README.md`](artemis-symphony/README.md)。
 
@@ -101,14 +108,24 @@ artemis/
 - `scripts/dev/package-service.sh`：统一服务打包入口
 - `scripts/dev/build-image.sh`：统一镜像构建入口
 - `scripts/dev/wait-http.sh`：统一 HTTP 等待 / 启动断言入口
+- `scripts/dev/check-service-config.sh`：配置缺失检查入口
+- `scripts/dev/check-service-readiness.sh`：启动成功 / 慢启动 / 关键端点可达性断言入口
 - `scripts/dev/health.sh`：关键依赖与服务健康检查
 - `scripts/dev/tail-log.sh`：统一日志查看入口
 - `scripts/harness/`：OpenSpec 同步、增量验证、全量验证
+- `scripts/harness/run-governance-checks.sh`：文档、契约、重复模式与质量问题治理入口
 - `scripts/smoke/`：最小 smoke 验证脚本
+- `scripts/smoke/all-services.sh`：关键服务聚合 smoke 入口
 - `docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`：服务 smoke 与启动顺序 runbook
+- `docs/harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md`：新增领域服务 runbook
+- `docs/harness-engineering/ADD_DUBBO_CLIENT_RUNBOOK.md`：新增 Dubbo client runbook
+- `docs/harness-engineering/ADD_ARCHUNIT_RULE_RUNBOOK.md`：ArchUnit 约束 runbook
+- `docs/harness-engineering/AGENT_REVIEW_LOOP.md`：agent 自评与 reviewer 回路
+- `docs/harness-engineering/QUALITY_ISSUE_STANDARD.md`：质量问题归档与关闭标准
 - `docs/harness-engineering/DOC_FRESHNESS_POLICY.md`：核心文档审阅 cadence 与防漂移规则
 - `docs/harness-engineering/DEPLOY_AND_ROLLBACK_RUNBOOK.md`：打包、镜像、部署与回滚 runbook
 - `docs/harness-engineering/SYMPHONY_TROUBLESHOOTING.md`：Symphony 常见故障 runbook
+- `.github/workflows/governance.yml`：周期性文档 / 工程治理工作流
 - `.github/workflows/verify.yml`：CI 标准验证工作流
 - `docker/Dockerfile.*`：关键服务容器化模板
 
@@ -129,19 +146,23 @@ Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将
 2. **执行层**
 
    - `scripts/dev/`：基础设施、服务启动、健康检查、日志查看
-   - `scripts/dev/package-service.sh`：统一服务打包入口
-   - `scripts/dev/build-image.sh`：统一镜像构建入口
-   - `scripts/dev/wait-http.sh`：HTTP 等待与启动断言入口
-   - `scripts/smoke/`：system、auth、gateway、symphony 等最小 smoke 入口
-   - `docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`：启动顺序与 smoke 组合标准
+  - `scripts/dev/package-service.sh`：统一服务打包入口
+  - `scripts/dev/build-image.sh`：统一镜像构建入口
+  - `scripts/dev/wait-http.sh`：HTTP 等待与启动断言入口
+  - `scripts/dev/check-service-config.sh`：配置模板检查入口
+  - `scripts/dev/check-service-readiness.sh`：服务就绪断言入口
+  - `scripts/smoke/`：system、auth、gateway、symphony 等最小 smoke 入口
+  - `docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`：启动顺序与 smoke 组合标准
 
 3. **验证层**
 
-   - `scripts/harness/verify-changed.sh`：增量验证入口
-   - `scripts/harness/full-verify.sh`：仓库级全量验证入口
-   - `mvn verify`：测试、Spotless、Checkstyle、SpotBugs 统一质量门
-   - `docs/harness-engineering/DOC_FRESHNESS_POLICY.md`：核心文档审阅 cadence 与防漂移规则
-   - `.github/workflows/verify.yml`：CI 中的文档守门、OpenSpec 差异检查、全量验证与镜像构建
+  - `scripts/harness/verify-changed.sh`：增量验证入口
+  - `scripts/harness/full-verify.sh`：仓库级全量验证入口
+  - `scripts/harness/run-governance-checks.sh`：治理与文档守门入口
+  - `mvn verify`：测试、Spotless、Checkstyle、SpotBugs 统一质量门
+  - `docs/harness-engineering/DOC_FRESHNESS_POLICY.md`：核心文档审阅 cadence 与防漂移规则
+  - `.github/workflows/verify.yml`：CI 中的 OpenSpec 差异检查、全量验证与镜像构建
+  - `.github/workflows/governance.yml`：周期性治理与文档整理守门
 
 4. **编排层**
 
@@ -170,7 +191,7 @@ Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将
 
 ## Pre-commit 钩子（可选）
 
-仓库提供可选的 pre-commit 钩子，在提交前执行：**格式化**（Spotless，Palantir Java Format）、**Checkstyle**（仅本次改动涉及模块）、**OpenSpec 变更未同步提醒**。钩子为可选，未安装不影响正常开发与 CI。
+仓库提供可选的 pre-commit 钩子，在提交前执行：**格式化**（Spotless，Palantir Java Format）、**Checkstyle**（仅本次改动涉及模块）、**脚本语法检查**、**契约 / 文档 / 重复模式治理检查**、**OpenSpec 变更未同步提醒**。钩子为可选，未安装不影响正常开发与 CI。
 
 - **脚本位置**：`.githooks/pre-commit`
 - **安装**（在仓库根目录执行）：

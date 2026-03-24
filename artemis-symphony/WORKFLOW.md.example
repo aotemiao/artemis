@@ -30,6 +30,12 @@ Before changing code, read these repository-local sources of truth:
 5. Relevant files under `openspec/specs/`
 6. Relevant active plan under `docs/exec-plans/active/`, if one exists
 
+When the task matches a common engineering pattern, also read the corresponding asset:
+
+- New domain service: `artemis-symphony/skills/new-domain-service.md`
+- New Dubbo client: `artemis-symphony/skills/new-dubbo-client.md`
+- New ArchUnit rule: `artemis-symphony/skills/add-archunit-rule.md`
+
 Execution rules:
 
 - Treat repository-local docs and specs as the primary source of truth.
@@ -38,9 +44,12 @@ Execution rules:
 - Prefer using repository scripts instead of inventing ad-hoc command sequences.
 - Use `scripts/harness/verify-changed.sh` for scoped validation.
 - Use `scripts/harness/full-verify.sh` for cross-module or high-risk changes.
+- Use `scripts/harness/check-api-doc-sync.sh` and `scripts/harness/check-client-contracts.sh` when touching contracts or API docs.
+- Use `scripts/harness/check-critical-path-tests.sh` when adding new guardrails or key-path tests.
 - When changing `artemis-system` REST behavior and the service is running locally, use `scripts/smoke/system-lookup.sh`.
 - If behavior, constraints, or workflow changes, update the relevant docs and OpenSpec artifacts in the same change whenever practical.
 - For complex work, create or update an execution plan under `docs/exec-plans/active/`.
+- Before the final handoff, answer the self-review questions in `docs/harness-engineering/AGENT_REVIEW_LOOP.md` and use `artemis-symphony/prompts/self-review-and-handoff.md` as the output template.
 
 Complete the task described in the issue.
 

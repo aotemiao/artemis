@@ -14,6 +14,15 @@
 | `artemis-symphony-orchestrator` | 轮询、调度、协调、重试与 reconciliation；运行时配置快照（`SymphonyRuntimeHolder`） |
 | `artemis-symphony-start` | Spring Boot 启动、HTTP API、`WatchService` 工作流热重载 |
 
+## 仓库内工作流资产
+
+- `WORKFLOW.md.example`
+  默认 workflow 模版，要求 agent 先读仓库入口文档
+- `skills/`
+  针对常见工程任务的最小 skill 资产
+- `prompts/`
+  自评与 reviewer handoff 等 prompt 模版
+
 ## 运行
 
 1. 在仓库根或工作目录放置 `WORKFLOW.md`（或复制 `WORKFLOW.md.example` 为 `WORKFLOW.md` 并填写 `tracker.project_slug`）。

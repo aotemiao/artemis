@@ -28,14 +28,8 @@ jobs:
       - name: Shell Syntax Check
         run: bash -n $(find scripts -type f -name '*.sh' | sort)
 
-      - name: Markdown Links Check
-        run: scripts/harness/check-doc-links.sh
-
-      - name: Docs Consistency Check
-        run: scripts/harness/check-doc-consistency.sh
-
-      - name: Docs Freshness Check
-        run: scripts/harness/check-doc-freshness.sh
+      - name: Governance Checks
+        run: scripts/harness/run-governance-checks.sh
 
       - name: OpenSpec Sync Check (Pull Request)
         if: github.event_name == 'pull_request'

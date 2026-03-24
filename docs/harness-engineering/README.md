@@ -14,15 +14,28 @@ Review Cadence: 90 days
   分阶段推进路线，说明当前所在阶段和后续目标
 - `SERVICE_SMOKE_RUNBOOK.md`
   服务启动顺序、等待方式与 smoke 命令的标准入口
+- `ADD_DOMAIN_SERVICE_RUNBOOK.md`
+  新增领域服务的标准操作入口
+- `ADD_DUBBO_CLIENT_RUNBOOK.md`
+  新增 Dubbo client 的标准操作入口
+- `ADD_ARCHUNIT_RULE_RUNBOOK.md`
+  将工程约束落成 ArchUnit 测试的操作入口
+- `AGENT_REVIEW_LOOP.md`
+  agent 自评与 reviewer 复核回路
 - `DOC_FRESHNESS_POLICY.md`
   核心文档审阅 cadence、过期标准与 CI 防漂移守门
 - `DEPLOY_AND_ROLLBACK_RUNBOOK.md`
   服务打包、镜像构建、部署与回滚的标准入口
 - `SYMPHONY_TROUBLESHOOTING.md`
   Symphony 常见问题与排查入口
+- `QUALITY_ISSUE_STANDARD.md`
+  质量问题的建档、关闭与归档标准
+- `quality-issues/`
+  质量问题 active / archive 目录
 
 ## 如何使用
 
 1. 新增工程能力前，先对照 `CHECKLIST.md`
 2. 涉及多步推进的工作，在 `docs/exec-plans/active/` 建计划
-3. 完成一轮补强后，回写 `QUALITY_SCORE.md` 与相关 checklist 状态
+3. 需要套用标准动作时，优先从 runbook、skills 和 prompts 中找现成入口
+4. 完成一轮补强后，回写 `QUALITY_SCORE.md` 与相关 checklist 状态

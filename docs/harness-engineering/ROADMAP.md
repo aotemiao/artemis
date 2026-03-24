@@ -47,7 +47,7 @@ Review Cadence: 90 days
 - 关键工程约束能在 `mvn verify` 或 CI 中失败
 - 主要服务改动都有对应最小验证回路
 
-状态：已进入封板阶段，`mvn verify`、docs 守门、OpenSpec diff 检查、服务 smoke 与镜像构建入口都已接入；后续重点转向持续治理而不是补基础骨架
+状态：已完成当前阶段补强，`mvn verify` 已接入覆盖率基线，契约 / API 文档同步检查、关键路径测试基线与更多 ArchUnit 约束均已落仓
 
 ## Phase 3: 提升可观测性与 agent 自主性
 
@@ -65,7 +65,7 @@ Review Cadence: 90 days
 - agent 能独立复现、验证、回归检查至少一类真实问题
 - 人工主要做判断和优先级，不再承担大部分机械验证
 
-状态：已完成当前核心链路，`wait-http`、service smoke runbook、`auth / gateway / symphony` smoke 与 Symphony troubleshooting 已补齐
+状态：已完成当前核心链路，`wait-http`、service smoke runbook、`check-service-readiness`、聚合 smoke 与 Symphony troubleshooting 已补齐
 
 ## Phase 4: 控制熵增并形成持续治理
 
@@ -83,7 +83,7 @@ Review Cadence: 90 days
 - 质量问题被连续、小步、低成本地清理
 - 仓库中的知识比聊天系统更完整、更可信
 
-状态：已完成当前封板范围，文档 freshness 守门、周期性 CI 巡检与质量入口已建立；后续按脚手架扩展需求继续增强
+状态：已完成当前阶段闭环，周期性治理工作流、重复模式扫描、质量问题归档标准与 agent review loop 已建立
 
 ## 封板后的演进原则
 

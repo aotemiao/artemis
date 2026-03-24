@@ -28,12 +28,21 @@ else
   exit 1
 fi
 
+if [[ -z "$changed_files" ]]; then
+  print_step "No changed files detected"
+  echo "Nothing to verify in mode: $mode"
+  exit 0
+fi
+
 print_step "Checking OpenSpec sync"
 if ((${#shift_args[@]} > 0)); then
   scripts/harness/check-openspec-sync.sh "$mode" "${shift_args[@]}"
 else
   scripts/harness/check-openspec-sync.sh "$mode"
 fi
+
+print_step "Running governance checks"
+scripts/harness/run-governance-checks.sh
 
 changed_java="$(printf "%s\n" "$changed_files" | grep -E '\.java$' || true)"
 changed_poms="$(printf "%s\n" "$changed_files" | grep -E '(^|/)pom\.xml$' || true)"
@@ -64,7 +73,7 @@ modules="$(echo "$modules" | tr ' ' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' |
 
 if [[ -z "$modules" ]]; then
   print_step "No changed Java or pom.xml files detected"
-  echo "Nothing to verify in mode: $mode"
+  echo "Governance checks completed for mode: $mode"
   exit 0
 fi
 

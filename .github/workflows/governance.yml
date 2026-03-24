@@ -1,0 +1,31 @@
+name: Governance
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 3'
+
+jobs:
+  governance:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Shell Syntax Check
+        run: bash -n $(find scripts -type f -name '*.sh' | sort)
+
+      - name: Governance Checks
+        run: scripts/harness/run-governance-checks.sh
