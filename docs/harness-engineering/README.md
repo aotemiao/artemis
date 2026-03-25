@@ -12,6 +12,8 @@ Review Cadence: 90 days
   直接落地的建议清单，标出已落仓、待补强、尚未开始的项目
 - `ROADMAP.md`
   分阶段推进路线，说明当前所在阶段和后续目标
+- `PROJECT_PROGRESS_REPORT.md`
+  当前项目完成程度、阶段里程碑与后续演进路线
 - `SERVICE_SMOKE_RUNBOOK.md`
   服务启动顺序、等待方式与 smoke 命令的标准入口
 - `ADD_DOMAIN_SERVICE_RUNBOOK.md`
@@ -38,9 +40,10 @@ Review Cadence: 90 days
 ## 如何使用
 
 1. 新增工程能力前，先对照 `CHECKLIST.md`
-2. 涉及多步推进的工作，在 `docs/exec-plans/active/` 建计划
-3. 需要套用标准动作时，优先从 runbook、`scripts/dev/new-domain-service.sh`、skills 和 prompts 中找现成入口
-4. 完成一轮补强后，回写 `QUALITY_SCORE.md` 与相关 checklist 状态
+2. 需要判断当前项目阶段、完成程度或后续演进路线时，先读 `PROJECT_PROGRESS_REPORT.md`
+3. 涉及多步推进的工作，在 `docs/exec-plans/active/` 建计划
+4. 需要套用标准动作时，优先从 runbook、`scripts/dev/new-domain-service.sh`、skills 和 prompts 中找现成入口
+5. 完成一轮补强后，回写 `QUALITY_SCORE.md` 与相关 checklist 状态
 
 ## 与 OpenSpec 的分工
 

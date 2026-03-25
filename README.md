@@ -67,6 +67,8 @@ artemis/
 
 5. **（可选）运行 Symphony**
 
+   先复制 `artemis-symphony/WORKFLOW.md.example` 为仓库根 `WORKFLOW.md`，并按需设置 `LINEAR_API_KEY`。若希望 Symphony 在处理 issue 后把进度摘要评论回写到 Linear，可在 workflow 中开启 `reporting.linear_comments.enabled: true`。脚本默认会打开本地 `9500` 端口用于观测；如需自定义，可直接追加 `--server.port=...`，也兼容旧写法 `-Dspring-boot.run.arguments=...`。
+
    ```bash
    scripts/dev/run-symphony.sh
    ```
@@ -104,6 +106,7 @@ artemis/
 - `AGENTS.md`：agent 最小稳定入口
 - `ARCHITECTURE.md`：仓库级架构地图
 - `QUALITY_SCORE.md`：当前质量评分与优先补强项
+- `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`：当前项目完成程度、阶段里程碑与后续演进路线
 - `artemis-api/`：内部调用方的统一 API bridge 与客户端 BOM
 - `docs/harness-engineering/`：落地清单与阶段路线图
 - `docs/exec-plans/`：复杂任务执行计划目录
@@ -151,6 +154,7 @@ Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将
    - `AGENTS.md`：agent 稳定入口与执行约束
    - `ARCHITECTURE.md`：模块边界、服务拓扑、依赖方向
    - `QUALITY_SCORE.md`：当前质量状态、封板结论与扩展方向
+   - `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`：当前项目完成程度、阶段里程碑与后续演进路线
    - `artemis-api/`：内部客户端聚合入口与 BOM
    - `openspec/specs/`：分层、测试、工程约束等规范事实
 

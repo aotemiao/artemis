@@ -1,7 +1,7 @@
 # Harness Engineering Checklist
 
 Status: maintained
-Last Reviewed: 2026-03-23
+Last Reviewed: 2026-03-25
 Review Cadence: 90 days
 
 本清单强调“可直接落地”。每一项都应尽量对应仓库中的文档、脚本、测试或自动化入口，而不是抽象口号。
@@ -24,6 +24,7 @@ Review Cadence: 90 days
 - `[x]` 提供质量看板 `QUALITY_SCORE.md`
 - `[x]` 提供 Harness 专项清单 `docs/harness-engineering/CHECKLIST.md`
 - `[x]` 提供阶段路线图 `docs/harness-engineering/ROADMAP.md`
+- `[x]` 提供项目进度汇报 `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`
 - `[x]` 提供执行计划目录 `docs/exec-plans/`
 - `[x]` 提供执行计划模板 `docs/exec-plans/templates/execution-plan-template.md`
 - `[x]` OpenSpec 已补更多具体场景（治理、agent 资产、契约文档、readiness）

@@ -71,6 +71,6 @@
 
 ## 本次验证结果
 
-- `scripts/harness/check-doc-consistency.sh`：待执行
-- `scripts/harness/check-doc-freshness.sh`：待执行
-- `scripts/harness/verify-changed.sh staged`：待执行
+- `scripts/harness/check-doc-consistency.sh`：通过
+- `scripts/harness/check-doc-freshness.sh`：通过
+- `scripts/harness/verify-changed.sh staged`：通过

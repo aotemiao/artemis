@@ -1,7 +1,7 @@
 # Doc Freshness Policy
 
 Status: maintained
-Last Reviewed: 2026-03-23
+Last Reviewed: 2026-03-25
 Review Cadence: 90 days
 
 本文件用于把“文档不要漂移”这件事变成仓库内的明确规则，而不是依赖维护者记忆。
@@ -19,6 +19,7 @@ Review Cadence: 90 days
 - `docs/harness-engineering/README.md`
 - `docs/harness-engineering/CHECKLIST.md`
 - `docs/harness-engineering/ROADMAP.md`
+- `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`
 - `docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`
 - `docs/harness-engineering/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
 - `docs/harness-engineering/SYMPHONY_TROUBLESHOOTING.md`

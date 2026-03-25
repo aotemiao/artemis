@@ -27,6 +27,8 @@ Review Cadence: 90 days
   当前落地清单
 - `harness-engineering/ROADMAP.md`
   阶段路线图
+- `harness-engineering/PROJECT_PROGRESS_REPORT.md`
+  当前项目完成程度与后续演进路线
 - `harness-engineering/SERVICE_SMOKE_RUNBOOK.md`
   服务启动顺序与 smoke 标准入口
 - `harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md`

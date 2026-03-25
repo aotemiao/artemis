@@ -42,6 +42,8 @@ Review Cadence: 90 days
   先读 `openspec/specs/repository-structure/spec.md`、`docs/harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md`
 - 契约文档、覆盖率、readiness 或治理守门：
   先读 `openspec/specs/contract-doc-guardrails/spec.md`、`openspec/specs/service-readiness-automation/spec.md`、`openspec/specs/harness-governance/spec.md`
+- 项目进度、阶段汇报或演进路线：
+  先读 `QUALITY_SCORE.md`、`docs/harness-engineering/ROADMAP.md`、`docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`、相关 `docs/exec-plans/`
 - 编码代理编排与自动化：
   先读 `artemis-symphony/README.md`、`docs/harness-engineering/ROADMAP.md`、`openspec/specs/agent-task-assets/spec.md`
 - 复杂任务或多步迁移：

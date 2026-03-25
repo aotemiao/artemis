@@ -17,6 +17,7 @@ docs=(
   "docs/harness-engineering/README.md"
   "docs/harness-engineering/CHECKLIST.md"
   "docs/harness-engineering/ROADMAP.md"
+  "docs/harness-engineering/PROJECT_PROGRESS_REPORT.md"
   "docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md"
   "docs/harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md"
   "docs/harness-engineering/ADD_DUBBO_CLIENT_RUNBOOK.md"
