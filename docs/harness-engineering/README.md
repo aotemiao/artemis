@@ -1,7 +1,7 @@
 # Harness Engineering
 
 Status: maintained
-Last Reviewed: 2026-03-24
+Last Reviewed: 2026-03-25
 Review Cadence: 90 days
 
 这个目录用于沉淀 Artemis 在 Harness Engineering 方向上的仓库内结构、路线图和执行标准。
@@ -41,3 +41,11 @@ Review Cadence: 90 days
 2. 涉及多步推进的工作，在 `docs/exec-plans/active/` 建计划
 3. 需要套用标准动作时，优先从 runbook、`scripts/dev/new-domain-service.sh`、skills 和 prompts 中找现成入口
 4. 完成一轮补强后，回写 `QUALITY_SCORE.md` 与相关 checklist 状态
+
+## 与 OpenSpec 的分工
+
+- Harness Engineering 负责仓库内的执行入口、验证回路、runbook、脚本和交付编排。
+- OpenSpec 负责稳定约束的规范事实，例如模块边界、契约要求、质量门和默认 workflow 规则。
+- `docs/exec-plans/` 用于承载复杂任务的实施计划，不替代 OpenSpec 规范变更。
+- 如果任务只是按既有规则施工，通常建执行计划即可；如果任务会改变规则本身，就应同时更新 OpenSpec artifact。
+- 如果任务既改规则又要分阶段落地，就同时使用两者：OpenSpec 管规则，执行计划管实施。

@@ -50,8 +50,9 @@ Execution rules:
 - Use `scripts/harness/check-api-doc-sync.sh` and `scripts/harness/check-client-contracts.sh` when touching contracts or API docs.
 - Use `scripts/harness/check-critical-path-tests.sh` when adding new guardrails or key-path tests.
 - When changing `artemis-system` REST behavior and the service is running locally, use `scripts/smoke/system-lookup.sh`.
-- If behavior, constraints, or workflow changes, update the relevant docs and OpenSpec artifacts in the same change whenever practical.
-- For complex work, create or update an execution plan under `docs/exec-plans/active/`.
+- If a task changes stable behavior rules, constraints, contracts, or repository workflow, update the relevant OpenSpec artifacts in the same change whenever practical.
+- For complex implementation work, create or update an execution plan under `docs/exec-plans/active/`.
+- When a task both changes rules and requires staged delivery, use both: OpenSpec artifacts describe the rule change, and the execution plan tracks implementation, risk, and verification.
 - Before the final handoff, answer the self-review questions in `docs/harness-engineering/AGENT_REVIEW_LOOP.md` and use `artemis-symphony/prompts/self-review-and-handoff.md` as the output template.
 - When the task is Phase-sized or multi-checklist, use `artemis-symphony/prompts/phase-delivery-plan.md` to structure the plan.
 

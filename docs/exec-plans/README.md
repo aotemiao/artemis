@@ -1,7 +1,7 @@
 # Execution Plans
 
 Status: maintained
-Last Reviewed: 2026-03-23
+Last Reviewed: 2026-03-25
 Review Cadence: 90 days
 
 这里用于存放复杂任务的执行计划，让计划、决策、风险和进度都成为仓库的一部分。
@@ -21,3 +21,8 @@ Review Cadence: 90 days
 - 需要分阶段推进的工程化工作
 - 涉及约束、迁移、重构、基础设施的任务
 - 需要把关键决策沉淀给后续 agent / 开发者的任务
+
+边界说明：
+
+- 执行计划用于记录“怎么做完这项工作”，不替代 OpenSpec 中“规则是什么”的规范变更。
+- 如果任务会新增、修改或废弃稳定约束，应在执行计划之外同步更新 OpenSpec artifact。
