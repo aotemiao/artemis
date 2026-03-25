@@ -12,6 +12,14 @@ public record CodexUpdateEvent(
         Map<String, Object> payload) {
 
     public CodexUpdateEvent {
+        if (usage == null && payload != null) {
+            Object usageFromPayload = payload.get("usage");
+            if (usageFromPayload instanceof Map<?, ?> usageMap) {
+                usage = usageMap.entrySet().stream()
+                        .collect(java.util.stream.Collectors.toMap(
+                                e -> String.valueOf(e.getKey()), Map.Entry::getValue));
+            }
+        }
         usage = usage != null ? Map.copyOf(usage) : Map.of();
         payload = payload != null ? Map.copyOf(payload) : Map.of();
     }

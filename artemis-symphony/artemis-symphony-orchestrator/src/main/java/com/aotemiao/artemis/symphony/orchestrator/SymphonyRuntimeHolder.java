@@ -5,6 +5,8 @@ import com.aotemiao.artemis.symphony.config.WorkflowLoadResult;
 import com.aotemiao.artemis.symphony.config.WorkflowLoader;
 import com.aotemiao.artemis.symphony.core.model.WorkflowDefinition;
 import com.aotemiao.artemis.symphony.tracker.LinearTrackerClient;
+import com.aotemiao.artemis.symphony.tracker.MemoryTrackerClient;
+import com.aotemiao.artemis.symphony.tracker.TrackerClient;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
@@ -40,7 +42,14 @@ public class SymphonyRuntimeHolder {
     /** 根据已加载的 {@link WorkflowDefinition} 构建快照（用于启动阶段）。 */
     public static SymphonyRuntimeSnapshot buildSnapshot(WorkflowDefinition definition) {
         ServiceConfig config = new ServiceConfig(definition);
-        LinearTrackerClient tracker = new LinearTrackerClient(config.getTrackerEndpoint(), config.getTrackerApiKey());
+        String trackerKind = config.getTrackerKind();
+        TrackerClient tracker;
+        if ("memory".equals(trackerKind)) {
+            tracker = new MemoryTrackerClient(config.getMemoryTrackerIssues());
+        } else {
+            tracker = new LinearTrackerClient(
+                    config.getTrackerEndpoint(), config.getTrackerApiKey(), config.getTrackerAssignee());
+        }
         return new SymphonyRuntimeSnapshot(definition, config, tracker);
     }
 

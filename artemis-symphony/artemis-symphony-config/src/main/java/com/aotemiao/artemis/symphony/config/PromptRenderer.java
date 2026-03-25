@@ -28,10 +28,27 @@ public final class PromptRenderer {
      */
     public static String render(String promptTemplate, Issue issue, Integer attempt) {
         if (promptTemplate == null || promptTemplate.isBlank()) {
-            return "You are working on an issue from Linear.";
+            return """
+                    You are working on a Linear issue.
+
+                    Identifier: %s
+                    Title: %s
+
+                    Body:
+                    %s
+                    """
+                    .formatted(
+                            issue.identifier(),
+                            issue.title(),
+                            issue.description() != null && !issue.description().isBlank()
+                                    ? issue.description()
+                                    : "No description provided.")
+                    .trim();
         }
         Map<String, Object> context = new HashMap<>();
         context.put("issue", toTemplateMap(issue));
+        context.put("has_attempt", attempt != null);
+        context.put("attempt_number", attempt != null ? attempt : 0);
         if (attempt != null) {
             context.put("attempt", attempt);
         }
@@ -49,7 +66,7 @@ public final class PromptRenderer {
     }
 
     @SuppressWarnings("unchecked")
-    private static Map<String, Object> toTemplateMap(Issue issue) {
+    static Map<String, Object> toTemplateMap(Issue issue) {
         Map<String, Object> m = new HashMap<>();
         m.put("id", issue.id());
         m.put("identifier", issue.identifier());

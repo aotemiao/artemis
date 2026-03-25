@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.aotemiao.artemis.symphony.core.model.CodexTotals;
 import com.aotemiao.artemis.symphony.core.model.Issue;
 import com.aotemiao.artemis.symphony.orchestrator.Orchestrator;
 import com.aotemiao.artemis.symphony.orchestrator.RunningEntry;
@@ -14,10 +15,11 @@ import com.aotemiao.artemis.symphony.workspace.WorkspaceManager;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(SymphonyStateController.class)
@@ -26,11 +28,26 @@ class SymphonyStateControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private Orchestrator orchestrator;
 
-    @MockBean
+    @MockitoBean
     private WorkspaceManager workspaceManager;
+
+    @Test
+    void getState_returnsSnapshot() throws Exception {
+        when(orchestrator.getRunning()).thenReturn(Map.of());
+        when(orchestrator.getRetryAttempts()).thenReturn(Map.of());
+        when(orchestrator.getCodexTotals()).thenReturn(CodexTotals.zero());
+        when(orchestrator.getCodexRateLimits()).thenReturn(Map.of("primary", Map.of("usedPercent", 1)));
+
+        mockMvc.perform(get("/api/v1/state"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.counts.running", is(0)))
+                .andExpect(jsonPath("$.counts.retrying", is(0)))
+                .andExpect(jsonPath("$.codex_totals.total_tokens", is(0)))
+                .andExpect(jsonPath("$.rate_limits.primary.usedPercent", is(1)));
+    }
 
     @Test
     void postRefresh_returnsAcceptedWithQueued() throws Exception {
@@ -55,7 +72,8 @@ class SymphonyStateControllerTest {
         when(orchestrator.findRetryByIdentifier("X-1")).thenReturn(null);
         mockMvc.perform(get("/api/v1/issues/X-1"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("not_found")));
+                .andExpect(jsonPath("$.error.code", is("issue_not_found")))
+                .andExpect(jsonPath("$.error.message", is("未找到运行中或重试中的议题，identifier=X-1")));
     }
 
     @Test

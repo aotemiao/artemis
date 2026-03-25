@@ -67,7 +67,7 @@
 
 ## 后续动作
 
-- Phase A 的具体推进改由 `docs/exec-plans/active/2026-03-25-phase-a-symphony-convergence.md` 统筹，避免路线图和执行路径继续分离
+- Phase A 的具体推进已由 `docs/exec-plans/completed/2026-03-25-phase-a-symphony-convergence.md` 统筹归档，避免路线图和执行路径继续分离
 
 ## 本次验证结果
 

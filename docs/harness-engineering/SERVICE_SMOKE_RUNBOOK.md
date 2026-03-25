@@ -17,7 +17,8 @@ Review Cadence: 90 days
 说明：
 
 - `scripts/dev/run-symphony.sh` 默认会通过 `spring-boot.run.arguments` 打开 `9500` 端口，便于本地观测。
-- 若需要自定义 Symphony 端口，可传入自己的 `-Dspring-boot.run.arguments=...` 覆盖默认值。
+- 若需要自定义 Symphony 端口，可直接追加 `--server.port=...`；旧写法 `-Dspring-boot.run.arguments=...` 仍兼容。
+- 启动前若不确定 workflow 是否已准备好，可先执行 `scripts/dev/check-service-config.sh symphony`。
 
 ## 启动断言
 

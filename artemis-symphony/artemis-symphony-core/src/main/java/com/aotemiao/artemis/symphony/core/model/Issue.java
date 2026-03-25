@@ -17,14 +17,32 @@ public record Issue(
         String state,
         String branchName,
         String url,
+        String assigneeId,
         List<String> labels,
         List<BlockerRef> blockedBy,
+        boolean assignedToWorker,
         Instant createdAt,
         Instant updatedAt) {
 
     public Issue {
         labels = labels != null ? List.copyOf(labels) : List.of();
         blockedBy = blockedBy != null ? List.copyOf(blockedBy) : List.of();
+    }
+
+    public Issue(
+            String id,
+            String identifier,
+            String title,
+            String description,
+            Integer priority,
+            String state,
+            String branchName,
+            String url,
+            List<String> labels,
+            List<BlockerRef> blockedBy,
+            Instant createdAt,
+            Instant updatedAt) {
+        this(id, identifier, title, description, priority, state, branchName, url, null, labels, blockedBy, true, createdAt, updatedAt);
     }
 
     @Override

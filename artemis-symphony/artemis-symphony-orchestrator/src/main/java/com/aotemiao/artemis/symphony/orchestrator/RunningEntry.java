@@ -17,6 +17,9 @@ public class RunningEntry {
     public final Instant startedAt;
 
     public String sessionId;
+    public String workerHost;
+    public String workspacePath;
+    public String codexAppServerPid;
     public String lastCodexEvent;
     public Instant lastCodexTimestamp;
     public String lastCodexMessage;

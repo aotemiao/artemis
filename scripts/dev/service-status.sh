@@ -43,19 +43,23 @@ collect_status() {
 }
 
 print_step "Collecting service status"
-if [[ "$target" == "all" ]]; then
-  while IFS= read -r service; do
-    [[ -z "$service" ]] && continue
-    collect_status "$service"
-  done < <(service_catalog_names)
-else
-  target="$(normalize_service_name "$target")"
-  if ! service_catalog_has "$target"; then
-    usage
-    exit 1
+status_rows="$(
+  if [[ "$target" == "all" ]]; then
+    while IFS= read -r service; do
+      [[ -z "$service" ]] && continue
+      collect_status "$service"
+    done < <(service_catalog_names)
+  else
+    target="$(normalize_service_name "$target")"
+    if ! service_catalog_has "$target"; then
+      usage
+      exit 1
+    fi
+    collect_status "$target"
   fi
-  collect_status "$target"
-fi | python3 - <<'PY'
+)"
+
+python3 -c '
 import sys
 
 rows = [line.rstrip("\n").split("\t") for line in sys.stdin if line.strip()]
@@ -72,4 +76,4 @@ print(fmt(headers))
 print("  ".join("-" * widths[i] for i in range(len(headers))))
 for row in rows:
     print(fmt(row))
-PY
+' <<< "$status_rows"

@@ -42,36 +42,36 @@ public class SymphonyStateController {
     public ResponseEntity<Map<String, Object>> getState() {
         List<Map<String, Object>> runningList = new ArrayList<>();
         for (RunningEntry e : orchestrator.getRunning().values()) {
-            runningList.add(Map.of(
-                    "issue_id",
-                    e.issueId,
-                    "issue_identifier",
-                    e.identifier,
-                    "state",
-                    e.issue != null && e.issue.state() != null ? e.issue.state() : "",
-                    "session_id",
-                    e.sessionId != null ? e.sessionId : "",
-                    "turn_count",
-                    e.turnCount,
-                    "last_event",
-                    e.lastCodexEvent != null ? e.lastCodexEvent : "",
-                    "last_message",
-                    e.lastCodexMessage != null ? e.lastCodexMessage : "",
-                    "started_at",
-                    e.startedAt.toString(),
-                    "last_event_at",
-                    e.lastCodexTimestamp != null ? e.lastCodexTimestamp.toString() : "",
+            Map<String, Object> runningEntry = new LinkedHashMap<>();
+            runningEntry.put("issue_id", e.issueId);
+            runningEntry.put("issue_identifier", e.identifier);
+            runningEntry.put("worker_host", e.workerHost != null ? e.workerHost : "");
+            runningEntry.put(
+                    "workspace_path",
+                    e.workspacePath != null ? e.workspacePath : workspacePathFor(e.identifier, e.workerHost).toString());
+            runningEntry.put("codex_app_server_pid", e.codexAppServerPid != null ? e.codexAppServerPid : "");
+            runningEntry.put("state", e.issue != null && e.issue.state() != null ? e.issue.state() : "");
+            runningEntry.put("session_id", e.sessionId != null ? e.sessionId : "");
+            runningEntry.put("turn_count", e.turnCount);
+            runningEntry.put("last_event", e.lastCodexEvent != null ? e.lastCodexEvent : "");
+            runningEntry.put("last_message", e.lastCodexMessage != null ? e.lastCodexMessage : "");
+            runningEntry.put("started_at", e.startedAt.toString());
+            runningEntry.put("last_event_at", e.lastCodexTimestamp != null ? e.lastCodexTimestamp.toString() : "");
+            runningEntry.put(
                     "tokens",
                     Map.of(
                             "input_tokens", e.codexInputTokens,
                             "output_tokens", e.codexOutputTokens,
-                            "total_tokens", e.codexTotalTokens)));
+                            "total_tokens", e.codexTotalTokens));
+            runningList.add(Map.copyOf(runningEntry));
         }
         List<Map<String, Object>> retryingList = new ArrayList<>();
         for (RetryEntry re : orchestrator.getRetryAttempts().values()) {
             retryingList.add(Map.of(
                     "issue_id", re.issueId(),
                     "issue_identifier", re.identifier(),
+                    "worker_host", re.workerHost() != null ? re.workerHost() : "",
+                    "workspace_path", re.workspacePath() != null ? re.workspacePath() : workspacePathFor(re.identifier(), re.workerHost()).toString(),
                     "attempt", re.attempt(),
                     "due_at", Instant.ofEpochMilli(re.dueAtMs()).toString(),
                     "error", re.error() != null ? re.error() : ""));
@@ -82,19 +82,13 @@ public class SymphonyStateController {
                 "output_tokens", totals.outputTokens(),
                 "total_tokens", totals.totalTokens(),
                 "seconds_running", totals.secondsRunning());
-        Map<String, Object> body = Map.of(
-                "generated_at",
-                Instant.now().toString(),
-                "counts",
-                Map.of("running", runningList.size(), "retrying", retryingList.size()),
-                "running",
-                runningList,
-                "retrying",
-                retryingList,
-                "codex_totals",
-                codexTotals,
-                "rate_limits",
-                (Object) null);
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("generated_at", Instant.now().toString());
+        body.put("counts", Map.of("running", runningList.size(), "retrying", retryingList.size()));
+        body.put("running", runningList);
+        body.put("retrying", retryingList);
+        body.put("codex_totals", codexTotals);
+        body.put("rate_limits", orchestrator.getCodexRateLimits());
         return ResponseEntity.ok(body);
     }
 
@@ -121,16 +115,24 @@ public class SymphonyStateController {
         RunningEntry running = orchestrator.findRunningByIdentifier(identifier);
         RetryEntry retry = running != null ? null : orchestrator.findRetryByIdentifier(identifier);
         if (running == null && retry == null) {
-            return errorResponse(HttpStatus.NOT_FOUND, "not_found", "未找到运行中或重试中的议题，identifier=" + identifier);
+            return errorResponse(HttpStatus.NOT_FOUND, "issue_not_found", "未找到运行中或重试中的议题，identifier=" + identifier);
         }
 
         String issueId = running != null ? running.issueId : retry.issueId();
-        Path workspacePath = workspacePathFor(identifier);
+        Path workspacePath = workspacePathFor(
+                identifier,
+                running != null ? running.workerHost : retry != null ? retry.workerHost() : null);
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("issue_id", issueId);
         body.put("issue_identifier", identifier);
-        body.put("workspace_path", workspacePath.toString());
+        body.put(
+                "workspace_path",
+                running != null && running.workspacePath != null
+                        ? running.workspacePath
+                        : retry != null && retry.workspacePath() != null
+                                ? retry.workspacePath()
+                                : workspacePath.toString());
         body.put("recent_events", List.of());
 
         if (running != null) {
@@ -139,6 +141,8 @@ public class SymphonyStateController {
                     "tracker_state",
                     running.issue != null && running.issue.state() != null ? running.issue.state() : "");
             body.put("session_id", running.sessionId != null ? running.sessionId : "");
+            body.put("worker_host", running.workerHost != null ? running.workerHost : "");
+            body.put("codex_app_server_pid", running.codexAppServerPid != null ? running.codexAppServerPid : "");
             body.put("started_at", running.startedAt.toString());
             body.put(
                     "last_codex",
@@ -156,6 +160,7 @@ public class SymphonyStateController {
                     "retry",
                     Map.of(
                             "attempt", retry.attempt(),
+                            "worker_host", retry.workerHost() != null ? retry.workerHost() : "",
                             "due_at", Instant.ofEpochMilli(retry.dueAtMs()).toString(),
                             "error", retry.error() != null ? retry.error() : ""));
         }
@@ -163,8 +168,8 @@ public class SymphonyStateController {
         return ResponseEntity.ok(body);
     }
 
-    private Path workspacePathFor(String issueIdentifier) {
-        var root = workspaceManager.getWorkspaceRoot();
+    private Path workspacePathFor(String issueIdentifier, String workerHost) {
+        var root = workerHost == null ? workspaceManager.getWorkspaceRoot() : Path.of(workspaceManager.getWorkspaceRootRaw());
         var key = WorkspaceKeys.sanitize(issueIdentifier);
         return root.resolve(key).normalize();
     }
@@ -172,7 +177,9 @@ public class SymphonyStateController {
     private static ResponseEntity<Map<String, Object>> errorResponse(HttpStatus status, String code, String message) {
         return ResponseEntity.status(status)
                 .body(Map.of(
-                        "error", code,
-                        "message", message));
+                        "error",
+                        Map.of(
+                                "code", code,
+                                "message", message)));
     }
 }

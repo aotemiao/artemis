@@ -1,18 +1,23 @@
 package com.aotemiao.artemis.symphony.orchestrator;
 
 import com.aotemiao.artemis.symphony.config.DispatchPreflight;
+import com.aotemiao.artemis.symphony.config.LinearCommentRenderer;
 import com.aotemiao.artemis.symphony.config.ServiceConfig;
+import com.aotemiao.artemis.symphony.core.WorkspaceKeys;
 import com.aotemiao.artemis.symphony.core.model.CodexTotals;
 import com.aotemiao.artemis.symphony.core.model.CodexUpdateEvent;
 import com.aotemiao.artemis.symphony.core.model.Issue;
 import com.aotemiao.artemis.symphony.core.model.RetryEntry;
 import com.aotemiao.artemis.symphony.core.validation.DispatchValidation;
-import com.aotemiao.artemis.symphony.tracker.LinearTrackerClient;
+import com.aotemiao.artemis.symphony.tracker.TrackerClient;
+import com.aotemiao.artemis.symphony.tracker.TrackerResult;
 import com.aotemiao.artemis.symphony.workspace.WorkspaceManager;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +26,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -45,7 +52,6 @@ public class Orchestrator {
     private final Set<String> claimed = ConcurrentHashMap.newKeySet();
     private final Map<String, RetryEntry> retryAttempts = new ConcurrentHashMap<>();
     private final Set<String> completed = ConcurrentHashMap.newKeySet();
-    private CodexTotals codexTotals = CodexTotals.zero();
 
     @SuppressWarnings("unused")
     private Object codexRateLimits = null;
@@ -73,7 +79,7 @@ public class Orchestrator {
         return runtimeHolder.get().config();
     }
 
-    private LinearTrackerClient tracker() {
+    private TrackerClient tracker() {
         return runtimeHolder.get().trackerClient();
     }
 
@@ -81,10 +87,11 @@ public class Orchestrator {
         if (started) return;
         started = true;
         DispatchValidation validation = DispatchPreflight.validate(config());
-        if (!validation.ok()) {
-            throw new IllegalStateException("调度预检未通过: " + validation.errors());
+        if (validation.ok()) {
+            startupTerminalWorkspaceCleanup();
+        } else {
+            LOGGER.warn("action=dispatch_preflight outcome=degraded_start errors={}", validation.errors());
         }
-        startupTerminalWorkspaceCleanup();
         tickThread = new Thread(this::runTickLoop, "symphony-orchestrator-tick");
         tickThread.setDaemon(true);
         tickThread.start();
@@ -172,16 +179,14 @@ public class Orchestrator {
         if (!result.isSuccess() || result.value() == null) return;
         for (Issue issue : result.value()) {
             if (issue.identifier() != null) {
-                workspaceManager.removeWorkspace(workspaceManager
-                        .getWorkspaceRoot()
-                        .resolve(com.aotemiao.artemis.symphony.core.WorkspaceKeys.sanitize(issue.identifier())));
+                workspaceManager.removeIssueWorkspaces(issue.identifier());
             }
         }
     }
 
     private void reconcileRunningIssues() {
         ServiceConfig cfg = config();
-        LinearTrackerClient tr = tracker();
+        TrackerClient tr = tracker();
         long stallTimeoutMs = cfg.getStallTimeoutMs();
         if (stallTimeoutMs > 0) {
             Instant now = Instant.now();
@@ -207,11 +212,13 @@ public class Orchestrator {
         if (running.isEmpty()) return;
         var result = tr.fetchIssueStatesByIds(new ArrayList<>(running.keySet()));
         if (!result.isSuccess() || result.value() == null) return;
+        Set<String> visibleIssueIds = ConcurrentHashMap.newKeySet();
         List<String> terminal =
                 cfg.getTrackerTerminalStates().stream().map(String::toLowerCase).toList();
         List<String> active =
                 cfg.getTrackerActiveStates().stream().map(String::toLowerCase).toList();
         for (Issue issue : result.value()) {
+            visibleIssueIds.add(issue.id());
             RunningEntry entry = running.get(issue.id());
             if (entry == null) continue;
             String stateNorm = issue.state() != null ? issue.state().toLowerCase() : "";
@@ -224,6 +231,19 @@ public class Orchestrator {
                             issue.identifier(),
                             entry.sessionId != null ? entry.sessionId : "");
                     terminateRunning(issue.id(), true);
+                } finally {
+                    clearIssueMdc();
+                }
+            } else if (!issue.assignedToWorker()) {
+                putIssueMdc(issue.id(), issue.identifier(), entry.sessionId);
+                try {
+                    LOGGER.info(
+                            "action=reconcile_unrouted issue_id={} issue_identifier={} session_id={} assignee_id={}",
+                            issue.id(),
+                            issue.identifier(),
+                            entry.sessionId != null ? entry.sessionId : "",
+                            issue.assigneeId() != null ? issue.assigneeId() : "");
+                    terminateRunning(issue.id(), false);
                 } finally {
                     clearIssueMdc();
                 }
@@ -243,6 +263,11 @@ public class Orchestrator {
                 }
             }
         }
+        for (String runningIssueId : new ArrayList<>(running.keySet())) {
+            if (!visibleIssueIds.contains(runningIssueId)) {
+                terminateRunning(runningIssueId, false);
+            }
+        }
     }
 
     private void terminateRunning(String issueId, boolean cleanupWorkspace) {
@@ -250,9 +275,7 @@ public class Orchestrator {
         if (entry == null) return;
         claimed.remove(issueId);
         if (cleanupWorkspace) {
-            workspaceManager.removeWorkspace(workspaceManager
-                    .getWorkspaceRoot()
-                    .resolve(com.aotemiao.artemis.symphony.core.WorkspaceKeys.sanitize(entry.identifier)));
+            workspaceManager.removeWorkspace(resolveWorkspacePath(entry), entry.workerHost);
         }
     }
 
@@ -264,6 +287,7 @@ public class Orchestrator {
                 cfg.getTrackerTerminalStates().stream().map(String::toLowerCase).toList();
         return issues.stream()
                 .filter(i -> hasRequiredFields(i)
+                        && i.assignedToWorker()
                         && activeLower.contains(i.stateNormalized())
                         && !terminalLower.contains(i.stateNormalized()))
                 .filter(i -> !running.containsKey(i.id()) && !claimed.contains(i.id()))
@@ -285,8 +309,10 @@ public class Orchestrator {
     private boolean shouldDispatch(Issue issue) {
         ServiceConfig cfg = config();
         if (running.containsKey(issue.id()) || claimed.contains(issue.id())) return false;
+        if (!issue.assignedToWorker()) return false;
         int globalSlots = cfg.getMaxConcurrentAgents() - running.size();
         if (globalSlots <= 0) return false;
+        if (!selectWorkerHost(null).hasCapacity()) return false;
         Map<String, Integer> byState = cfg.getMaxConcurrentAgentsByState();
         if (!byState.isEmpty()) {
             String stateNorm = issue.stateNormalized();
@@ -311,11 +337,18 @@ public class Orchestrator {
     }
 
     private void dispatchIssue(Issue issue, Integer attempt) {
+        dispatchIssue(issue, attempt, null);
+    }
+
+    private void dispatchIssue(Issue issue, Integer attempt, String preferredWorkerHost) {
         if (running.containsKey(issue.id()) || claimed.contains(issue.id())) return;
+        WorkerSelection workerSelection = selectWorkerHost(preferredWorkerHost);
+        if (!workerSelection.hasCapacity()) return;
         claimed.add(issue.id());
         retryAttempts.remove(issue.id());
         int retryAttempt = attempt != null ? attempt : 0;
         RunningEntry entry = new RunningEntry(issue.id(), issue.identifier(), issue, retryAttempt, Instant.now());
+        entry.workerHost = workerSelection.workerHost();
         running.put(issue.id(), entry);
 
         final Map<String, String> parentMdc = MDC.getCopyOfContextMap();
@@ -325,20 +358,31 @@ public class Orchestrator {
             }
             putIssueMdc(issue.id(), issue.identifier(), null);
             try {
-                LOGGER.info("action=worker_start issue_id={} issue_identifier={}", issue.id(), issue.identifier());
+                Issue executionIssue = claimTodoIssueIfNeeded(issue);
+                entry.issue = executionIssue;
+                LOGGER.info(
+                        "action=worker_start issue_id={} issue_identifier={} tracker_state={}",
+                        executionIssue.id(),
+                        executionIssue.identifier(),
+                        executionIssue.state());
                 agentRunner.runAttempt(
-                        issue,
+                        executionIssue,
                         attempt,
+                        workerSelection.workerHost(),
                         evt -> onCodexUpdate(issue.id(), evt),
-                        () -> onWorkerExit(issue.id(), true),
-                        () -> onWorkerExit(issue.id(), false));
+                        runtimeInfo -> {
+                            entry.workerHost = runtimeInfo.workerHost();
+                            entry.workspacePath = runtimeInfo.workspacePath();
+                        },
+                        () -> onWorkerExit(issue.id(), true, null),
+                        reason -> onWorkerExit(issue.id(), false, reason));
             } catch (Exception e) {
                 LOGGER.warn(
                         "action=worker_exception issue_id={} issue_identifier={} reason={}",
                         issue.id(),
                         issue.identifier(),
                         e.toString());
-                onWorkerExit(issue.id(), false);
+                onWorkerExit(issue.id(), false, e.toString());
             } finally {
                 clearIssueMdc();
                 if (parentMdc != null) {
@@ -346,6 +390,38 @@ public class Orchestrator {
                 }
             }
         });
+    }
+
+    Issue claimTodoIssueIfNeeded(Issue issue) {
+        if (issue == null || !"todo".equals(issue.stateNormalized())) {
+            return issue;
+        }
+        TrackerResult<Void> update = tracker().updateIssueState(issue.id(), "In Progress");
+        if (!update.isSuccess()) {
+            LOGGER.warn(
+                    "action=issue_claim outcome=failed issue_id={} issue_identifier={} reason={}",
+                    issue.id(),
+                    issue.identifier(),
+                    update.errorCode() + ": " + update.errorMessage());
+            return issue;
+        }
+        var refreshed = tracker().fetchIssueStatesByIds(List.of(issue.id()));
+        if (refreshed.isSuccess() && refreshed.value() != null && !refreshed.value().isEmpty()) {
+            Issue refreshedIssue = refreshed.value().get(0);
+            LOGGER.info(
+                    "action=issue_claim outcome=claimed issue_id={} issue_identifier={} tracker_state={}",
+                    refreshedIssue.id(),
+                    refreshedIssue.identifier(),
+                    refreshedIssue.state());
+            return refreshedIssue;
+        }
+        Issue claimedIssue = withState(issue, "In Progress");
+        LOGGER.info(
+                "action=issue_claim outcome=claimed issue_id={} issue_identifier={} tracker_state={}",
+                claimedIssue.id(),
+                claimedIssue.identifier(),
+                claimedIssue.state());
+        return claimedIssue;
     }
 
     private static void putIssueMdc(String issueId, String issueIdentifier, String sessionId) {
@@ -359,6 +435,24 @@ public class Orchestrator {
         MDC.remove("issue_id");
         MDC.remove("issue_identifier");
         MDC.remove("session_id");
+    }
+
+    private static Issue withState(Issue issue, String stateName) {
+        return new Issue(
+                issue.id(),
+                issue.identifier(),
+                issue.title(),
+                issue.description(),
+                issue.priority(),
+                stateName,
+                issue.branchName(),
+                issue.url(),
+                issue.assigneeId(),
+                issue.labels(),
+                issue.blockedBy(),
+                issue.assignedToWorker(),
+                issue.createdAt(),
+                Instant.now());
     }
 
     private void onCodexUpdate(String issueId, CodexUpdateEvent evt) {
@@ -377,14 +471,29 @@ public class Orchestrator {
                 MDC.put("session_id", e.sessionId);
             }
         }
+        if (evt.payload() != null && evt.payload().containsKey("worker_host")) {
+            Object workerHost = evt.payload().get("worker_host");
+            if (workerHost != null) {
+                e.workerHost = workerHost.toString();
+            }
+        }
+        if (evt.payload() != null && evt.payload().containsKey("codex_app_server_pid")) {
+            Object pid = evt.payload().get("codex_app_server_pid");
+            if (pid != null) {
+                e.codexAppServerPid = pid.toString();
+            }
+        }
         if (evt.usage() != null) {
             e.codexInputTokens = ((Number) evt.usage().getOrDefault("input_tokens", 0)).longValue();
             e.codexOutputTokens = ((Number) evt.usage().getOrDefault("output_tokens", 0)).longValue();
             e.codexTotalTokens = ((Number) evt.usage().getOrDefault("total_tokens", 0)).longValue();
         }
+        if (evt.payload() != null && evt.payload().containsKey("rate_limits")) {
+            codexRateLimits = evt.payload().get("rate_limits");
+        }
     }
 
-    private void onWorkerExit(String issueId, boolean normal) {
+    private void onWorkerExit(String issueId, boolean normal, String failureReason) {
         RunningEntry entry = running.remove(issueId);
         if (entry == null) return;
         claimed.remove(issueId);
@@ -395,33 +504,39 @@ public class Orchestrator {
                 entry.issueId,
                 entry.identifier,
                 entry.sessionId != null ? entry.sessionId : "");
+        RetryEntry nextRetry;
         if (normal) {
-            scheduleRetry(issueId, entry.identifier, 1, null);
+            nextRetry = scheduleRetry(issueId, entry.identifier, 1, null, entry.workerHost, entry.workspacePath);
         } else {
             int nextAttempt = entry.retryAttempt + 1;
-            scheduleRetry(issueId, entry.identifier, nextAttempt, "worker exited");
+            String error = failureReason != null && !failureReason.isBlank() ? failureReason : "worker exited";
+            nextRetry = scheduleRetry(
+                    issueId, entry.identifier, nextAttempt, error, entry.workerHost, entry.workspacePath);
         }
+        reportAttemptOutcome(entry, normal, nextRetry, failureReason);
     }
 
-    private void scheduleRetry(String issueId, String identifier, int attempt, String error) {
+    private RetryEntry scheduleRetry(
+            String issueId, String identifier, int attempt, String error, String workerHost, String workspacePath) {
         ServiceConfig cfg = config();
         long delayMs = attempt == 1 && error == null
                 ? 1000
                 : Math.min(10_000 * (1L << (attempt - 1)), cfg.getMaxRetryBackoffMs());
         long dueAtMs = System.currentTimeMillis() + delayMs;
-        RetryEntry re = new RetryEntry(issueId, identifier, attempt, dueAtMs, null, error);
+        RetryEntry re = new RetryEntry(issueId, identifier, attempt, dueAtMs, null, error, workerHost, workspacePath);
         retryAttempts.put(issueId, re);
         retryScheduler.schedule(() -> onRetryTimer(issueId), delayMs, TimeUnit.MILLISECONDS);
+        return re;
     }
 
     private void onRetryTimer(String issueId) {
         RetryEntry re = retryAttempts.remove(issueId);
         if (re == null) return;
         ServiceConfig cfg = config();
-        LinearTrackerClient tr = tracker();
+        TrackerClient tr = tracker();
         var result = tr.fetchCandidateIssues(cfg.getTrackerProjectSlug(), cfg.getTrackerActiveStates());
         if (!result.isSuccess() || result.value() == null) {
-            scheduleRetry(issueId, re.identifier(), re.attempt() + 1, "retry poll failed");
+            scheduleRetry(issueId, re.identifier(), re.attempt() + 1, "retry poll failed", re.workerHost(), re.workspacePath());
             return;
         }
         Issue issue = result.value().stream()
@@ -433,10 +548,26 @@ public class Orchestrator {
             return;
         }
         if (running.size() >= cfg.getMaxConcurrentAgents()) {
-            scheduleRetry(issueId, issue.identifier(), re.attempt() + 1, "no available orchestrator slots");
+            scheduleRetry(
+                    issueId,
+                    issue.identifier(),
+                    re.attempt() + 1,
+                    "no available orchestrator slots",
+                    re.workerHost(),
+                    re.workspacePath());
             return;
         }
-        dispatchIssue(issue, re.attempt());
+        if (!selectWorkerHost(re.workerHost()).hasCapacity()) {
+            scheduleRetry(
+                    issueId,
+                    issue.identifier(),
+                    re.attempt() + 1,
+                    "no available worker slots",
+                    re.workerHost(),
+                    re.workspacePath());
+            return;
+        }
+        dispatchIssue(issue, re.attempt(), re.workerHost());
     }
 
     /** 按人类可读议题编号（如 MT-649）查找运行中条目。 */
@@ -473,6 +604,176 @@ public class Orchestrator {
     }
 
     public CodexTotals getCodexTotals() {
-        return codexTotals;
+        Instant now = Instant.now();
+        long inputTokens = 0L;
+        long outputTokens = 0L;
+        long totalTokens = 0L;
+        double secondsRunning = 0.0;
+        for (RunningEntry entry : running.values()) {
+            inputTokens += entry.codexInputTokens;
+            outputTokens += entry.codexOutputTokens;
+            totalTokens += entry.codexTotalTokens;
+            secondsRunning += Math.max(
+                    0.0, java.time.Duration.between(entry.startedAt, now).toMillis() / 1000.0);
+        }
+        return new CodexTotals(inputTokens, outputTokens, totalTokens, secondsRunning);
     }
+
+    public Object getCodexRateLimits() {
+        return codexRateLimits;
+    }
+
+    void reportAttemptOutcome(RunningEntry entry, boolean normal, RetryEntry retryEntry, String failureReason) {
+        if (entry == null || entry.issue == null) {
+            return;
+        }
+        ServiceConfig cfg = config();
+        if (!cfg.isLinearCommentReportingEnabled()) {
+            return;
+        }
+        String titleRegex = cfg.getLinearCommentIssueTitleRegex();
+        if (titleRegex != null && !titleRegex.isBlank()) {
+            try {
+                String issueTitle = entry.issue.title() != null ? entry.issue.title() : "";
+                if (!Pattern.compile(titleRegex).matcher(issueTitle).find()) {
+                    return;
+                }
+            } catch (PatternSyntaxException e) {
+                LOGGER.warn(
+                        "action=linear_comment_filter outcome=invalid_regex issue_id={} issue_identifier={} regex={} reason={}",
+                        entry.issueId,
+                        entry.identifier,
+                        titleRegex,
+                        e.getMessage());
+                return;
+            }
+        }
+
+        Instant finishedAt = Instant.now();
+        long durationSeconds = Math.max(
+                0L, java.time.Duration.between(entry.startedAt, finishedAt).getSeconds());
+        int attemptNumber = entry.retryAttempt + 1;
+
+        Map<String, Object> attempt = new LinkedHashMap<>();
+        attempt.put("number", attemptNumber);
+        attempt.put("outcome", normal ? "completed" : "failed");
+        attempt.put("outcome_text", normal ? "已完成本轮处理" : "本轮处理失败");
+        attempt.put("started_at", entry.startedAt.toString());
+        attempt.put("finished_at", finishedAt.toString());
+        attempt.put("duration_seconds", durationSeconds);
+        attempt.put("turn_count", entry.turnCount);
+        attempt.put("session_id", entry.sessionId != null ? entry.sessionId : "");
+        attempt.put("last_codex_event", entry.lastCodexEvent != null ? entry.lastCodexEvent : "");
+        attempt.put("last_codex_at", entry.lastCodexTimestamp != null ? entry.lastCodexTimestamp.toString() : "");
+
+        Map<String, Object> workspace = Map.of(
+                "path",
+                entry.workspacePath != null ? entry.workspacePath : resolveWorkspacePath(entry).toString(),
+                "key",
+                WorkspaceKeys.sanitize(entry.identifier),
+                "worker_host",
+                entry.workerHost != null ? entry.workerHost : "");
+
+        Map<String, Object> usage = Map.of(
+                "input_tokens", entry.codexInputTokens,
+                "output_tokens", entry.codexOutputTokens,
+                "total_tokens", entry.codexTotalTokens);
+
+        Map<String, Object> retry = new LinkedHashMap<>();
+        boolean retryScheduled = retryEntry != null;
+        retry.put("scheduled", retryScheduled);
+        retry.put("next_attempt", retryScheduled ? retryEntry.attempt() + 1 : 0);
+        retry.put(
+                "due_at",
+                retryScheduled ? Instant.ofEpochMilli(retryEntry.dueAtMs()).toString() : "");
+        retry.put(
+                "delay_seconds",
+                retryScheduled ? Math.max(0L, (retryEntry.dueAtMs() - finishedAt.toEpochMilli()) / 1000L) : 0L);
+        retry.put(
+                "error",
+                failureReason != null && !failureReason.isBlank()
+                        ? failureReason
+                        : retryScheduled && retryEntry.error() != null ? retryEntry.error() : "");
+
+        Map<String, Object> context = new LinkedHashMap<>();
+        context.put("attempt", attempt);
+        context.put("workspace", workspace);
+        context.put("usage", usage);
+        context.put("retry", retry);
+
+        try {
+            String body = normal
+                    ? LinearCommentRenderer.renderSuccess(cfg.getLinearCommentSuccessTemplate(), entry.issue, context)
+                    : LinearCommentRenderer.renderFailure(cfg.getLinearCommentFailureTemplate(), entry.issue, context);
+            var result = tracker().createIssueComment(entry.issueId, body);
+            if (!result.isSuccess()) {
+                LOGGER.warn(
+                        "action=linear_comment_writeback outcome=failed issue_id={} issue_identifier={} reason={}",
+                        entry.issueId,
+                        entry.identifier,
+                        result.errorMessage());
+                return;
+            }
+            LOGGER.info(
+                    "action=linear_comment_writeback outcome=posted issue_id={} issue_identifier={} comment_id={}",
+                    entry.issueId,
+                    entry.identifier,
+                    result.value() != null ? result.value() : "");
+        } catch (LinearCommentRenderer.CommentRenderException e) {
+            LOGGER.warn(
+                    "action=linear_comment_render outcome=failed code={} issue_id={} issue_identifier={} reason={}",
+                    e.getCode(),
+                    entry.issueId,
+                    entry.identifier,
+                    e.getMessage());
+        } catch (Exception e) {
+            LOGGER.warn(
+                    "action=linear_comment_writeback outcome=failed issue_id={} issue_identifier={} reason={}",
+                    entry.issueId,
+                    entry.identifier,
+                    e.toString());
+        }
+    }
+
+    private WorkerSelection selectWorkerHost(String preferredWorkerHost) {
+        List<String> hosts = config().getWorkerSshHosts();
+        if (hosts.isEmpty()) {
+            return new WorkerSelection(true, null);
+        }
+        List<String> availableHosts = hosts.stream().filter(this::workerHostSlotsAvailable).toList();
+        if (availableHosts.isEmpty()) {
+            return new WorkerSelection(false, null);
+        }
+        if (preferredWorkerHost != null && !preferredWorkerHost.isBlank() && availableHosts.contains(preferredWorkerHost)) {
+            return new WorkerSelection(true, preferredWorkerHost);
+        }
+        String leastLoaded = availableHosts.stream()
+                .min(Comparator.comparingLong(this::runningWorkerHostCount))
+                .orElse(null);
+        return new WorkerSelection(true, leastLoaded);
+    }
+
+    private boolean workerHostSlotsAvailable(String workerHost) {
+        Integer limit = config().getWorkerMaxConcurrentAgentsPerHost();
+        if (workerHost == null || limit == null || limit <= 0) {
+            return true;
+        }
+        return runningWorkerHostCount(workerHost) < limit;
+    }
+
+    private long runningWorkerHostCount(String workerHost) {
+        if (workerHost == null) {
+            return 0L;
+        }
+        return running.values().stream().filter(entry -> workerHost.equals(entry.workerHost)).count();
+    }
+
+    private Path resolveWorkspacePath(RunningEntry entry) {
+        if (entry.workspacePath != null && !entry.workspacePath.isBlank()) {
+            return Path.of(entry.workspacePath);
+        }
+        return workspaceManager.getWorkspaceRoot().resolve(WorkspaceKeys.sanitize(entry.identifier)).normalize();
+    }
+
+    private record WorkerSelection(boolean hasCapacity, String workerHost) {}
 }

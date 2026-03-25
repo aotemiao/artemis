@@ -14,11 +14,12 @@ public final class DispatchPreflight {
 
         if (config.getTrackerKind() == null || config.getTrackerKind().isBlank()) {
             errors.add("tracker.kind is required");
-        } else if (!"linear".equals(config.getTrackerKind())) {
-            errors.add("tracker.kind must be 'linear' (only supported value)");
+        } else if (!"linear".equals(config.getTrackerKind()) && !"memory".equals(config.getTrackerKind())) {
+            errors.add("tracker.kind must be 'linear' or 'memory'");
         }
 
-        if (config.getTrackerApiKey() == null || config.getTrackerApiKey().isBlank()) {
+        if ("linear".equals(config.getTrackerKind())
+                && (config.getTrackerApiKey() == null || config.getTrackerApiKey().isBlank())) {
             errors.add("tracker.api_key is required (set LINEAR_API_KEY or configure in workflow)");
         }
 

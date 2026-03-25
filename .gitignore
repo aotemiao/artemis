@@ -39,6 +39,8 @@ build/
 ### Cursor / Workspace ###
 .cursor/
 *.code-workspace
+WORKFLOW.md
+symphony_workspaces/
 
 ### Mac OS ###
 .DS_Store

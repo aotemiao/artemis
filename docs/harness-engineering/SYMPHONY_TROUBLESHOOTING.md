@@ -21,7 +21,7 @@ Review Cadence: 90 days
 1. 确认是否通过 `scripts/dev/run-symphony.sh` 启动
 2. 默认端口应为 `9500`
 3. 执行 `scripts/smoke/symphony-state.sh`
-4. 若仍失败，确认是否手工传入了自定义 `-Dspring-boot.run.arguments`
+4. 若仍失败，确认是否手工传入了自定义 `--server.port=...` 或旧写法 `-Dspring-boot.run.arguments=...`
 
 ### 2. WORKFLOW 变更后没有生效
 
@@ -37,7 +37,7 @@ Review Cadence: 90 days
 排查顺序：
 
 1. 检查 `LINEAR_API_KEY` 是否存在
-2. 检查 `WORKFLOW.md` 中的 tracker 配置
+2. 检查 `WORKFLOW.md` 中的 tracker 配置，并确认 `tracker.project_slug` 已填写真实值
 3. 查看 `GET /api/v1/state` 返回的 running / retrying 状态
 4. 确认 Codex app-server 所需环境是否可用
 

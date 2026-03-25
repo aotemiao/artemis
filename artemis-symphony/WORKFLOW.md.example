@@ -4,16 +4,41 @@ tracker:
   kind: linear
   api_key: $LINEAR_API_KEY
   project_slug: YOUR_PROJECT_SLUG
+  # assignee: $LINEAR_ASSIGNEE
+  # kind: memory
+  # memory_issues:
+  #   - id: mem-1
+  #     identifier: MEM-1
+  #     title: Local test issue
+  #     state: Todo
 polling:
   interval_ms: 30000
 workspace:
   root: ./symphony_workspaces
+worker:
+  # ssh_hosts:
+  #   - worker-a
+  #   - worker-b:2222
+  # max_concurrent_agents_per_host: 2
+reporting:
+  linear_comments:
+    enabled: false
+    issue_title_regex: ^进度汇报$
+    # success_template: |
+    #   Symphony 已完成一次处理尝试：{{ issue.identifier }} / turns={{ attempt.turn_count }}
+    # failure_template: |
+    #   Symphony 本轮处理失败：{{ issue.identifier }} / reason={{ retry.error }}
 agent:
   max_concurrent_agents: 2
   max_turns: 20
   max_retry_backoff_ms: 300000
 codex:
   command: codex app-server
+  # approval_policy: never
+  # approval_policy:
+  #   reject:
+  #     rules: true
+  # thread_sandbox: workspace-write
   turn_timeout_ms: 3600000
   read_timeout_ms: 5000
   stall_timeout_ms: 300000
@@ -65,6 +90,6 @@ Complete the task described in the issue.
 {{ issue.description }}
 {% endif %}
 
-{% if attempt %}
-This is retry/continuation attempt {{ attempt }}.
+{% if has_attempt %}
+This is retry/continuation attempt {{ attempt_number }}.
 {% endif %}

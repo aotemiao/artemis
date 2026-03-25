@@ -3,7 +3,6 @@ package com.aotemiao.artemis.symphony;
 import com.aotemiao.artemis.symphony.config.DispatchPreflight;
 import com.aotemiao.artemis.symphony.config.WorkflowLoadResult;
 import com.aotemiao.artemis.symphony.config.WorkflowLoader;
-import com.aotemiao.artemis.symphony.core.validation.DispatchValidation;
 import com.aotemiao.artemis.symphony.orchestrator.AgentRunner;
 import com.aotemiao.artemis.symphony.orchestrator.Orchestrator;
 import com.aotemiao.artemis.symphony.orchestrator.SymphonyRuntimeHolder;
@@ -54,11 +53,9 @@ public class SymphonyBootstrap {
     @Bean
     public ApplicationRunner orchestratorStarter(Orchestrator orchestrator, SymphonyRuntimeHolder holder) {
         return args -> {
-            DispatchValidation validation =
-                    DispatchPreflight.validate(holder.get().config());
+            var validation = DispatchPreflight.validate(holder.get().config());
             if (!validation.ok()) {
-                LOGGER.error("调度预检未通过: {}", validation.errors());
-                throw new IllegalStateException("调度预检未通过: " + validation.errors());
+                LOGGER.warn("Symphony 以降级模式启动；待修复 dispatch 配置 errors={}", validation.errors());
             }
             orchestrator.start();
             LOGGER.info("Symphony 编排器已启动 workflow_path={}", holder.getWorkflowPath());

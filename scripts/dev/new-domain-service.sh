@@ -945,6 +945,14 @@ write_file "${service_dir}/${service_artifact}-start/pom.xml" <<EOF
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -1157,7 +1165,7 @@ source "\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)/lib/common.sh"
 run_in_repo_root
 
 print_step "Starting ${service_artifact}"
-run_mvn -pl artemis-modules/${service_artifact}/${service_artifact}-start -am spring-boot:run "\$@"
+run_packaged_service_module artemis-modules/${service_artifact}/${service_artifact}-start "\$@"
 EOF
 
 write_file "${readiness_script}" <<EOF

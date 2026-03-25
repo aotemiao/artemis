@@ -78,6 +78,7 @@ Review Cadence: 90 days
 - 打包服务：`scripts/dev/package-service.sh <gateway|auth|system|symphony|all|<domain>>`
 - 构建镜像：`scripts/dev/build-image.sh <gateway|auth|system|all|<domain>>`
 - 服务状态总览：`scripts/dev/service-status.sh [all|<service>]`
+- Symphony 真实 live e2e：`scripts/e2e/run-symphony-live-e2e.sh`
 - 部署演练：`scripts/dev/deploy-drill.sh <all|service> [tag_suffix] [--skip-smoke]`
 - 回滚演练：`scripts/dev/rollback-drill.sh <service> <image-tag|jar-path>`
 - 等待 HTTP 端点：`scripts/dev/wait-http.sh`

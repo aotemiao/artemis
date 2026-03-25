@@ -73,6 +73,14 @@ artemis/
    scripts/dev/run-symphony.sh
    ```
 
+   若要执行与官方 `openai/symphony` 对齐的真实 live e2e 演练，可显式提供 `LINEAR_API_KEY` 后运行：
+
+   ```bash
+   scripts/e2e/run-symphony-live-e2e.sh
+   ```
+
+   若未提供真实 SSH worker，脚本会自动使用 `artemis-symphony/test-support/live-e2e-docker/` 中的 docker fallback worker；该 fallback 会保留官方默认 `workspace-write` sandbox 语义，并可通过 `SYMPHONY_LIVE_E2E_KEEP_ARTIFACTS=1` 保留失败现场。
+
 6. **（可选）编译 Symphony 子工程**
 
    须在**仓库根目录**执行，以便继承根 BOM 与 `dependencyManagement`（勿仅在 `artemis-symphony` 目录单独 `mvn compile`）。详见 [`artemis-symphony/README.md`](artemis-symphony/README.md)。
@@ -122,6 +130,7 @@ artemis/
 - `scripts/dev/check-service-readiness.sh`：启动成功 / 慢启动 / 关键端点可达性断言入口
 - `scripts/dev/health.sh`：关键依赖与服务健康检查
 - `scripts/dev/tail-log.sh`：统一日志查看入口
+- `scripts/e2e/run-symphony-live-e2e.sh`：Symphony 真实 Linear / Codex / SSH 端到端演练入口
 - `scripts/harness/`：OpenSpec 同步、增量验证、全量验证
 - `scripts/harness/run-governance-checks.sh`：文档、契约、重复模式与质量问题治理入口
 - `scripts/harness/check-service-catalog.sh`：领域服务运行资产守门入口
