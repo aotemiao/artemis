@@ -43,6 +43,9 @@ for md in repo.rglob("*.md"):
             continue
         if target.startswith("#"):
             continue
+        if target.startswith("/"):
+            errors.append(f"{md.relative_to(repo)} -> {target} (absolute filesystem path is not allowed)")
+            continue
         clean = target.split("#", 1)[0]
         if not clean:
             continue
