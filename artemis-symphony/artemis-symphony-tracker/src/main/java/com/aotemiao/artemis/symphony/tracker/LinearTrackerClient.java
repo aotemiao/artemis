@@ -257,7 +257,8 @@ public class LinearTrackerClient implements TrackerClient {
         if (!stateLookup.isSuccess()) {
             return TrackerResult.failure(stateLookup.errorCode(), stateLookup.errorMessage());
         }
-        String stateId = stateLookup.value()
+        String stateId = stateLookup
+                .value()
                 .path("data")
                 .path("issue")
                 .path("team")
@@ -280,7 +281,8 @@ public class LinearTrackerClient implements TrackerClient {
         if (!update.isSuccess()) {
             return TrackerResult.failure(update.errorCode(), update.errorMessage());
         }
-        boolean success = update.value().path("data").path("issueUpdate").path("success").asBoolean(false);
+        boolean success =
+                update.value().path("data").path("issueUpdate").path("success").asBoolean(false);
         if (!success) {
             return TrackerResult.failure("linear_issue_update_failed", "issueUpdate returned success=false");
         }
@@ -392,8 +394,8 @@ public class LinearTrackerClient implements TrackerClient {
         }
         Instant createdAt = parseIso(node.path("createdAt").asText(null));
         Instant updatedAt = parseIso(node.path("updatedAt").asText(null));
-        boolean assignedToWorker = assigneeMatchValues == null
-                || (assigneeId != null && assigneeMatchValues.contains(assigneeId));
+        boolean assignedToWorker =
+                assigneeMatchValues == null || (assigneeId != null && assigneeMatchValues.contains(assigneeId));
         return new Issue(
                 id,
                 identifier,
@@ -458,5 +460,4 @@ public class LinearTrackerClient implements TrackerClient {
         boolean hasNextPage;
         String endCursor;
     }
-
 }

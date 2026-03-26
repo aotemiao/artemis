@@ -58,7 +58,8 @@ public class MemoryTrackerClient implements TrackerClient {
             return TrackerResult.failure("memory_comment_body", "body is required");
         }
         commentsByIssueId.computeIfAbsent(issueId, ignored -> new ArrayList<>()).add(body);
-        return TrackerResult.success("memory-comment-" + commentsByIssueId.get(issueId).size());
+        return TrackerResult.success(
+                "memory-comment-" + commentsByIssueId.get(issueId).size());
     }
 
     @Override
@@ -89,7 +90,8 @@ public class MemoryTrackerClient implements TrackerClient {
         if (stateNames == null || stateNames.isEmpty()) {
             return List.copyOf(issuesById.values());
         }
-        List<String> normalizedStates = stateNames.stream().map(MemoryTrackerClient::normalizeState).toList();
+        List<String> normalizedStates =
+                stateNames.stream().map(MemoryTrackerClient::normalizeState).toList();
         return issuesById.values().stream()
                 .filter(issue -> normalizedStates.contains(normalizeState(issue.state())))
                 .toList();

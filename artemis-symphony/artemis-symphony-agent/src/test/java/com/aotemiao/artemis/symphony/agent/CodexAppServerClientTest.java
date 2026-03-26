@@ -205,9 +205,7 @@ class CodexAppServerClientTest {
     @Test
     void startSession_expandsRemoteTildeWorkspaceBeforeLaunch() throws Exception {
         Path fakeSsh = tempDir.resolve("fake-ssh.sh");
-        Files.writeString(
-                fakeSsh,
-                """
+        Files.writeString(fakeSsh, """
                 #!/usr/bin/env bash
                 set -euo pipefail
                 while [[ $# -gt 0 ]]; do
@@ -233,8 +231,7 @@ class CodexAppServerClientTest {
         fakeSsh.toFile().setExecutable(true);
 
         Path observedCwd = tempDir.resolve("observed-cwd.txt");
-        Path serverScript = writeScript(
-                """
+        Path serverScript = writeScript("""
                 #!/usr/bin/env bash
                 set -euo pipefail
                 pwd -P > %s
@@ -244,8 +241,7 @@ class CodexAppServerClientTest {
                 read -r _
                 printf '%%s\n' '{"id":2,"result":{"thread":{"id":"thread-remote"}}}'
                 sleep 5
-                """
-                        .formatted(observedCwd));
+                """.formatted(observedCwd));
 
         Path expectedWorkspace = Path.of(System.getProperty("user.home"), ".codex-remote-cwd-test");
         Files.createDirectories(expectedWorkspace);
@@ -265,7 +261,8 @@ class CodexAppServerClientTest {
 
         try {
             assertEquals("thread-remote", client.startSession());
-            assertEquals(expectedWorkspace.toString(), Files.readString(observedCwd).trim());
+            assertEquals(
+                    expectedWorkspace.toString(), Files.readString(observedCwd).trim());
         } finally {
             client.stopSession();
             if (oldExecutable == null) {
@@ -299,14 +296,7 @@ class CodexAppServerClientTest {
                 sleep 5
                 """);
         CodexAppServerClient client = new CodexAppServerClient(
-                script.toString(),
-                tempDir,
-                2_000,
-                2_000,
-                null,
-                null,
-                null,
-                simpleToolExecutor());
+                script.toString(), tempDir, 2_000, 2_000, null, null, null, simpleToolExecutor());
 
         try {
             assertEquals("thread-tools", client.startSession());
@@ -339,14 +329,7 @@ class CodexAppServerClientTest {
                 sleep 1
                 """);
         CodexAppServerClient client = new CodexAppServerClient(
-                script.toString(),
-                tempDir,
-                2_000,
-                2_000,
-                null,
-                null,
-                null,
-                simpleToolExecutor());
+                script.toString(), tempDir, 2_000, 2_000, null, null, null, simpleToolExecutor());
         List<CodexUpdateEvent> events = new ArrayList<>();
         client.addListener(events::add);
 

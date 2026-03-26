@@ -48,7 +48,9 @@ public class SymphonyStateController {
             runningEntry.put("worker_host", e.workerHost != null ? e.workerHost : "");
             runningEntry.put(
                     "workspace_path",
-                    e.workspacePath != null ? e.workspacePath : workspacePathFor(e.identifier, e.workerHost).toString());
+                    e.workspacePath != null
+                            ? e.workspacePath
+                            : workspacePathFor(e.identifier, e.workerHost).toString());
             runningEntry.put("codex_app_server_pid", e.codexAppServerPid != null ? e.codexAppServerPid : "");
             runningEntry.put("state", e.issue != null && e.issue.state() != null ? e.issue.state() : "");
             runningEntry.put("session_id", e.sessionId != null ? e.sessionId : "");
@@ -71,7 +73,11 @@ public class SymphonyStateController {
                     "issue_id", re.issueId(),
                     "issue_identifier", re.identifier(),
                     "worker_host", re.workerHost() != null ? re.workerHost() : "",
-                    "workspace_path", re.workspacePath() != null ? re.workspacePath() : workspacePathFor(re.identifier(), re.workerHost()).toString(),
+                    "workspace_path",
+                            re.workspacePath() != null
+                                    ? re.workspacePath()
+                                    : workspacePathFor(re.identifier(), re.workerHost())
+                                            .toString(),
                     "attempt", re.attempt(),
                     "due_at", Instant.ofEpochMilli(re.dueAtMs()).toString(),
                     "error", re.error() != null ? re.error() : ""));
@@ -120,8 +126,7 @@ public class SymphonyStateController {
 
         String issueId = running != null ? running.issueId : retry.issueId();
         Path workspacePath = workspacePathFor(
-                identifier,
-                running != null ? running.workerHost : retry != null ? retry.workerHost() : null);
+                identifier, running != null ? running.workerHost : retry != null ? retry.workerHost() : null);
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("issue_id", issueId);
@@ -159,17 +164,23 @@ public class SymphonyStateController {
             body.put(
                     "retry",
                     Map.of(
-                            "attempt", retry.attempt(),
-                            "worker_host", retry.workerHost() != null ? retry.workerHost() : "",
-                            "due_at", Instant.ofEpochMilli(retry.dueAtMs()).toString(),
-                            "error", retry.error() != null ? retry.error() : ""));
+                            "attempt",
+                            retry.attempt(),
+                            "worker_host",
+                            retry.workerHost() != null ? retry.workerHost() : "",
+                            "due_at",
+                            Instant.ofEpochMilli(retry.dueAtMs()).toString(),
+                            "error",
+                            retry.error() != null ? retry.error() : ""));
         }
 
         return ResponseEntity.ok(body);
     }
 
     private Path workspacePathFor(String issueIdentifier, String workerHost) {
-        var root = workerHost == null ? workspaceManager.getWorkspaceRoot() : Path.of(workspaceManager.getWorkspaceRootRaw());
+        var root = workerHost == null
+                ? workspaceManager.getWorkspaceRoot()
+                : Path.of(workspaceManager.getWorkspaceRootRaw());
         var key = WorkspaceKeys.sanitize(issueIdentifier);
         return root.resolve(key).normalize();
     }

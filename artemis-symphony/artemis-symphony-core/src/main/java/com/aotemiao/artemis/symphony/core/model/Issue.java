@@ -42,7 +42,21 @@ public record Issue(
             List<BlockerRef> blockedBy,
             Instant createdAt,
             Instant updatedAt) {
-        this(id, identifier, title, description, priority, state, branchName, url, null, labels, blockedBy, true, createdAt, updatedAt);
+        this(
+                id,
+                identifier,
+                title,
+                description,
+                priority,
+                state,
+                branchName,
+                url,
+                null,
+                labels,
+                blockedBy,
+                true,
+                createdAt,
+                updatedAt);
     }
 
     @Override

@@ -20,7 +20,8 @@ class ServiceConfigTest {
         Map<?, ?> rejectPolicy = assertInstanceOf(Map.class, approvalPolicyMap.get("reject"));
 
         assertEquals(
-                Path.of(System.getProperty("java.io.tmpdir"), "symphony_workspaces").toString(),
+                Path.of(System.getProperty("java.io.tmpdir"), "symphony_workspaces")
+                        .toString(),
                 config.getWorkspaceRootRaw());
         assertTrue(Boolean.TRUE.equals(rejectPolicy.get("sandbox_approval")));
         assertTrue(Boolean.TRUE.equals(rejectPolicy.get("rules")));

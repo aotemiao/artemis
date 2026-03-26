@@ -176,8 +176,8 @@ public class WorkflowReloadWatcher implements SmartLifecycle {
         if (watchService != null) {
             try {
                 watchService.close();
-            } catch (Exception ignored) {
-                // 关闭时忽略
+            } catch (Exception e) {
+                LOGGER.debug("关闭工作流监听器失败", e);
             }
         }
     }

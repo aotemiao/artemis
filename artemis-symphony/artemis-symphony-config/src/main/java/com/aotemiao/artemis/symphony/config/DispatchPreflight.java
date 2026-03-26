@@ -19,7 +19,8 @@ public final class DispatchPreflight {
         }
 
         if ("linear".equals(config.getTrackerKind())
-                && (config.getTrackerApiKey() == null || config.getTrackerApiKey().isBlank())) {
+                && (config.getTrackerApiKey() == null
+                        || config.getTrackerApiKey().isBlank())) {
             errors.add("tracker.api_key is required (set LINEAR_API_KEY or configure in workflow)");
         }
 

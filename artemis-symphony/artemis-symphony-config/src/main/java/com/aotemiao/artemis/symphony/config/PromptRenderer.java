@@ -36,14 +36,12 @@ public final class PromptRenderer {
 
                     Body:
                     %s
-                    """
-                    .formatted(
-                            issue.identifier(),
-                            issue.title(),
-                            issue.description() != null && !issue.description().isBlank()
-                                    ? issue.description()
-                                    : "No description provided.")
-                    .trim();
+                    """.formatted(
+                    issue.identifier(),
+                    issue.title(),
+                    issue.description() != null && !issue.description().isBlank()
+                            ? issue.description()
+                            : "No description provided.").trim();
         }
         Map<String, Object> context = new HashMap<>();
         context.put("issue", toTemplateMap(issue));

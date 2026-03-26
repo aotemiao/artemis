@@ -406,7 +406,9 @@ public class Orchestrator {
             return issue;
         }
         var refreshed = tracker().fetchIssueStatesByIds(List.of(issue.id()));
-        if (refreshed.isSuccess() && refreshed.value() != null && !refreshed.value().isEmpty()) {
+        if (refreshed.isSuccess()
+                && refreshed.value() != null
+                && !refreshed.value().isEmpty()) {
             Issue refreshedIssue = refreshed.value().get(0);
             LOGGER.info(
                     "action=issue_claim outcome=claimed issue_id={} issue_identifier={} tracker_state={}",
@@ -510,8 +512,8 @@ public class Orchestrator {
         } else {
             int nextAttempt = entry.retryAttempt + 1;
             String error = failureReason != null && !failureReason.isBlank() ? failureReason : "worker exited";
-            nextRetry = scheduleRetry(
-                    issueId, entry.identifier, nextAttempt, error, entry.workerHost, entry.workspacePath);
+            nextRetry =
+                    scheduleRetry(issueId, entry.identifier, nextAttempt, error, entry.workerHost, entry.workspacePath);
         }
         reportAttemptOutcome(entry, normal, nextRetry, failureReason);
     }
@@ -536,7 +538,13 @@ public class Orchestrator {
         TrackerClient tr = tracker();
         var result = tr.fetchCandidateIssues(cfg.getTrackerProjectSlug(), cfg.getTrackerActiveStates());
         if (!result.isSuccess() || result.value() == null) {
-            scheduleRetry(issueId, re.identifier(), re.attempt() + 1, "retry poll failed", re.workerHost(), re.workspacePath());
+            scheduleRetry(
+                    issueId,
+                    re.identifier(),
+                    re.attempt() + 1,
+                    "retry poll failed",
+                    re.workerHost(),
+                    re.workspacePath());
             return;
         }
         Issue issue = result.value().stream()
@@ -668,7 +676,9 @@ public class Orchestrator {
 
         Map<String, Object> workspace = Map.of(
                 "path",
-                entry.workspacePath != null ? entry.workspacePath : resolveWorkspacePath(entry).toString(),
+                entry.workspacePath != null
+                        ? entry.workspacePath
+                        : resolveWorkspacePath(entry).toString(),
                 "key",
                 WorkspaceKeys.sanitize(entry.identifier),
                 "worker_host",
@@ -740,11 +750,14 @@ public class Orchestrator {
         if (hosts.isEmpty()) {
             return new WorkerSelection(true, null);
         }
-        List<String> availableHosts = hosts.stream().filter(this::workerHostSlotsAvailable).toList();
+        List<String> availableHosts =
+                hosts.stream().filter(this::workerHostSlotsAvailable).toList();
         if (availableHosts.isEmpty()) {
             return new WorkerSelection(false, null);
         }
-        if (preferredWorkerHost != null && !preferredWorkerHost.isBlank() && availableHosts.contains(preferredWorkerHost)) {
+        if (preferredWorkerHost != null
+                && !preferredWorkerHost.isBlank()
+                && availableHosts.contains(preferredWorkerHost)) {
             return new WorkerSelection(true, preferredWorkerHost);
         }
         String leastLoaded = availableHosts.stream()
@@ -765,14 +778,19 @@ public class Orchestrator {
         if (workerHost == null) {
             return 0L;
         }
-        return running.values().stream().filter(entry -> workerHost.equals(entry.workerHost)).count();
+        return running.values().stream()
+                .filter(entry -> workerHost.equals(entry.workerHost))
+                .count();
     }
 
     private Path resolveWorkspacePath(RunningEntry entry) {
         if (entry.workspacePath != null && !entry.workspacePath.isBlank()) {
             return Path.of(entry.workspacePath);
         }
-        return workspaceManager.getWorkspaceRoot().resolve(WorkspaceKeys.sanitize(entry.identifier)).normalize();
+        return workspaceManager
+                .getWorkspaceRoot()
+                .resolve(WorkspaceKeys.sanitize(entry.identifier))
+                .normalize();
     }
 
     private record WorkerSelection(boolean hasCapacity, String workerHost) {}

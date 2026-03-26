@@ -113,9 +113,7 @@ public class AgentRunner {
                                 - Resume from the current workspace and workpad state instead of restarting from scratch.
                                 - The original task instructions and prior turn context are already present in this thread, so do not restate them before acting.
                                 - Focus on the remaining ticket work and do not end the turn while the issue stays active unless you are truly blocked.
-                                """
-                                .formatted(turnNumber, maxTurns)
-                                .trim();
+                                """.formatted(turnNumber, maxTurns).trim();
                 boolean turnOk = client.runTurn(threadId, turnPrompt, title);
                 if (!turnOk) {
                     onFailure.accept("codex turn failed");

@@ -134,16 +134,15 @@ final class LinearLiveTestClient {
         if (stateNodes.isArray()) {
             for (JsonNode state : stateNodes) {
                 states.add(new WorkflowState(
-                        requiredText(state, "id"),
-                        requiredText(state, "name"),
-                        requiredText(state, "type")));
+                        requiredText(state, "id"), requiredText(state, "name"), requiredText(state, "type")));
             }
         }
         return new Team(requiredText(team, "id"), requiredText(team, "key"), requiredText(team, "name"), states);
     }
 
     ProjectStatus completedProjectStatus() {
-        JsonNode nodes = data(PROJECT_STATUSES_QUERY, Map.of()).path("projectStatuses").path("nodes");
+        JsonNode nodes =
+                data(PROJECT_STATUSES_QUERY, Map.of()).path("projectStatuses").path("nodes");
         if (!nodes.isArray()) {
             throw new IllegalStateException("expected project statuses list");
         }
@@ -205,10 +204,7 @@ final class LinearLiveTestClient {
             }
         }
         String stateType = issue.path("state").path("type").asText("");
-        return new IssueDetails(
-                issue.path("identifier").asText(""),
-                stateType,
-                List.copyOf(comments));
+        return new IssueDetails(issue.path("identifier").asText(""), stateType, List.copyOf(comments));
     }
 
     void completeProject(String projectId, String statusId) {
@@ -220,7 +216,9 @@ final class LinearLiveTestClient {
                         "statusId",
                         statusId,
                         "completedAt",
-                        java.time.Instant.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString()));
+                        java.time.Instant.now()
+                                .truncatedTo(java.time.temporal.ChronoUnit.SECONDS)
+                                .toString()));
     }
 
     private JsonNode data(String query, Map<String, Object> variables) {
@@ -258,13 +256,10 @@ final class LinearLiveTestClient {
             }
             sleepBeforeRetry();
         }
-        throw new IllegalStateException(
-                "Linear GraphQL request failed: "
-                        + (lastResult != null && lastResult.errorCode() != null ? lastResult.errorCode() : "unknown")
-                        + " / "
-                        + (lastResult != null && lastResult.errorMessage() != null
-                                ? lastResult.errorMessage()
-                                : "no detail"));
+        throw new IllegalStateException("Linear GraphQL request failed: "
+                + (lastResult != null && lastResult.errorCode() != null ? lastResult.errorCode() : "unknown")
+                + " / "
+                + (lastResult != null && lastResult.errorMessage() != null ? lastResult.errorMessage() : "no detail"));
     }
 
     private static boolean isRetryableGraphqlFailure(TrackerResult<JsonNode> result) {
@@ -315,7 +310,8 @@ final class LinearLiveTestClient {
                     .or(() -> states.stream()
                             .filter(state -> !"completed".equals(state.type()) && !"canceled".equals(state.type()))
                             .findFirst())
-                    .orElseThrow(() -> new IllegalStateException("expected team to expose a non-terminal workflow state"));
+                    .orElseThrow(
+                            () -> new IllegalStateException("expected team to expose a non-terminal workflow state"));
         }
 
         List<String> activeStateNames() {

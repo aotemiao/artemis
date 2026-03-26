@@ -15,7 +15,8 @@ public class LinearGraphqlDynamicToolExecutor implements CodexAppServerClient.Dy
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String TOOL_NAME = "linear_graphql";
-    private static final String TOOL_DESCRIPTION = "Execute a raw GraphQL query or mutation against Linear using Symphony's configured auth.";
+    private static final String TOOL_DESCRIPTION =
+            "Execute a raw GraphQL query or mutation against Linear using Symphony's configured auth.";
     private static final Map<String, Object> TOOL_INPUT_SCHEMA = Map.of(
             "type",
             "object",
@@ -31,9 +32,12 @@ public class LinearGraphqlDynamicToolExecutor implements CodexAppServerClient.Dy
                             "description", "GraphQL query or mutation document to execute against Linear."),
                     "variables",
                     Map.of(
-                            "type", List.of("object", "null"),
-                            "description", "Optional GraphQL variables object.",
-                            "additionalProperties", true)));
+                            "type",
+                            List.of("object", "null"),
+                            "description",
+                            "Optional GraphQL variables object.",
+                            "additionalProperties",
+                            true)));
 
     private final Supplier<TrackerClient> trackerSupplier;
 
@@ -52,8 +56,8 @@ public class LinearGraphqlDynamicToolExecutor implements CodexAppServerClient.Dy
     @Override
     public Map<String, Object> execute(String toolName, Object arguments) {
         if (!TOOL_NAME.equals(toolName)) {
-            return failureResponse(Map.of(
-                    "error", Map.of("message", "Unsupported dynamic tool: " + String.valueOf(toolName) + ".")));
+            return failureResponse(
+                    Map.of("error", Map.of("message", "Unsupported dynamic tool: " + String.valueOf(toolName) + ".")));
         }
         NormalizedArguments normalized = normalizeArguments(arguments);
         if (normalized.errorCode != null) {
@@ -97,33 +101,42 @@ public class LinearGraphqlDynamicToolExecutor implements CodexAppServerClient.Dy
 
     private static Map<String, Object> toolErrorPayload(String errorCode, String reason) {
         return switch (errorCode) {
-            case "missing_query" -> Map.of(
-                    "error", Map.of("message", "`linear_graphql` requires a non-empty `query` string."));
-            case "invalid_arguments" -> Map.of(
-                    "error",
-                    Map.of(
-                            "message",
-                            "`linear_graphql` expects either a GraphQL query string or an object with `query` and optional `variables`."));
-            case "invalid_variables" -> Map.of(
-                    "error", Map.of("message", "`linear_graphql.variables` must be a JSON object when provided."));
-            case "linear_api_status" -> Map.of(
-                    "error",
-                    Map.of(
-                            "message", "Linear GraphQL request failed with HTTP " + safeReason(reason) + ".",
-                            "status", safeReason(reason)));
-            case "linear_api_request" -> Map.of(
-                    "error",
-                    Map.of(
-                            "message", "Linear GraphQL request failed before receiving a successful response.",
-                            "reason", safeReason(reason)));
-            case "tracker_graphql_unsupported" -> Map.of(
-                    "error",
-                    Map.of("message", "Symphony 当前 tracker 未启用 Linear GraphQL 动态工具。"));
-            default -> Map.of(
-                    "error",
-                    Map.of(
-                            "message", "Linear GraphQL tool execution failed.",
-                            "reason", safeReason(reason != null ? reason : errorCode)));
+            case "missing_query" ->
+                Map.of("error", Map.of("message", "`linear_graphql` requires a non-empty `query` string."));
+            case "invalid_arguments" ->
+                Map.of(
+                        "error",
+                        Map.of(
+                                "message",
+                                "`linear_graphql` expects either a GraphQL query string or an object with `query` and optional `variables`."));
+            case "invalid_variables" ->
+                Map.of("error", Map.of("message", "`linear_graphql.variables` must be a JSON object when provided."));
+            case "linear_api_status" ->
+                Map.of(
+                        "error",
+                        Map.of(
+                                "message",
+                                "Linear GraphQL request failed with HTTP " + safeReason(reason) + ".",
+                                "status",
+                                safeReason(reason)));
+            case "linear_api_request" ->
+                Map.of(
+                        "error",
+                        Map.of(
+                                "message",
+                                "Linear GraphQL request failed before receiving a successful response.",
+                                "reason",
+                                safeReason(reason)));
+            case "tracker_graphql_unsupported" ->
+                Map.of("error", Map.of("message", "Symphony 当前 tracker 未启用 Linear GraphQL 动态工具。"));
+            default ->
+                Map.of(
+                        "error",
+                        Map.of(
+                                "message",
+                                "Linear GraphQL tool execution failed.",
+                                "reason",
+                                safeReason(reason != null ? reason : errorCode)));
         };
     }
 

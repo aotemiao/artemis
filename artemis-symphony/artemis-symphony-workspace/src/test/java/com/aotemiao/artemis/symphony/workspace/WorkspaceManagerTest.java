@@ -36,9 +36,7 @@ class WorkspaceManagerTest {
     @Test
     void createForIssue_supportsRemoteWorkerViaSshWrapper() throws Exception {
         Path fakeSsh = tempDir.resolve("fake-ssh.sh");
-        Files.writeString(
-                fakeSsh,
-                """
+        Files.writeString(fakeSsh, """
                 #!/usr/bin/env bash
                 set -euo pipefail
                 while [[ $# -gt 0 ]]; do
@@ -99,9 +97,7 @@ class WorkspaceManagerTest {
     @Test
     void createForIssue_expandsRemoteTildeWorkspaceRoot() throws Exception {
         Path fakeSsh = tempDir.resolve("fake-ssh-home.sh");
-        Files.writeString(
-                fakeSsh,
-                """
+        Files.writeString(fakeSsh, """
                 #!/usr/bin/env bash
                 set -euo pipefail
                 while [[ $# -gt 0 ]]; do
@@ -130,16 +126,15 @@ class WorkspaceManagerTest {
         System.setProperty("symphony.ssh.executable", fakeSsh.toString());
         try {
             String tildeRoot = "~/.symphony_remote_workspace_test";
-            ServiceConfig config = new ServiceConfig(
-                    new WorkflowDefinition(Map.of("workspace", Map.of("root", tildeRoot)), "prompt"));
+            ServiceConfig config =
+                    new ServiceConfig(new WorkflowDefinition(Map.of("workspace", Map.of("root", tildeRoot)), "prompt"));
             WorkspaceManager manager = new WorkspaceManager(() -> config);
 
             WorkspaceManager.Result<com.aotemiao.artemis.symphony.core.model.Workspace> result =
                     manager.createForIssue("AOT-home", "fake-worker");
 
             assertTrue(result.isSuccess(), () -> "expected success but was " + result.errorCode());
-            Path expected =
-                    Path.of(System.getProperty("user.home"), ".symphony_remote_workspace_test", "AOT-home");
+            Path expected = Path.of(System.getProperty("user.home"), ".symphony_remote_workspace_test", "AOT-home");
             assertTrue(Files.isSameFile(expected, result.value().path()));
             assertTrue(Files.isDirectory(expected));
 

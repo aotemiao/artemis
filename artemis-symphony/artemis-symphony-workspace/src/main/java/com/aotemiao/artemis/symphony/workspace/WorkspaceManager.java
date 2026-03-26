@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 public class WorkspaceManager {
 
     private static final String REMOTE_WORKSPACE_MARKER = "__SYMPHONY_WORKSPACE__";
+    private static final System.Logger LOGGER = System.getLogger(WorkspaceManager.class.getName());
 
     private final Supplier<ServiceConfig> configSupplier;
 
@@ -107,14 +108,20 @@ public class WorkspaceManager {
             } else {
                 RemoteCommandResult result = runRemoteCommand(
                         workerHost,
-                        remoteShellAssign("workspace", workspacePath.toString())
-                                + "\nrm -rf \"$workspace\"");
+                        remoteShellAssign("workspace", workspacePath.toString()) + "\nrm -rf \"$workspace\"");
                 if (result.exitCode() != 0) {
-                    // 按 SPEC 忽略 remote 清理失败，交给日志与后续 reconcile 收敛。
+                    LOGGER.log(
+                            System.Logger.Level.WARNING,
+                            "忽略远端工作区清理失败 host={0} path={1} exit={2} output={3}",
+                            workerHost,
+                            workspacePath,
+                            result.exitCode(),
+                            truncate(result.output(), 500));
                 }
             }
-        } catch (Exception ignored) {
-            // 按 SPEC 记录日志并忽略异常
+        } catch (Exception e) {
+            LOGGER.log(System.Logger.Level.WARNING, "忽略工作区删除异常 host={0} path={1}", workerHost, workspacePath);
+            LOGGER.log(System.Logger.Level.DEBUG, "删除工作区异常详情", e);
         }
     }
 
@@ -191,7 +198,8 @@ public class WorkspaceManager {
     private Workspace createRemoteWorkspace(String workspaceKey, String workerHost) throws Exception {
         String workspacePath = remoteWorkspacePath(workspaceKey);
         validateRemoteWorkspacePath(workspacePath);
-        RemoteCommandResult result = runRemoteCommand(workerHost, """
+        RemoteCommandResult result = runRemoteCommand(
+                workerHost, """
                 set -eu
                 %s
                 if [ -d "$workspace" ]; then
@@ -206,8 +214,7 @@ public class WorkspaceManager {
                 fi
                 cd "$workspace"
                 printf '%%s\\t%%s\\t%%s\\n' '%s' "$created" "$(pwd -P)"
-                """
-                .formatted(remoteShellAssign("workspace", workspacePath), REMOTE_WORKSPACE_MARKER));
+                """.formatted(remoteShellAssign("workspace", workspacePath), REMOTE_WORKSPACE_MARKER));
         if (result.exitCode() != 0) {
             throw new IllegalStateException("workspace_prepare_failed: " + truncate(result.output(), 500));
         }
@@ -223,9 +230,8 @@ public class WorkspaceManager {
             return new HookRunner(config().getHooksTimeoutMs()).run(script, cwd);
         }
         try {
-            RemoteCommandResult result = runRemoteCommand(
-                    workerHost,
-                    "cd " + SshClient.shellEscape(cwd.toString()) + " && " + script);
+            RemoteCommandResult result =
+                    runRemoteCommand(workerHost, "cd " + SshClient.shellEscape(cwd.toString()) + " && " + script);
             if (result.exitCode() != 0) {
                 return HookResult.failure("exit " + result.exitCode() + ": " + truncate(result.output(), 500));
             }
@@ -244,22 +250,26 @@ public class WorkspaceManager {
                 return;
             }
             runRemoteCommand(
-                    workerHost,
-                    """
+                    workerHost, """
                     %s
                     if [ -d "$workspace" ]; then
                       cd "$workspace"
                       %s
                     fi
-                    """
-                            .formatted(remoteShellAssign("workspace", workspacePath.toString()), script));
-        } catch (Exception ignored) {
-            // before_remove 与参考实现一致：失败不阻断主流程
+                    """.formatted(remoteShellAssign("workspace", workspacePath.toString()), script));
+        } catch (Exception e) {
+            LOGGER.log(
+                    System.Logger.Level.WARNING, "忽略 before_remove 钩子失败 host={0} path={1}", workerHost, workspacePath);
+            LOGGER.log(System.Logger.Level.DEBUG, "before_remove 钩子异常详情", e);
         }
     }
 
     private Path localWorkspacePath(String workspaceKey) {
-        return config().getWorkspaceRoot().toAbsolutePath().normalize().resolve(workspaceKey).normalize();
+        return config().getWorkspaceRoot()
+                .toAbsolutePath()
+                .normalize()
+                .resolve(workspaceKey)
+                .normalize();
     }
 
     private String remoteWorkspacePath(String workspaceKey) {
@@ -280,11 +290,10 @@ public class WorkspaceManager {
     }
 
     private RemoteCommandResult runRemoteCommand(String workerHost, String script) throws Exception {
-        HookRunner.TimeoutTask<RemoteCommandResult> task =
-                new HookRunner.TimeoutTask<>(() -> {
-                    SshClient.CommandResult result = SshClient.run(workerHost, script);
-                    return new RemoteCommandResult(result.output(), result.exitCode());
-                });
+        HookRunner.TimeoutTask<RemoteCommandResult> task = new HookRunner.TimeoutTask<>(() -> {
+            SshClient.CommandResult result = SshClient.run(workerHost, script);
+            return new RemoteCommandResult(result.output(), result.exitCode());
+        });
         return task.await(config().getHooksTimeoutMs(), "remote command timeout after ");
     }
 
@@ -296,9 +305,7 @@ public class WorkspaceManager {
                 elif [ "${%1$s#\\~/}" != "$%1$s" ]; then
                   %1$s="$HOME/${%1$s#\\~/}"
                 fi
-                """
-                .formatted(variableName, SshClient.shellEscape(rawPath))
-                .trim();
+                """.formatted(variableName, SshClient.shellEscape(rawPath)).trim();
     }
 
     private static ParsedRemoteWorkspace parseRemoteWorkspace(String output) {
@@ -359,7 +366,8 @@ public class WorkspaceManager {
             }
 
             private T await(int timeoutMs, String timeoutPrefix) throws Exception {
-                java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+                java.util.concurrent.ExecutorService executor =
+                        java.util.concurrent.Executors.newSingleThreadExecutor();
                 try {
                     java.util.concurrent.Future<T> future = executor.submit(callable);
                     return future.get(timeoutMs, TimeUnit.MILLISECONDS);

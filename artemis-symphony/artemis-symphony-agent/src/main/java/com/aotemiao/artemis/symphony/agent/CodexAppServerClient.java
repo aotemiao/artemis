@@ -32,6 +32,7 @@ public class CodexAppServerClient {
     private static final String LEGACY_NONE_THREAD_SANDBOX = "danger-full-access";
     private static final String NON_INTERACTIVE_TOOL_INPUT_ANSWER =
             "This is a non-interactive session. Operator input is unavailable.";
+    private static final System.Logger LOGGER = System.getLogger(CodexAppServerClient.class.getName());
 
     private final String command;
     private final Path workspacePath;
@@ -57,7 +58,16 @@ public class CodexAppServerClient {
             String approvalPolicy,
             String threadSandbox,
             Object turnSandboxPolicy) {
-        this(command, workspacePath, readTimeoutMs, turnTimeoutMs, approvalPolicy, threadSandbox, turnSandboxPolicy, null, null);
+        this(
+                command,
+                workspacePath,
+                readTimeoutMs,
+                turnTimeoutMs,
+                approvalPolicy,
+                threadSandbox,
+                turnSandboxPolicy,
+                null,
+                null);
     }
 
     public CodexAppServerClient(
@@ -69,7 +79,16 @@ public class CodexAppServerClient {
             String threadSandbox,
             Object turnSandboxPolicy,
             DynamicToolExecutor dynamicToolExecutor) {
-        this(command, workspacePath, readTimeoutMs, turnTimeoutMs, (Object) approvalPolicy, threadSandbox, turnSandboxPolicy, dynamicToolExecutor, null);
+        this(
+                command,
+                workspacePath,
+                readTimeoutMs,
+                turnTimeoutMs,
+                (Object) approvalPolicy,
+                threadSandbox,
+                turnSandboxPolicy,
+                dynamicToolExecutor,
+                null);
     }
 
     public CodexAppServerClient(
@@ -322,7 +341,8 @@ public class CodexAppServerClient {
         for (CodexUpdateListener l : listeners) {
             try {
                 l.onEvent(evt);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOGGER.log(System.Logger.Level.WARNING, "忽略事件监听器异常 event=" + event, e);
             }
         }
     }
@@ -340,17 +360,17 @@ public class CodexAppServerClient {
         for (CodexUpdateListener l : listeners) {
             try {
                 l.onEvent(evt);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOGGER.log(System.Logger.Level.WARNING, "忽略消息监听器异常 method=" + method, e);
             }
         }
     }
 
     private boolean handleDynamicToolCall(JsonNode message) throws CodexClientException {
         JsonNode params = message.path("params");
-        String toolName = firstNonBlank(params.path("name").asText(null), params.path("tool").asText(null));
-        Object arguments = params.has("arguments")
-                ? MAPPER.convertValue(params.get("arguments"), Object.class)
-                : null;
+        String toolName = firstNonBlank(
+                params.path("name").asText(null), params.path("tool").asText(null));
+        Object arguments = params.has("arguments") ? MAPPER.convertValue(params.get("arguments"), Object.class) : null;
         Map<String, Object> result = normalizeDynamicToolResult(
                 dynamicToolExecutor != null
                         ? dynamicToolExecutor.execute(toolName, arguments)
@@ -362,9 +382,9 @@ public class CodexAppServerClient {
             }
             response.set("result", MAPPER.valueToTree(result));
             sendJson(response);
-            emit(Boolean.TRUE.equals(result.get("success")) ? "tool_call_completed" : "tool_call_failed", Map.of(
-                    "tool", toolName != null ? toolName : "",
-                    "result", result));
+            emit(
+                    Boolean.TRUE.equals(result.get("success")) ? "tool_call_completed" : "tool_call_failed",
+                    Map.of("tool", toolName != null ? toolName : "", "result", result));
             return true;
         } catch (Exception e) {
             throw new CodexClientException("dynamic_tool_failed", e.getMessage(), e);
@@ -373,9 +393,7 @@ public class CodexAppServerClient {
 
     private boolean handleApprovalRequest(JsonNode message, String decision) throws CodexClientException {
         if (!autoApproveRequests) {
-            emit("approval_required", Map.of(
-                    "method", message.path("method").asText(""),
-                    "decision", decision));
+            emit("approval_required", Map.of("method", message.path("method").asText(""), "decision", decision));
             return false;
         }
         try {
@@ -385,9 +403,9 @@ public class CodexAppServerClient {
             }
             response.set("result", MAPPER.valueToTree(Map.of("decision", decision)));
             sendJson(response);
-            emit("approval_auto_approved", Map.of(
-                    "method", message.path("method").asText(""),
-                    "decision", decision));
+            emit(
+                    "approval_auto_approved",
+                    Map.of("method", message.path("method").asText(""), "decision", decision));
             return true;
         } catch (Exception e) {
             throw new CodexClientException("approval_failed", e.getMessage(), e);
@@ -405,7 +423,9 @@ public class CodexAppServerClient {
         for (JsonNode question : questions) {
             String questionId = question.path("id").asText(null);
             if (questionId == null || questionId.isBlank()) {
-                emit("turn_input_required", Map.of("method", message.path("method").asText("")));
+                emit(
+                        "turn_input_required",
+                        Map.of("method", message.path("method").asText("")));
                 return false;
             }
             String selectedAnswer = selectToolInputAnswer(question);
@@ -418,7 +438,9 @@ public class CodexAppServerClient {
             }
             response.set("result", MAPPER.valueToTree(Map.of("answers", answers)));
             sendJson(response);
-            emit("tool_input_auto_answered", Map.of("method", message.path("method").asText("")));
+            emit(
+                    "tool_input_auto_answered",
+                    Map.of("method", message.path("method").asText("")));
             return true;
         } catch (Exception e) {
             throw new CodexClientException("tool_input_failed", e.getMessage(), e);
@@ -580,8 +602,7 @@ public class CodexAppServerClient {
                   workspace="$HOME/${workspace#\\~/}"
                 fi
                 cd "$workspace" && exec %s
-                """
-                .formatted(SshClient.shellEscape(workspacePath.toString()), command)
+                """.formatted(SshClient.shellEscape(workspacePath.toString()), command)
                 .trim();
     }
 

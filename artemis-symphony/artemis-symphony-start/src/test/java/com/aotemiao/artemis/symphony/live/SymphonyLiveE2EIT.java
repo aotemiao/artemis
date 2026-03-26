@@ -119,7 +119,9 @@ class SymphonyLiveE2EIT {
             LinearLiveTestClient.IssueDetails issueDetails =
                     waitForIssueOutcome(linear, issue.id(), expectedComment(issue.identifier(), project.slugId()));
             assertThat(issueDetails.completed()).isTrue();
-            assertThat(issueDetails.comments().stream().map(SymphonyLiveE2EIT::normalizeCommentBody).toList())
+            assertThat(issueDetails.comments().stream()
+                            .map(SymphonyLiveE2EIT::normalizeCommentBody)
+                            .toList())
                     .contains(normalizeCommentBody(expectedComment(issue.identifier(), project.slugId())));
         } finally {
             if (project != null && completedProjectStatus != null) {
@@ -132,7 +134,8 @@ class SymphonyLiveE2EIT {
             if (workerSetup != null) {
                 if (keepLiveArtifacts()) {
                     persistDebugArtifacts(runId, testRoot);
-                    LOGGER.info("Keeping live e2e worker artifacts for inspection backend={} root={}", backend, testRoot);
+                    LOGGER.info(
+                            "Keeping live e2e worker artifacts for inspection backend={} root={}", backend, testRoot);
                 } else {
                     workerSetup.cleanup();
                 }
@@ -150,18 +153,16 @@ class SymphonyLiveE2EIT {
             case LOCAL -> liveLocalWorkerSetup(testRoot);
             case SSH -> {
                 List<String> hosts = configuredLiveSshWorkerHosts();
-                yield hosts.isEmpty() ? liveDockerWorkerSetup(runId, testRoot) : liveExternalSshWorkerSetup(runId, hosts);
+                yield hosts.isEmpty()
+                        ? liveDockerWorkerSetup(runId, testRoot)
+                        : liveExternalSshWorkerSetup(runId, hosts);
             }
         };
     }
 
     private LiveWorkerSetup liveLocalWorkerSetup(Path testRoot) {
         return new LiveWorkerSetup(
-                "codex app-server",
-                testRoot.resolve("workspaces").toString(),
-                List.of(),
-                null,
-                () -> {});
+                "codex app-server", testRoot.resolve("workspaces").toString(), List.of(), null, () -> {});
     }
 
     private LiveWorkerSetup liveExternalSshWorkerSetup(String runId, List<String> workerHosts) throws Exception {
@@ -188,7 +189,8 @@ class SymphonyLiveE2EIT {
         Path keyPath = sshRoot.resolve("id_ed25519");
         Path configPath = sshRoot.resolve("config");
         List<Integer> workerPorts = reserveTcpPorts(DOCKER_WORKER_COUNT);
-        List<String> workerHosts = workerPorts.stream().map(port -> "localhost:" + port).toList();
+        List<String> workerHosts =
+                workerPorts.stream().map(port -> "localhost:" + port).toList();
         String projectName = dockerProjectName(runId);
         String previousSshConfig = System.getProperty("symphony.ssh.config");
         Map<String, String> env = dockerComposeEnv(workerPorts, authJsonPath, keyPath + ".pub");
@@ -210,16 +212,11 @@ class SymphonyLiveE2EIT {
             String remoteTestRoot = remoteHome + "/." + runId;
             String workspaceRoot = "~/.%s/workspaces".formatted(runId);
 
-            return new LiveWorkerSetup(
-                    "codex app-server",
-                    workspaceRoot,
-                    workerHosts,
-                    workerHosts.get(0),
-                    () -> {
-                        cleanupRemoteTestRoot(remoteTestRoot, workerHosts);
-                        dockerComposeDown(composeCommand, projectName, env);
-                        restoreSystemProperty("symphony.ssh.config", previousSshConfig);
-                    });
+            return new LiveWorkerSetup("codex app-server", workspaceRoot, workerHosts, workerHosts.get(0), () -> {
+                cleanupRemoteTestRoot(remoteTestRoot, workerHosts);
+                dockerComposeDown(composeCommand, projectName, env);
+                restoreSystemProperty("symphony.ssh.config", previousSshConfig);
+            });
         } catch (Exception e) {
             dockerComposeDown(composeCommand, projectName, env);
             restoreSystemProperty("symphony.ssh.config", previousSshConfig);
@@ -230,8 +227,7 @@ class SymphonyLiveE2EIT {
     private SymphonyRuntimeSnapshot loadSnapshot(Path workflowFile) {
         WorkflowLoadResult loadResult = WorkflowLoader.load(workflowFile);
         if (loadResult instanceof WorkflowLoadResult.Error error) {
-            throw new IllegalStateException(
-                    "workflow load failed: " + error.code() + " / " + error.message());
+            throw new IllegalStateException("workflow load failed: " + error.code() + " / " + error.message());
         }
         return SymphonyRuntimeHolder.buildSnapshot(((WorkflowLoadResult.Success) loadResult).definition());
     }
@@ -248,7 +244,9 @@ class SymphonyLiveE2EIT {
         appendYamlList(builder, "  active_states", team.activeStateNames());
         appendYamlList(builder, "  terminal_states", team.terminalStateNames());
         builder.append("workspace:\n");
-        builder.append("  root: ").append(yamlQuote(workerSetup.workspaceRoot())).append('\n');
+        builder.append("  root: ")
+                .append(yamlQuote(workerSetup.workspaceRoot()))
+                .append('\n');
         if (!workerSetup.sshWorkerHosts().isEmpty()) {
             builder.append("worker:\n");
             appendYamlList(builder, "  ssh_hosts", workerSetup.sshWorkerHosts());
@@ -256,7 +254,9 @@ class SymphonyLiveE2EIT {
         builder.append("agent:\n");
         builder.append("  max_turns: 3\n");
         builder.append("codex:\n");
-        builder.append("  command: ").append(yamlQuote(workerSetup.codexCommand())).append('\n');
+        builder.append("  command: ")
+                .append(yamlQuote(workerSetup.codexCommand()))
+                .append('\n');
         builder.append("  approval_policy: never\n");
         builder.append("  turn_timeout_ms: 180000\n");
         builder.append("  stall_timeout_ms: 180000\n");
@@ -330,7 +330,10 @@ class SymphonyLiveE2EIT {
     }
 
     private Path dockerSupportDir() {
-        return repositoryRoot().resolve("artemis-symphony").resolve("test-support").resolve("live-e2e-docker");
+        return repositoryRoot()
+                .resolve("artemis-symphony")
+                .resolve("test-support")
+                .resolve("live-e2e-docker");
     }
 
     private Path repositoryRoot() {
@@ -403,8 +406,7 @@ class SymphonyLiveE2EIT {
                   StrictHostKeyChecking no
                   UserKnownHostsFile /dev/null
                   LogLevel ERROR
-                """
-                .formatted(keyPath.toString());
+                """.formatted(keyPath.toString());
         Files.createDirectories(configPath.getParent());
         Files.writeString(configPath, contents, StandardCharsets.UTF_8);
     }
@@ -522,8 +524,8 @@ class SymphonyLiveE2EIT {
         }
     }
 
-    private CommandResult runLocalCommand(
-            List<String> command, Path cwd, Map<String, String> env, String errorContext) throws Exception {
+    private CommandResult runLocalCommand(List<String> command, Path cwd, Map<String, String> env, String errorContext)
+            throws Exception {
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         if (cwd != null) {
             processBuilder.directory(cwd.toFile());
@@ -696,8 +698,7 @@ class SymphonyLiveE2EIT {
                 1. the file exists with the exact contents above
                 2. the Linear comment exists with the exact body above
                 3. the Linear issue is in a completed terminal state
-                """
-                .formatted(RESULT_FILE, projectSlug, expectedComment("{{ issue.identifier }}", projectSlug));
+                """.formatted(RESULT_FILE, projectSlug, expectedComment("{{ issue.identifier }}", projectSlug));
     }
 
     private static String expectedResult(String issueIdentifier, String projectSlug) {
@@ -725,19 +726,13 @@ class SymphonyLiveE2EIT {
         return normalized.replaceFirst("(?m)^(identifier=[^\\n]+)(project_slug=)", "$1\n$2");
     }
 
-    private static void appendCodexEvent(Path logFile, com.aotemiao.artemis.symphony.core.model.CodexUpdateEvent event) {
+    private static void appendCodexEvent(
+            Path logFile, com.aotemiao.artemis.symphony.core.model.CodexUpdateEvent event) {
         String line = "%s %s %s%n"
-                .formatted(
-                        event.timestamp(),
-                        event.event(),
-                        event.payload() != null ? event.payload() : Map.of());
+                .formatted(event.timestamp(), event.event(), event.payload() != null ? event.payload() : Map.of());
         try {
             Files.writeString(
-                    logFile,
-                    line,
-                    StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.APPEND);
+                    logFile, line, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException ignored) {
             // 事件日志仅用于诊断，不阻断 live e2e
         }
