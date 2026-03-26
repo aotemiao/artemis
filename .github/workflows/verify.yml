@@ -28,8 +28,38 @@ jobs:
       - name: Shell Syntax Check
         run: bash -n $(find scripts -type f -name '*.sh' | sort)
 
-      - name: Governance Checks
-        run: scripts/harness/run-governance-checks.sh
+      - name: Governance - Markdown Links
+        run: scripts/harness/check-doc-links.sh
+
+      - name: Governance - Docs Consistency
+        run: scripts/harness/check-doc-consistency.sh
+
+      - name: Governance - Docs Freshness
+        run: scripts/harness/check-doc-freshness.sh
+
+      - name: Governance - API Doc Sync
+        run: scripts/harness/check-api-doc-sync.sh
+
+      - name: Governance - Client Contracts
+        run: scripts/harness/check-client-contracts.sh
+
+      - name: Governance - Domain Service Scaffold
+        run: scripts/harness/check-domain-service-scaffold.sh
+
+      - name: Governance - Service Catalog
+        run: scripts/harness/check-service-catalog.sh
+
+      - name: Governance - Symphony Assets
+        run: scripts/harness/check-symphony-assets.sh
+
+      - name: Governance - Critical Path Tests
+        run: scripts/harness/check-critical-path-tests.sh
+
+      - name: Governance - Duplicate Patterns
+        run: scripts/harness/check-duplicate-patterns.sh
+
+      - name: Governance - Quality Issue Archive
+        run: scripts/harness/check-quality-issue-archive.sh
 
       - name: OpenSpec Sync Check (Pull Request)
         if: github.event_name == 'pull_request'

@@ -23,7 +23,7 @@ missing=0
 
 print_step "Checking critical path test baseline"
 for file in "${required_files[@]}"; do
-  if [[ ! -f "$file" ]]; then
+  if ! repo_path_exists_exact "$file"; then
     echo "Missing required critical-path test: $file" >&2
     missing=1
   fi

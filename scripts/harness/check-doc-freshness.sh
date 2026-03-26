@@ -38,6 +38,7 @@ max_cadence_days=90
 print_step "Checking doc freshness metadata"
 
 for doc in "${docs[@]}"; do
+  require_repo_path_exact "$doc"
   python3 - "$doc" "$max_cadence_days" <<'PY'
 from datetime import date
 from pathlib import Path

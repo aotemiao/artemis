@@ -19,6 +19,7 @@ contains_fixed_string() {
 require_file_contains() {
   local file="$1"
   local pattern="$2"
+  require_repo_path_exact "$file"
   if ! contains_fixed_string "$pattern" "$file"; then
     echo "Missing required content in $file: $pattern" >&2
     exit 1
@@ -28,6 +29,7 @@ require_file_contains() {
 require_file_not_contains() {
   local file="$1"
   local pattern="$2"
+  require_repo_path_exact "$file"
   if contains_fixed_string "$pattern" "$file"; then
     echo "Outdated content found in $file: $pattern" >&2
     exit 1

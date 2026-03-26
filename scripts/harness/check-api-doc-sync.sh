@@ -36,6 +36,24 @@ TARGETS = [
     ),
 ]
 
+
+def exact_exists(path: Path) -> bool:
+    try:
+        rel = path.resolve().relative_to(REPO.resolve())
+    except ValueError:
+        return path.exists()
+
+    current = REPO.resolve()
+    for part in rel.parts:
+        try:
+            names = {child.name for child in current.iterdir()}
+        except FileNotFoundError:
+            return False
+        if part not in names:
+            return False
+        current = current / part
+    return True
+
 for service_doc in sorted(REPO.glob("artemis-modules/artemis-*/SERVICE_API.md")):
     service_root = service_doc.parent
     controller_candidates = sorted(service_root.glob("artemis-*-adapter/src/main/java/**/adapter/web/*PingController.java"))
@@ -108,6 +126,12 @@ def parse_doc_routes(doc_path: Path) -> set[str]:
 
 errors: list[str] = []
 for controller, doc in TARGETS:
+    if not exact_exists(REPO / controller):
+        errors.append(f"missing controller path with exact casing: {controller}")
+        continue
+    if not exact_exists(REPO / doc):
+        errors.append(f"missing API doc path with exact casing: {doc}")
+        continue
     controller_routes = parse_routes(REPO / controller)
     doc_routes = parse_doc_routes(REPO / doc)
     missing = sorted(controller_routes - doc_routes)

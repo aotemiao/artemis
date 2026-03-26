@@ -20,7 +20,25 @@ required = [
     base / "archive/README.md",
 ]
 
-missing = [path for path in required if not path.exists()]
+
+def exact_exists(path: Path) -> bool:
+    try:
+        rel = path.resolve().relative_to(repo.resolve())
+    except ValueError:
+        return path.exists()
+
+    current = repo.resolve()
+    for part in rel.parts:
+        try:
+            names = {child.name for child in current.iterdir()}
+        except FileNotFoundError:
+            return False
+        if part not in names:
+            return False
+        current = current / part
+    return True
+
+missing = [path for path in required if not exact_exists(path)]
 if missing:
     print("Quality issue archive check failed:", file=sys.stderr)
     for path in missing:

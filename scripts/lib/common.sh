@@ -19,6 +19,47 @@ require_cmd() {
   fi
 }
 
+repo_path_exists_exact() {
+  require_cmd python3
+  python3 - "$1" <<'PY'
+from pathlib import Path
+import sys
+
+repo = Path.cwd().resolve()
+raw = sys.argv[1]
+target = (repo / raw).resolve()
+
+try:
+    rel = target.relative_to(repo)
+except ValueError:
+    raise SystemExit(0 if target.exists() else 1)
+
+current = repo
+for part in rel.parts:
+    try:
+        names = {child.name for child in current.iterdir()}
+    except FileNotFoundError:
+        raise SystemExit(1)
+    if part not in names:
+        raise SystemExit(1)
+    current = current / part
+
+raise SystemExit(0)
+PY
+}
+
+require_repo_path_exact() {
+  local path="${1:-}"
+  if [[ -z "$path" ]]; then
+    echo "Missing repository path argument." >&2
+    exit 1
+  fi
+  if ! repo_path_exists_exact "$path"; then
+    echo "Missing repository path with exact casing: $path" >&2
+    exit 1
+  fi
+}
+
 prefer_java_21() {
   if [[ "$(uname -s)" != "Darwin" ]]; then
     return 0

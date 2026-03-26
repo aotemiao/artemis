@@ -16,6 +16,24 @@ repo = Path.cwd()
 pattern = re.compile(r'\[[^\]]+\]\(([^)]+)\)')
 errors = []
 
+
+def exact_exists(path: Path) -> bool:
+    try:
+        rel = path.relative_to(repo)
+    except ValueError:
+        return path.exists()
+
+    current = repo
+    for part in rel.parts:
+        try:
+            names = {child.name for child in current.iterdir()}
+        except FileNotFoundError:
+            return False
+        if part not in names:
+            return False
+        current = current / part
+    return True
+
 for md in repo.rglob("*.md"):
     if ".git" in md.parts:
         continue
@@ -29,7 +47,7 @@ for md in repo.rglob("*.md"):
         if not clean:
             continue
         resolved = (md.parent / clean).resolve()
-        if not resolved.exists():
+        if not exact_exists(resolved):
             errors.append(f"{md.relative_to(repo)} -> {target}")
 
 if errors:

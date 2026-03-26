@@ -21,34 +21,13 @@ while IFS= read -r service; do
   service_root="${start_module%/*}"
   service_artifact="$(basename "$service_root")"
 
-  [[ -d "$service_root" ]] || {
-    echo "Missing service root for ${service}: ${service_root}" >&2
-    exit 1
-  }
-  [[ -d "artemis-api/${api_bridge}" ]] || {
-    echo "Missing API bridge for ${service}: artemis-api/${api_bridge}" >&2
-    exit 1
-  }
-  [[ -f "$smoke_script" ]] || {
-    echo "Missing smoke script for ${service}: ${smoke_script}" >&2
-    exit 1
-  }
-  [[ -f "scripts/dev/run-${service}.sh" ]] || {
-    echo "Missing run script for ${service}: scripts/dev/run-${service}.sh" >&2
-    exit 1
-  }
-  [[ -f "scripts/dev/check-${service}-readiness.sh" ]] || {
-    echo "Missing readiness script for ${service}: scripts/dev/check-${service}-readiness.sh" >&2
-    exit 1
-  }
-  [[ -f "$dockerfile" ]] || {
-    echo "Missing dockerfile for ${service}: ${dockerfile}" >&2
-    exit 1
-  }
-  [[ -f "${service_root}/${service_artifact}-client/CLIENT_CONTRACT.md" ]] || {
-    echo "Missing client contract doc for ${service}" >&2
-    exit 1
-  }
+  require_repo_path_exact "$service_root"
+  require_repo_path_exact "artemis-api/${api_bridge}"
+  require_repo_path_exact "$smoke_script"
+  require_repo_path_exact "scripts/dev/run-${service}.sh"
+  require_repo_path_exact "scripts/dev/check-${service}-readiness.sh"
+  require_repo_path_exact "$dockerfile"
+  require_repo_path_exact "${service_root}/${service_artifact}-client/CLIENT_CONTRACT.md"
 
   if ! find "$service_root" -maxdepth 1 -type f \( -name "*_API.md" -o -name "SERVICE_API.md" \) | grep -q .; then
     echo "Missing API doc entry for ${service}: expected *_API.md or SERVICE_API.md under ${service_root}" >&2

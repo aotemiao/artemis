@@ -21,12 +21,11 @@ required_files=(
 
 print_step "Checking Symphony assets"
 for file in "${required_files[@]}"; do
-  [[ -f "$file" ]] || {
-    echo "Missing Symphony asset: $file" >&2
-    exit 1
-  }
+  require_repo_path_exact "$file"
 done
 
+require_repo_path_exact "artemis-symphony/README.md"
+require_repo_path_exact "artemis-symphony/WORKFLOW.md.example"
 grep -Fq "contract-change.md" artemis-symphony/README.md
 grep -Fq "deploy-drill.md" artemis-symphony/README.md
 grep -Fq "expand-existing-service.md" artemis-symphony/README.md
