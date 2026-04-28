@@ -38,6 +38,10 @@ TARGETS = [
         Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemMenuController.java"),
         Path("artemis-modules/artemis-system/MENU_API.md"),
     ),
+    (
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemConfigController.java"),
+        Path("artemis-modules/artemis-system/CONFIG_API.md"),
+    ),
 ]
 
 
