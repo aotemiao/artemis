@@ -50,6 +50,10 @@ TARGETS = [
         Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemDepartmentController.java"),
         Path("artemis-modules/artemis-system/DEPARTMENT_API.md"),
     ),
+    (
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemPostController.java"),
+        Path("artemis-modules/artemis-system/POST_API.md"),
+    ),
 ]
 
 
