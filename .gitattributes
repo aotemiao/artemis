@@ -1,0 +1,32 @@
+# 默认文本文件使用 LF，避免 Windows core.autocrlf 影响 Spotless 与脚本执行。
+* text=auto eol=lf
+
+# 历史 artemis-system 文件当前以 CRLF 入库，先固定现状，避免本次产生大面积纯行尾 diff。
+# 后续若要统一迁移，可删除本规则并对该目录执行 Git 行尾归一化。
+artemis-modules/artemis-system/** text=auto eol=crlf
+
+# artemis-system 中已是 LF 的历史文件继续保持 LF。
+artemis-modules/artemis-system/MENU_API.md text=auto eol=lf
+artemis-modules/artemis-system/artemis-system-start/src/main/resources/db/migration/V4__system_menus.sql text=auto eol=lf
+
+# 跨平台可执行脚本必须使用 LF。
+*.sh text eol=lf
+
+# Windows 原生批处理脚本保留 CRLF。
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 常见二进制资产不参与行尾归一化。
+*.7z binary
+*.gif binary
+*.gz binary
+*.ico binary
+*.jar binary
+*.jpeg binary
+*.jpg binary
+*.pdf binary
+*.png binary
+*.tar binary
+*.war binary
+*.webp binary
+*.zip binary

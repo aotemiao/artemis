@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+定义 Artemis 仓库的基础工程约束，包括服务独立部署、公共能力 starter 化、跨服务契约、配置模板、容器化骨架、质量门、行尾规则、多环境配置、日志规范与关键测试约定。
+
+## Requirements
 
 ### Requirement: 微服务独立部署
 
@@ -37,6 +41,11 @@
 
 项目 SHALL 在仓库中保留 `config/nacos` 目录，作为 Nacos 配置中心的模板与说明目录（不参与打包）。SHALL 包含层级化 YAML 模板（application-common、datasource、各服务 artemis-xxx）及 README（Data ID 对应关系、上传顺序、Maven profile 说明）。MAY 提供通过 Nacos Open API 批量上传的脚本（如 PowerShell），支持指定 Nacos 地址与 namespace。
 
+#### Scenario: 使用仓库模板初始化 Nacos 配置
+
+- **WHEN** 开发者按本地开发环境初始化 Nacos 配置
+- **THEN** SHALL 能从 `config/nacos` 找到通用配置、数据源配置、服务配置模板与上传说明
+
 ### Requirement: 容器化部署骨架
 
 项目 SHALL 在根目录预留以下容器化相关文件/目录结构：
@@ -64,6 +73,15 @@
 
 - **WHEN** 提交的代码违反 Checkstyle 规则
 - **THEN** `mvn verify` SHALL 失败并报告具体违规位置
+
+### Requirement: 仓库行尾规则固定
+
+项目 SHALL 在根目录提供 `.gitattributes` 固定文本文件行尾，避免本地 `core.autocrlf` 等 Git 配置影响 Spotless、脚本执行与跨平台差异。默认文本文件 SHALL 使用 LF；跨平台 shell 脚本 MUST 使用 LF；Windows 原生批处理脚本 MAY 使用 CRLF。已有历史目录如需暂时保留不同规则，MUST 在 `.gitattributes` 中显式声明，并在注释中说明后续统一迁移方式。
+
+#### Scenario: Windows 本地执行 Spotless
+
+- **WHEN** 开发者在 Windows 环境执行 `mvn verify`
+- **THEN** Spotless SHALL 按 `.gitattributes` 中的行尾规则判断文件是否合规，不应受开发者本机全局 Git 行尾配置影响
 
 ### Requirement: 多环境配置管理
 
