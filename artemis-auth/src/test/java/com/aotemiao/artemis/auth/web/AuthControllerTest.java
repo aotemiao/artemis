@@ -12,11 +12,14 @@ import cn.dev33.satoken.context.model.SaStorage;
 import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
 import com.aotemiao.artemis.auth.client.SystemClientValidateClient;
+import com.aotemiao.artemis.auth.client.SystemLoginInfoRecordClient;
 import com.aotemiao.artemis.auth.client.SystemUserAuthorizationClient;
 import com.aotemiao.artemis.auth.client.SystemUserValidateClient;
 import com.aotemiao.artemis.auth.web.dto.LoginResponse;
+import com.aotemiao.artemis.system.client.dto.RecordLoginInfoRequest;
 import com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO;
 import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +45,9 @@ class AuthControllerTest {
     @Mock
     private SystemClientValidateClient systemClientValidateClient;
 
+    @Mock
+    private SystemLoginInfoRecordClient systemLoginInfoRecordClient;
+
     @InjectMocks
     private AuthController authController;
 
@@ -64,7 +70,9 @@ class AuthControllerTest {
         when(systemUserValidateClient.validate("artemis-admin", "password", "admin", "bad-password"))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> authController.login(new ValidateCredentialsRequest("admin", "bad-password")))
+        assertThatThrownBy(() -> authController.login(
+                        new ValidateCredentialsRequest("admin", "bad-password"),
+                        org.mockito.Mockito.mock(HttpServletRequest.class)))
                 .isInstanceOf(AuthController.InvalidCredentialsException.class)
                 .hasMessage("Invalid username or password");
     }
@@ -78,7 +86,13 @@ class AuthControllerTest {
                 .thenReturn(Optional.of(new UserAuthorizationSnapshotDTO(
                         1L, "admin", "管理员", List.of("super-admin"), List.of("system:user:list"))));
 
-        LoginResponse response = authController.login(new ValidateCredentialsRequest("admin", "123456"));
+        HttpServletRequest request = org.mockito.Mockito.mock(HttpServletRequest.class);
+        when(request.getHeader("User-Agent"))
+                .thenReturn(
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36");
+        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+
+        LoginResponse response = authController.login(new ValidateCredentialsRequest("admin", "123456"), request);
 
         assertThat(response.token()).isNotBlank();
         assertThat(response.userId()).isEqualTo(1L);
@@ -93,6 +107,8 @@ class AuthControllerTest {
         assertThat(userProfileMap.get("userId")).isEqualTo(1L);
         assertThat(userProfileMap.get("username")).isEqualTo("admin");
         assertThat(userProfileMap.get("displayName")).isEqualTo("管理员");
+        org.mockito.Mockito.verify(systemLoginInfoRecordClient)
+                .record(org.mockito.ArgumentMatchers.argThat(AuthControllerTest::successLoginInfo));
     }
 
     @Test
@@ -100,7 +116,8 @@ class AuthControllerTest {
         when(systemClientValidateClient.validate("bad-client", "password")).thenReturn(false);
 
         assertThatThrownBy(() -> authController.login(
-                        new ValidateCredentialsRequest("bad-client", "password", "admin", "123456")))
+                        new ValidateCredentialsRequest("bad-client", "password", "admin", "123456"),
+                        org.mockito.Mockito.mock(HttpServletRequest.class)))
                 .isInstanceOf(AuthController.InvalidCredentialsException.class)
                 .hasMessage("Invalid client or grant type");
     }
@@ -122,6 +139,14 @@ class AuthControllerTest {
         assertThat(StpUtil.getSessionByLoginId(1L).get(SaSession.ROLE_LIST)).isEqualTo(List.of("super-admin"));
         assertThat(StpUtil.getSessionByLoginId(1L).get(SaSession.PERMISSION_LIST))
                 .isEqualTo(List.of("system:user:list"));
+    }
+
+    private static boolean successLoginInfo(RecordLoginInfoRequest request) {
+        return "admin".equals(request.username())
+                && "artemis-admin".equals(request.clientId())
+                && "SUCCESS".equals(request.status())
+                && "Chrome".equals(request.browser())
+                && "Windows".equals(request.os());
     }
 
     private static final class TestSaTokenContext implements SaTokenContext {
