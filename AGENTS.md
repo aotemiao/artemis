@@ -1,7 +1,7 @@
 # Artemis Agent Guide
 
 Status: maintained
-Last Reviewed: 2026-03-25
+Last Reviewed: 2026-04-28
 Review Cadence: 90 days
 
 本文件是仓库内 agent 的稳定入口，目标是让任何自动化执行都先找到地图，再开始改代码。
@@ -16,16 +16,19 @@ Review Cadence: 90 days
    了解当前质量短板、优先修复方向与“不要继续放大的问题”。
 4. `docs/harness-engineering/CHECKLIST.md`
    了解本仓库对 Harness Engineering 的落地清单与当前完成度。
-5. `openspec/specs/`
+5. `docs/harness-engineering/AGENT_DEVELOPMENT_WORKFLOW.md`
+   了解默认的 agent 开发分流方式。
+6. `openspec/specs/`
    读取与本次改动直接相关的规范，避免只看局部代码做出越界修改。
 
 ## 标准工作回路
 
 1. 先读相关规范与架构文档，再决定改动范围。
-2. 优先做最小闭环改动：代码、测试、文档、脚本一并补齐。
-3. 能复用 `scripts/` 下入口时，不要把命令散落在 issue 评论或聊天里。
-4. 修改跨模块行为时，同步检查 OpenSpec 是否需要更新。
-5. 提交前至少执行一个可解释的验证动作：
+2. 若需求描述还不够结构化，先用 `artemis-symphony/prompts/agent-requirement-intake.md` 整理成最小需求模板。
+3. 优先做最小闭环改动：代码、测试、文档、脚本一并补齐。
+4. 能复用 `scripts/` 下入口时，不要把命令散落在 issue 评论或聊天里。
+5. 修改跨模块行为时，同步检查 OpenSpec 是否需要更新。
+6. 提交前至少执行一个可解释的验证动作：
    `scripts/harness/verify-changed.sh`
    或
    `scripts/harness/full-verify.sh`
@@ -45,7 +48,7 @@ Review Cadence: 90 days
 - 项目进度、阶段汇报或演进路线：
   先读 `QUALITY_SCORE.md`、`docs/harness-engineering/ROADMAP.md`、`docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`、相关 `docs/exec-plans/`
 - 编码代理编排与自动化：
-  先读 `artemis-symphony/README.md`、`docs/harness-engineering/ROADMAP.md`、`openspec/specs/agent-task-assets/spec.md`
+  先读 `artemis-symphony/README.md`、`docs/harness-engineering/AGENT_DEVELOPMENT_WORKFLOW.md`、`docs/harness-engineering/ROADMAP.md`、`openspec/specs/agent-task-assets/spec.md`
 - 复杂任务或多步迁移：
   先在 `docs/exec-plans/active/` 建立或更新执行计划
 

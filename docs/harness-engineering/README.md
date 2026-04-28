@@ -1,7 +1,7 @@
 # Harness Engineering
 
 Status: maintained
-Last Reviewed: 2026-03-25
+Last Reviewed: 2026-04-28
 Review Cadence: 90 days
 
 这个目录用于沉淀 Artemis 在 Harness Engineering 方向上的仓库内结构、路线图和执行标准。
@@ -24,6 +24,8 @@ Review Cadence: 90 days
   将工程约束落成 ArchUnit 测试的操作入口
 - `AGENT_REVIEW_LOOP.md`
   agent 自评与 reviewer 复核回路
+- `AGENT_DEVELOPMENT_WORKFLOW.md`
+  默认 agent 开发分流方式与需求受理入口
 - `DOC_FRESHNESS_POLICY.md`
   核心文档审阅 cadence、过期标准与 CI 防漂移守门
 - `DEPLOY_AND_ROLLBACK_RUNBOOK.md`
@@ -42,7 +44,7 @@ Review Cadence: 90 days
 1. 新增工程能力前，先对照 `CHECKLIST.md`
 2. 需要判断当前项目阶段、完成程度或后续演进路线时，先读 `PROJECT_PROGRESS_REPORT.md`
 3. 涉及多步推进的工作，在 `docs/exec-plans/active/` 建计划
-4. 需要套用标准动作时，优先从 runbook、`scripts/dev/new-domain-service.sh`、skills 和 prompts 中找现成入口
+4. 需要套用标准动作时，优先从 `AGENT_DEVELOPMENT_WORKFLOW.md`、runbook、`scripts/dev/new-domain-service.sh`、skills 和 prompts 中找现成入口
 5. 完成一轮补强后，回写 `QUALITY_SCORE.md` 与相关 checklist 状态
 
 ## 与 OpenSpec 的分工

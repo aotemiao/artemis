@@ -22,6 +22,8 @@
   针对常见工程任务的最小 skill 资产
 - `prompts/`
   自评与 reviewer handoff 等 prompt 模版
+- `prompts/agent-requirement-intake.md`
+  需求受理与分流模板
 
 当前重点资产：
 
@@ -33,6 +35,7 @@
 - `prompts/contract-change-review.md`
 - `prompts/deploy-drill-report.md`
 - `prompts/phase-delivery-plan.md`
+- `prompts/agent-requirement-intake.md`
 
 ## 运行
 

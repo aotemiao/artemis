@@ -53,7 +53,9 @@ Before changing code, read these repository-local sources of truth:
 3. `QUALITY_SCORE.md`
 4. `docs/harness-engineering/CHECKLIST.md`
 5. Relevant files under `openspec/specs/`
-6. Relevant active plan under `docs/exec-plans/active/`, if one exists
+6. `docs/harness-engineering/AGENT_DEVELOPMENT_WORKFLOW.md`
+7. Relevant active plan under `docs/exec-plans/active/`, if one exists
+8. `artemis-symphony/prompts/agent-requirement-intake.md`
 
 When the task matches a common engineering pattern, also read the corresponding asset:
 
@@ -70,6 +72,7 @@ Execution rules:
 - Keep new or updated code comments, config comments, and contributor-facing docs in Chinese.
 - Keep identifiers and configuration keys in English.
 - Prefer using repository scripts instead of inventing ad-hoc command sequences.
+- If the request is still vague after reading the sources above, use `artemis-symphony/prompts/agent-requirement-intake.md` to normalize the需求 before implementation.
 - Use `scripts/harness/verify-changed.sh` for scoped validation.
 - Use `scripts/harness/full-verify.sh` for cross-module or high-risk changes.
 - Use `scripts/harness/check-api-doc-sync.sh` and `scripts/harness/check-client-contracts.sh` when touching contracts or API docs.
