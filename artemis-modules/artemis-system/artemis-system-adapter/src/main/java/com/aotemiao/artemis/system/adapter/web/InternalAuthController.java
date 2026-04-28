@@ -52,7 +52,11 @@ public class InternalAuthController {
         UserAuthorizationSnapshotDTO snapshot = getUserAuthorizationQryExe
                 .execute(new GetUserAuthorizationQry(userId))
                 .map(result -> new UserAuthorizationSnapshotDTO(
-                        result.userId(), result.username(), result.displayName(), result.roleKeys()))
+                        result.userId(),
+                        result.username(),
+                        result.displayName(),
+                        result.roleKeys(),
+                        result.permissionCodes()))
                 .orElseThrow(() -> new BizException(CommonErrorCode.NOT_FOUND, "SystemUser not found: " + userId));
         return R.ok(snapshot);
     }

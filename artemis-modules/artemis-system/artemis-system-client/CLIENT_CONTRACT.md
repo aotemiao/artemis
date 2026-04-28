@@ -12,7 +12,7 @@
 ## DTO 清单
 
 - `DTO: com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest(String username, String password)`
-- `DTO: com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO(Long userId, String username, String displayName, List<String> roleKeys)`
+- `DTO: com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO(Long userId, String username, String displayName, List<String> roleKeys, List<String> permissionCodes)`
 
 ## 契约说明
 
@@ -21,6 +21,6 @@
 - `ValidateCredentialsRequest`
   作为 Dubbo 契约请求体，与系统服务内部 REST 校验接口保持字段对齐。
 - `UserAuthorizationService`
-  供 `artemis-auth` 等内部调用方按 `userId` 查询最小授权快照，成功时返回用户基础信息与启用中的 `roleKeys`。
+  供 `artemis-auth` 等内部调用方按 `userId` 查询最小授权快照，成功时返回用户基础信息、启用中的 `roleKeys` 与 `permissionCodes`。
 - `UserAuthorizationSnapshotDTO`
   作为内部授权快照结果体，与系统服务内部 REST 授权查询接口保持字段对齐。

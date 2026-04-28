@@ -78,7 +78,8 @@ class InternalAuthControllerTest {
     @Test
     void getAuthorization_whenUserExists_returnsSnapshot() throws Exception {
         when(getUserAuthorizationQryExe.execute(any()))
-                .thenReturn(Optional.of(new UserAuthorizationSnapshot(7L, "admin", "管理员", List.of("super-admin"))));
+                .thenReturn(Optional.of(new UserAuthorizationSnapshot(
+                        7L, "admin", "管理员", List.of("super-admin"), List.of("system:user:list"))));
 
         mockMvc.perform(get(InternalAuthController.BASE_PATH + "/users/7/authorization"))
                 .andExpect(status().isOk())
@@ -86,6 +87,7 @@ class InternalAuthControllerTest {
                 .andExpect(jsonPath("$.data.userId").value(7))
                 .andExpect(jsonPath("$.data.username").value("admin"))
                 .andExpect(jsonPath("$.data.displayName").value("管理员"))
-                .andExpect(jsonPath("$.data.roleKeys[0]").value("super-admin"));
+                .andExpect(jsonPath("$.data.roleKeys[0]").value("super-admin"))
+                .andExpect(jsonPath("$.data.permissionCodes[0]").value("system:user:list"));
     }
 }

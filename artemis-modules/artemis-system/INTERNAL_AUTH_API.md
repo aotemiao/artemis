@@ -12,4 +12,4 @@
 - `POST /api/system/internal/auth/validate`
   供内部调用方提交用户名与密码，基于 `system_users` 表校验成功返回 `userId`，校验失败返回未授权错误。
 - `GET /api/system/internal/auth/users/{userId}/authorization`
-  供内部调用方按 `userId` 查询最小授权快照，返回 `userId`、`username`、`displayName` 与启用中的 `roleKeys`。
+  供内部调用方按 `userId` 查询最小授权快照，返回 `userId`、`username`、`displayName`、启用中的 `roleKeys` 与 `permissionCodes`。

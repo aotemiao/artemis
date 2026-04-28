@@ -8,6 +8,8 @@
 - `ROUTE: PUT /api/roles/{id}`
 - `ROUTE: GET /api/roles/{id}`
 - `ROUTE: GET /api/roles`
+- `ROUTE: GET /api/roles/{roleId}/menus`
+- `ROUTE: PUT /api/roles/{roleId}/menus`
 
 ## 说明
 
@@ -17,3 +19,5 @@
 | `PUT` | `/api/roles/{id}` | 更新指定角色的 `roleKey`、`roleName` 与 `enabled` |
 | `GET` | `/api/roles/{id}` | 按 ID 查询系统角色 |
 | `GET` | `/api/roles` | 分页查询系统角色，使用 `page`、`size` 参数 |
+| `GET` | `/api/roles/{roleId}/menus` | 查询指定角色当前绑定的菜单与权限点列表 |
+| `PUT` | `/api/roles/{roleId}/menus` | 批量替换指定角色的菜单绑定，请求体包含 `menuIds` |

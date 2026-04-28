@@ -22,6 +22,10 @@ public class UserAuthorizationServiceDubboImpl implements UserAuthorizationServi
         return getUserAuthorizationQryExe
                 .execute(new GetUserAuthorizationQry(userId))
                 .map(snapshot -> new UserAuthorizationSnapshotDTO(
-                        snapshot.userId(), snapshot.username(), snapshot.displayName(), snapshot.roleKeys()));
+                        snapshot.userId(),
+                        snapshot.username(),
+                        snapshot.displayName(),
+                        snapshot.roleKeys(),
+                        snapshot.permissionCodes()));
     }
 }

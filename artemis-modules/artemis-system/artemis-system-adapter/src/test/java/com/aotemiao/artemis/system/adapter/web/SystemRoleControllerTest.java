@@ -15,9 +15,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.aotemiao.artemis.framework.core.domain.PageResult;
 import com.aotemiao.artemis.framework.core.exception.BizException;
 import com.aotemiao.artemis.system.app.command.CreateSystemRoleCmdExe;
+import com.aotemiao.artemis.system.app.command.ReplaceRoleMenusCmdExe;
 import com.aotemiao.artemis.system.app.command.UpdateSystemRoleCmdExe;
 import com.aotemiao.artemis.system.app.query.FindSystemRoleByIdQryExe;
+import com.aotemiao.artemis.system.app.query.ListRoleMenusQryExe;
 import com.aotemiao.artemis.system.app.query.SystemRolePageQryExe;
+import com.aotemiao.artemis.system.domain.model.SystemMenu;
 import com.aotemiao.artemis.system.domain.model.SystemRole;
 import jakarta.servlet.ServletException;
 import java.util.List;
@@ -36,6 +39,8 @@ class SystemRoleControllerTest {
     private UpdateSystemRoleCmdExe updateSystemRoleCmdExe;
     private FindSystemRoleByIdQryExe findSystemRoleByIdQryExe;
     private SystemRolePageQryExe systemRolePageQryExe;
+    private ListRoleMenusQryExe listRoleMenusQryExe;
+    private ReplaceRoleMenusCmdExe replaceRoleMenusCmdExe;
 
     @BeforeEach
     void setUp() {
@@ -43,8 +48,15 @@ class SystemRoleControllerTest {
         updateSystemRoleCmdExe = mock(UpdateSystemRoleCmdExe.class);
         findSystemRoleByIdQryExe = mock(FindSystemRoleByIdQryExe.class);
         systemRolePageQryExe = mock(SystemRolePageQryExe.class);
+        listRoleMenusQryExe = mock(ListRoleMenusQryExe.class);
+        replaceRoleMenusCmdExe = mock(ReplaceRoleMenusCmdExe.class);
         mockMvc = MockMvcBuilders.standaloneSetup(new SystemRoleController(
-                        createSystemRoleCmdExe, updateSystemRoleCmdExe, findSystemRoleByIdQryExe, systemRolePageQryExe))
+                        createSystemRoleCmdExe,
+                        updateSystemRoleCmdExe,
+                        findSystemRoleByIdQryExe,
+                        systemRolePageQryExe,
+                        listRoleMenusQryExe,
+                        replaceRoleMenusCmdExe))
                 .build();
     }
 
@@ -135,5 +147,46 @@ class SystemRoleControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.total").value(1))
                 .andExpect(jsonPath("$.data.content[0].roleKey").value("super-admin"));
+    }
+
+    @Test
+    void listMenus_returnsRoleMenus() throws Exception {
+        SystemMenu menu = sampleMenu();
+        when(listRoleMenusQryExe.execute(any())).thenReturn(List.of(menu));
+
+        mockMvc.perform(get(SystemRoleController.BASE_PATH + "/{roleId}/menus", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].menuName").value("用户管理"))
+                .andExpect(jsonPath("$.data[0].permissionCode").value("system:user:list"));
+    }
+
+    @Test
+    void replaceMenus_returnsUpdatedRoleMenus() throws Exception {
+        SystemMenu menu = sampleMenu();
+        when(replaceRoleMenusCmdExe.execute(any())).thenReturn(List.of(menu));
+
+        mockMvc.perform(put(SystemRoleController.BASE_PATH + "/{roleId}/menus", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "menuIds": [10]
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].permissionCode").value("system:user:list"));
+    }
+
+    private SystemMenu sampleMenu() {
+        SystemMenu menu = new SystemMenu();
+        menu.setId(10L);
+        menu.setParentId(0L);
+        menu.setMenuType(SystemMenu.TYPE_MENU);
+        menu.setMenuName("用户管理");
+        menu.setSortOrder(10);
+        menu.setPath("/system/users");
+        menu.setPermissionCode("system:user:list");
+        menu.setVisible(true);
+        menu.setEnabled(true);
+        return menu;
     }
 }
