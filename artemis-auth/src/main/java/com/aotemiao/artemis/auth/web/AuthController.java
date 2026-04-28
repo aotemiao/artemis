@@ -7,20 +7,29 @@ import com.aotemiao.artemis.auth.client.SystemLoginInfoRecordClient;
 import com.aotemiao.artemis.auth.client.SystemUserAuthorizationClient;
 import com.aotemiao.artemis.auth.client.SystemUserRegisterClient;
 import com.aotemiao.artemis.auth.client.SystemUserValidateClient;
+import com.aotemiao.artemis.auth.session.OnlineUser;
+import com.aotemiao.artemis.auth.session.OnlineUserRegistry;
 import com.aotemiao.artemis.auth.web.dto.LoginResponse;
+import com.aotemiao.artemis.auth.web.dto.OnlineUserDTO;
 import com.aotemiao.artemis.auth.web.dto.RegisterResponse;
 import com.aotemiao.artemis.system.client.dto.RecordLoginInfoRequest;
 import com.aotemiao.artemis.system.client.dto.RegisterUserRequest;
 import com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO;
 import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,17 +44,22 @@ public class AuthController {
     private final SystemLoginInfoRecordClient systemLoginInfoRecordClient;
     private final SystemUserRegisterClient systemUserRegisterClient;
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring 注入在线用户注册表作为受管协作者，控制器不会向外暴露该引用。")
+    private final OnlineUserRegistry onlineUserRegistry;
+
     public AuthController(
             SystemUserValidateClient systemUserValidateClient,
             SystemUserAuthorizationClient systemUserAuthorizationClient,
             SystemClientValidateClient systemClientValidateClient,
             SystemLoginInfoRecordClient systemLoginInfoRecordClient,
-            SystemUserRegisterClient systemUserRegisterClient) {
+            SystemUserRegisterClient systemUserRegisterClient,
+            OnlineUserRegistry onlineUserRegistry) {
         this.systemUserValidateClient = systemUserValidateClient;
         this.systemUserAuthorizationClient = systemUserAuthorizationClient;
         this.systemClientValidateClient = systemClientValidateClient;
         this.systemLoginInfoRecordClient = systemLoginInfoRecordClient;
         this.systemUserRegisterClient = systemUserRegisterClient;
+        this.onlineUserRegistry = onlineUserRegistry;
     }
 
     /** 登录：校验用户名密码后签发 Token，会话存 Redis。 */
@@ -65,6 +79,7 @@ public class AuthController {
         UserAuthorizationSnapshotDTO snapshot = getAuthorizationSnapshot(userId);
         StpUtil.login(userId);
         syncAuthorizationSession(snapshot);
+        recordOnlineUser(snapshot, servletRequest);
         recordLoginInfo(request, servletRequest, "SUCCESS", "登录成功");
         return buildLoginResponse(snapshot);
     }
@@ -93,7 +108,27 @@ public class AuthController {
     public void logout(HttpServletRequest servletRequest) {
         String username = currentUsername();
         recordLogoutInfo(username, servletRequest);
+        if (StpUtil.isLogin()) {
+            onlineUserRegistry.remove(Long.parseLong(StpUtil.getLoginId().toString()));
+        }
         StpUtil.logout();
+    }
+
+    /** 在线用户：按用户名或 IP 过滤当前认证实例内的登录用户。 */
+    @GetMapping("/online-users")
+    public List<OnlineUserDTO> onlineUsers(
+            @RequestParam(required = false) String username, @RequestParam(required = false) String ipaddr) {
+        return onlineUserRegistry.list(username, ipaddr).stream()
+                .map(this::toOnlineUserDTO)
+                .toList();
+    }
+
+    /** 强退指定用户。 */
+    @PostMapping("/online-users/{userId}/force-logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void forceLogout(@PathVariable Long userId) {
+        StpUtil.logout(userId);
+        onlineUserRegistry.remove(userId);
     }
 
     /** 刷新：续期当前会话（Sa-Token 默认会续期），返回当前 Token。 若需续期后换新 Token，可在此扩展。 */
@@ -130,6 +165,29 @@ public class AuthController {
         userProfile.put("username", snapshot.username());
         userProfile.put("displayName", snapshot.displayName());
         session.set(SaSession.USER, userProfile);
+    }
+
+    private void recordOnlineUser(UserAuthorizationSnapshotDTO snapshot, HttpServletRequest servletRequest) {
+        String userAgent = header(servletRequest, "User-Agent");
+        onlineUserRegistry.put(new OnlineUser(
+                snapshot.userId(),
+                snapshot.username(),
+                StpUtil.getTokenValue(),
+                clientIp(servletRequest),
+                browser(userAgent),
+                os(userAgent),
+                LocalDateTime.now()));
+    }
+
+    private OnlineUserDTO toOnlineUserDTO(OnlineUser onlineUser) {
+        return new OnlineUserDTO(
+                onlineUser.userId(),
+                onlineUser.username(),
+                onlineUser.token(),
+                onlineUser.ipaddr(),
+                onlineUser.browser(),
+                onlineUser.os(),
+                onlineUser.loginTime());
     }
 
     private void recordLoginInfo(

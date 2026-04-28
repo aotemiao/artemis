@@ -6,6 +6,8 @@
 
 - `ROUTE: POST /auth/login`
 - `ROUTE: POST /auth/logout`
+- `ROUTE: GET /auth/online-users`
+- `ROUTE: POST /auth/online-users/{userId}/force-logout`
 - `ROUTE: POST /auth/register`
 - `ROUTE: POST /auth/refresh`
 
@@ -15,6 +17,10 @@
   请求体为 `username`、`password`，成功返回当前登录 Token、`userId`、`roleKeys` 与 `permissionCodes`，并把最小授权快照同步进当前登录会话。
 - `POST /auth/logout`
   使当前 Token 对应会话失效，成功返回 `204 No Content`。
+- `GET /auth/online-users`
+  按 `username`、`ipaddr` 查询当前认证实例内的在线用户。
+- `POST /auth/online-users/{userId}/force-logout`
+  强退指定用户并移除在线用户索引。
 - `POST /auth/register`
   请求体为 `tenantId`、`clientId`、`grantType`、`username`、`password`、`userType`，系统服务校验注册开关和用户类型后创建用户，并记录注册日志。
 - `POST /auth/refresh`

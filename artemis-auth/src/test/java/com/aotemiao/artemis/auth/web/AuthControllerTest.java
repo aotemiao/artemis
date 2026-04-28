@@ -16,12 +16,15 @@ import com.aotemiao.artemis.auth.client.SystemLoginInfoRecordClient;
 import com.aotemiao.artemis.auth.client.SystemUserAuthorizationClient;
 import com.aotemiao.artemis.auth.client.SystemUserRegisterClient;
 import com.aotemiao.artemis.auth.client.SystemUserValidateClient;
+import com.aotemiao.artemis.auth.session.OnlineUser;
+import com.aotemiao.artemis.auth.session.OnlineUserRegistry;
 import com.aotemiao.artemis.auth.web.dto.LoginResponse;
 import com.aotemiao.artemis.system.client.dto.RecordLoginInfoRequest;
 import com.aotemiao.artemis.system.client.dto.RegisterUserRequest;
 import com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO;
 import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +55,9 @@ class AuthControllerTest {
 
     @Mock
     private SystemUserRegisterClient systemUserRegisterClient;
+
+    @Mock
+    private OnlineUserRegistry onlineUserRegistry;
 
     @InjectMocks
     private AuthController authController;
@@ -112,6 +118,10 @@ class AuthControllerTest {
         assertThat(userProfileMap.get("userId")).isEqualTo(1L);
         assertThat(userProfileMap.get("username")).isEqualTo("admin");
         assertThat(userProfileMap.get("displayName")).isEqualTo("管理员");
+        org.mockito.Mockito.verify(onlineUserRegistry)
+                .put(org.mockito.ArgumentMatchers.argThat(user -> user.userId().equals(1L)
+                        && "admin".equals(user.username())
+                        && "Chrome".equals(user.browser())));
         org.mockito.Mockito.verify(systemLoginInfoRecordClient)
                 .record(org.mockito.ArgumentMatchers.argThat(AuthControllerTest::successLoginInfo));
     }
@@ -160,6 +170,18 @@ class AuthControllerTest {
         assertThat(StpUtil.getSessionByLoginId(1L).get(SaSession.ROLE_LIST)).isEqualTo(List.of("super-admin"));
         assertThat(StpUtil.getSessionByLoginId(1L).get(SaSession.PERMISSION_LIST))
                 .isEqualTo(List.of("system:user:list"));
+    }
+
+    @Test
+    void onlineUsers_returnsFilteredRegistryUsers() {
+        OnlineUser onlineUser =
+                new OnlineUser(1L, "admin", "token", "127.0.0.1", "Chrome", "Windows", LocalDateTime.now());
+        when(onlineUserRegistry.list("admin", "127.0.0.1")).thenReturn(List.of(onlineUser));
+
+        var result = authController.onlineUsers("admin", "127.0.0.1");
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().username()).isEqualTo("admin");
     }
 
     private static boolean successLoginInfo(RecordLoginInfoRequest request) {
