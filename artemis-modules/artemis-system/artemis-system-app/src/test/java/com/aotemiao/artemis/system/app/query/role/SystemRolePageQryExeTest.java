@@ -5,8 +5,8 @@ import static org.mockito.Mockito.when;
 
 import com.aotemiao.artemis.framework.core.domain.PageRequest;
 import com.aotemiao.artemis.framework.core.domain.PageResult;
-import com.aotemiao.artemis.system.domain.gateway.SystemRoleGateway;
-import com.aotemiao.artemis.system.domain.model.SystemRole;
+import com.aotemiao.artemis.system.domain.gateway.role.SystemRoleGateway;
+import com.aotemiao.artemis.system.domain.model.role.SystemRole;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -17,7 +17,7 @@ import com.aotemiao.artemis.system.app.command.menu.CreateSystemMenuCmdExe;
 import com.aotemiao.artemis.system.app.command.menu.UpdateSystemMenuCmdExe;
 import com.aotemiao.artemis.system.app.query.menu.FindSystemMenuByIdQryExe;
 import com.aotemiao.artemis.system.app.query.menu.ListSystemMenusQryExe;
-import com.aotemiao.artemis.system.domain.model.SystemMenu;
+import com.aotemiao.artemis.system.domain.model.menu.SystemMenu;
 import jakarta.servlet.ServletException;
 import java.util.List;
 import java.util.Optional;

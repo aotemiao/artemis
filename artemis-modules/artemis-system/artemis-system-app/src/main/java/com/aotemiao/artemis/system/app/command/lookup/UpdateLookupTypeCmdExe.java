@@ -1,8 +1,8 @@
 package com.aotemiao.artemis.system.app.command.lookup;
 
-import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
-import com.aotemiao.artemis.system.domain.model.LookupItem;
-import com.aotemiao.artemis.system.domain.model.LookupType;
+import com.aotemiao.artemis.system.domain.gateway.lookup.LookupTypeGateway;
+import com.aotemiao.artemis.system.domain.model.lookup.LookupItem;
+import com.aotemiao.artemis.system.domain.model.lookup.LookupType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;

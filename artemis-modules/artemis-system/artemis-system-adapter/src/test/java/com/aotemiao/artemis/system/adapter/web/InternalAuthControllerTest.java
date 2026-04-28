@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.aotemiao.artemis.framework.core.exception.BizException;
 import com.aotemiao.artemis.system.app.command.auth.ValidateCredentialsCmdExe;
 import com.aotemiao.artemis.system.app.query.auth.GetUserAuthorizationQryExe;
-import com.aotemiao.artemis.system.domain.model.UserAuthorizationSnapshot;
+import com.aotemiao.artemis.system.domain.model.auth.UserAuthorizationSnapshot;
 import jakarta.servlet.ServletException;
 import java.util.List;
 import java.util.Optional;

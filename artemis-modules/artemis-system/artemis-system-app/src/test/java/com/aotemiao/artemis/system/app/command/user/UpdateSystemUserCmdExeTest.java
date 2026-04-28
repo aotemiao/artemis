@@ -7,8 +7,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.aotemiao.artemis.framework.core.exception.BizException;
-import com.aotemiao.artemis.system.domain.gateway.SystemUserGateway;
-import com.aotemiao.artemis.system.domain.model.SystemUser;
+import com.aotemiao.artemis.system.domain.gateway.user.SystemUserGateway;
+import com.aotemiao.artemis.system.domain.model.user.SystemUser;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

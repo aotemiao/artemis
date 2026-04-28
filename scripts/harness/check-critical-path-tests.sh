@@ -13,8 +13,8 @@ required_files=(
   "artemis-auth/src/test/java/com/aotemiao/artemis/auth/web/AuthExceptionHandlerTest.java"
   "artemis-modules/artemis-system/artemis-system-app/src/test/java/com/aotemiao/artemis/system/app/command/auth/ValidateCredentialsCmdExeTest.java"
   "artemis-modules/artemis-system/artemis-system-adapter/src/test/java/com/aotemiao/artemis/system/adapter/web/InternalAuthControllerTest.java"
-  "artemis-modules/artemis-system/artemis-system-infra/src/test/java/com/aotemiao/artemis/system/infra/LookupTypeGatewayImplIntegrationTest.java"
-  "artemis-modules/artemis-system/artemis-system-infra/src/test/java/com/aotemiao/artemis/system/infra/UserCredentialsGatewayImplTest.java"
+  "artemis-modules/artemis-system/artemis-system-infra/src/test/java/com/aotemiao/artemis/system/infra/lookup/LookupTypeGatewayImplIntegrationTest.java"
+  "artemis-modules/artemis-system/artemis-system-infra/src/test/java/com/aotemiao/artemis/system/infra/auth/UserCredentialsGatewayImplTest.java"
   "artemis-modules/artemis-system/artemis-system-start/src/test/java/com/aotemiao/artemis/system/arch/SystemLayerDependencyRulesTest.java"
   "artemis-symphony/artemis-symphony-start/src/test/java/com/aotemiao/artemis/symphony/api/SymphonyStateControllerTest.java"
 )

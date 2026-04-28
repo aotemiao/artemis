@@ -1,7 +1,7 @@
 package com.aotemiao.artemis.system.app.query.lookup;
 
-import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
-import com.aotemiao.artemis.system.domain.model.LookupItem;
+import com.aotemiao.artemis.system.domain.gateway.lookup.LookupTypeGateway;
+import com.aotemiao.artemis.system.domain.model.lookup.LookupItem;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import org.springframework.stereotype.Component;

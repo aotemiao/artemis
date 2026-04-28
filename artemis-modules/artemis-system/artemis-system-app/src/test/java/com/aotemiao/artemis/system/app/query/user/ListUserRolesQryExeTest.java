@@ -3,10 +3,10 @@ package com.aotemiao.artemis.system.app.query.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.aotemiao.artemis.system.domain.gateway.SystemUserGateway;
-import com.aotemiao.artemis.system.domain.gateway.UserRoleBindingGateway;
-import com.aotemiao.artemis.system.domain.model.SystemRole;
-import com.aotemiao.artemis.system.domain.model.SystemUser;
+import com.aotemiao.artemis.system.domain.gateway.user.SystemUserGateway;
+import com.aotemiao.artemis.system.domain.gateway.user.UserRoleBindingGateway;
+import com.aotemiao.artemis.system.domain.model.role.SystemRole;
+import com.aotemiao.artemis.system.domain.model.user.SystemUser;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;

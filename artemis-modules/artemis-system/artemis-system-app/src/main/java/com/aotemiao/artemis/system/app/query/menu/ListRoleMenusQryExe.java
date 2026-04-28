@@ -1,7 +1,7 @@
 package com.aotemiao.artemis.system.app.query.menu;
 
-import com.aotemiao.artemis.system.domain.gateway.RoleMenuBindingGateway;
-import com.aotemiao.artemis.system.domain.model.SystemMenu;
+import com.aotemiao.artemis.system.domain.gateway.role.RoleMenuBindingGateway;
+import com.aotemiao.artemis.system.domain.model.menu.SystemMenu;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import org.springframework.stereotype.Component;

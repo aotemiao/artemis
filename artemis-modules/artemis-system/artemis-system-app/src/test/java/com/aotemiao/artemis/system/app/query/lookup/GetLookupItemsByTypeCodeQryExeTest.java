@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
-import com.aotemiao.artemis.system.domain.model.LookupItem;
+import com.aotemiao.artemis.system.domain.gateway.lookup.LookupTypeGateway;
+import com.aotemiao.artemis.system.domain.model.lookup.LookupItem;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

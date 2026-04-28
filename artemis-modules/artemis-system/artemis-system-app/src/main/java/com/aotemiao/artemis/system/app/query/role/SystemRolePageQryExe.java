@@ -1,8 +1,8 @@
 package com.aotemiao.artemis.system.app.query.role;
 
 import com.aotemiao.artemis.framework.core.domain.PageResult;
-import com.aotemiao.artemis.system.domain.gateway.SystemRoleGateway;
-import com.aotemiao.artemis.system.domain.model.SystemRole;
+import com.aotemiao.artemis.system.domain.gateway.role.SystemRoleGateway;
+import com.aotemiao.artemis.system.domain.model.role.SystemRole;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.stereotype.Component;
 

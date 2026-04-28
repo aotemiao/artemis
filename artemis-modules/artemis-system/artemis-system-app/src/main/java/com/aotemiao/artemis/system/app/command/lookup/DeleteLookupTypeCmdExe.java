@@ -2,7 +2,7 @@ package com.aotemiao.artemis.system.app.command.lookup;
 
 import com.aotemiao.artemis.framework.core.constant.CommonErrorCode;
 import com.aotemiao.artemis.framework.core.exception.BizException;
-import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
+import com.aotemiao.artemis.system.domain.gateway.lookup.LookupTypeGateway;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.stereotype.Component;
 

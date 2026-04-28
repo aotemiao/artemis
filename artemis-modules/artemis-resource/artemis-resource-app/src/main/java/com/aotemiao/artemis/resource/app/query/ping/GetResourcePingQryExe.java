@@ -1,7 +1,7 @@
 package com.aotemiao.artemis.resource.app.query.ping;
 
-import com.aotemiao.artemis.resource.domain.gateway.ResourcePingGateway;
-import com.aotemiao.artemis.resource.domain.model.ServicePing;
+import com.aotemiao.artemis.resource.domain.gateway.ping.ResourcePingGateway;
+import com.aotemiao.artemis.resource.domain.model.ping.ServicePing;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.stereotype.Component;
 

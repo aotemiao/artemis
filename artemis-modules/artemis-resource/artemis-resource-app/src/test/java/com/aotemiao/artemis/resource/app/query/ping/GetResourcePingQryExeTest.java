@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.aotemiao.artemis.resource.domain.gateway.ResourcePingGateway;
-import com.aotemiao.artemis.resource.domain.model.ServicePing;
+import com.aotemiao.artemis.resource.domain.gateway.ping.ResourcePingGateway;
+import com.aotemiao.artemis.resource.domain.model.ping.ServicePing;
 import org.junit.jupiter.api.Test;
 
 class GetResourcePingQryExeTest {

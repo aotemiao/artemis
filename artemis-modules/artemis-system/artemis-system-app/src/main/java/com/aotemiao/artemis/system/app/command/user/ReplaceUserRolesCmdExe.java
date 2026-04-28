@@ -2,10 +2,10 @@ package com.aotemiao.artemis.system.app.command.user;
 
 import com.aotemiao.artemis.framework.core.constant.CommonErrorCode;
 import com.aotemiao.artemis.framework.core.exception.BizException;
-import com.aotemiao.artemis.system.domain.gateway.SystemRoleGateway;
-import com.aotemiao.artemis.system.domain.gateway.SystemUserGateway;
-import com.aotemiao.artemis.system.domain.gateway.UserRoleBindingGateway;
-import com.aotemiao.artemis.system.domain.model.SystemRole;
+import com.aotemiao.artemis.system.domain.gateway.role.SystemRoleGateway;
+import com.aotemiao.artemis.system.domain.gateway.user.SystemUserGateway;
+import com.aotemiao.artemis.system.domain.gateway.user.UserRoleBindingGateway;
+import com.aotemiao.artemis.system.domain.model.role.SystemRole;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.Objects;

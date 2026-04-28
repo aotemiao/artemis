@@ -14,7 +14,7 @@ import com.aotemiao.artemis.system.app.query.menu.FindSystemMenuByIdQry;
 import com.aotemiao.artemis.system.app.query.menu.FindSystemMenuByIdQryExe;
 import com.aotemiao.artemis.system.app.query.menu.ListSystemMenusQry;
 import com.aotemiao.artemis.system.app.query.menu.ListSystemMenusQryExe;
-import com.aotemiao.artemis.system.domain.model.SystemMenu;
+import com.aotemiao.artemis.system.domain.model.menu.SystemMenu;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;

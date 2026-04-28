@@ -1,8 +1,8 @@
 package com.aotemiao.artemis.system.app.query.user;
 
 import com.aotemiao.artemis.framework.core.domain.PageResult;
-import com.aotemiao.artemis.system.domain.gateway.SystemUserGateway;
-import com.aotemiao.artemis.system.domain.model.SystemUser;
+import com.aotemiao.artemis.system.domain.gateway.user.SystemUserGateway;
+import com.aotemiao.artemis.system.domain.model.user.SystemUser;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.stereotype.Component;
 

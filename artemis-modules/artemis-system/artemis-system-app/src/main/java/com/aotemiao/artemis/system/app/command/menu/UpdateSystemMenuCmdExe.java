@@ -2,8 +2,8 @@ package com.aotemiao.artemis.system.app.command.menu;
 
 import com.aotemiao.artemis.framework.core.constant.CommonErrorCode;
 import com.aotemiao.artemis.framework.core.exception.BizException;
-import com.aotemiao.artemis.system.domain.gateway.SystemMenuGateway;
-import com.aotemiao.artemis.system.domain.model.SystemMenu;
+import com.aotemiao.artemis.system.domain.gateway.menu.SystemMenuGateway;
+import com.aotemiao.artemis.system.domain.model.menu.SystemMenu;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.stereotype.Component;
 

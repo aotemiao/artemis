@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
-import com.aotemiao.artemis.system.domain.model.LookupType;
+import com.aotemiao.artemis.system.domain.gateway.lookup.LookupTypeGateway;
+import com.aotemiao.artemis.system.domain.model.lookup.LookupType;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;

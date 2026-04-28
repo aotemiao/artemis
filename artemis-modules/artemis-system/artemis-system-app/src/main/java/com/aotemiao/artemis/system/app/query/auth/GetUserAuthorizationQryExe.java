@@ -1,10 +1,10 @@
 package com.aotemiao.artemis.system.app.query.auth;
 
-import com.aotemiao.artemis.system.domain.gateway.RoleMenuBindingGateway;
-import com.aotemiao.artemis.system.domain.gateway.SystemUserGateway;
-import com.aotemiao.artemis.system.domain.gateway.UserRoleBindingGateway;
-import com.aotemiao.artemis.system.domain.model.SystemRole;
-import com.aotemiao.artemis.system.domain.model.UserAuthorizationSnapshot;
+import com.aotemiao.artemis.system.domain.gateway.role.RoleMenuBindingGateway;
+import com.aotemiao.artemis.system.domain.gateway.user.SystemUserGateway;
+import com.aotemiao.artemis.system.domain.gateway.user.UserRoleBindingGateway;
+import com.aotemiao.artemis.system.domain.model.auth.UserAuthorizationSnapshot;
+import com.aotemiao.artemis.system.domain.model.role.SystemRole;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.Optional;

@@ -1,2 +1,2 @@
-/** Gateway 实现。 */
+/** Gateway 实现根包，按业务能力拆分子包。 */
 package com.aotemiao.artemis.system.infra.gateway;

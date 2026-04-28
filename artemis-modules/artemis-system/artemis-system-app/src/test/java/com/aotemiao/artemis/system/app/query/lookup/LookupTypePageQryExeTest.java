@@ -6,8 +6,8 @@ import static org.mockito.Mockito.when;
 
 import com.aotemiao.artemis.framework.core.domain.PageRequest;
 import com.aotemiao.artemis.framework.core.domain.PageResult;
-import com.aotemiao.artemis.system.domain.gateway.LookupTypeGateway;
-import com.aotemiao.artemis.system.domain.model.LookupType;
+import com.aotemiao.artemis.system.domain.gateway.lookup.LookupTypeGateway;
+import com.aotemiao.artemis.system.domain.model.lookup.LookupType;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
