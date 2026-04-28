@@ -1,7 +1,7 @@
 # 新增领域服务 Runbook
 
 Status: maintained
-Last Reviewed: 2026-03-24
+Last Reviewed: 2026-04-28
 Review Cadence: 90 days
 
 本 runbook 用于指导在 Artemis 中新增一个符合 DDD/COLA 约束的领域服务，避免只补一个 `-start` 模块或只补 REST Controller。
@@ -35,7 +35,6 @@ Review Cadence: 90 days
 
 1. 优先使用 `scripts/dev/new-domain-service.sh <domain>` 生成骨架。
 2. 生成后先检查以下默认产物是否存在：
-   - `artemis-api/artemis-api-<domain>`
    - `artemis-modules/artemis-<domain>/artemis-<domain>-client`
    - `SERVICE_API.md`
    - `config/nacos/artemis-<domain>.yml`

@@ -15,7 +15,7 @@
 - `docs/requirements-acceptance-checklist.md`：`UC-IAM-007 菜单与权限`、`BR-IAM-013 菜单同父级名称唯一，路由唯一`
 - `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`：Phase B 建议继续补齐菜单、部门、租户中的一组核心主数据能力
 - `openspec/specs/ddd-cola-layering/spec.md`：继续遵循 `client / adapter / app / domain / infra / start` 分层与依赖方向
-- `openspec/specs/repository-structure/spec.md`：内部调用仍通过 `*-client` 与 `artemis-api-*` 聚合，不绕过实现层
+- `openspec/specs/repository-structure/spec.md`：内部调用通过 colocated `*-client`，不绕过实现层
 - `openspec/specs/lookup-tdd-testing/spec.md`：新增 CmdExe / QryExe / Gateway 时同步补单元测试与集成测试
 
 ## 目标
@@ -51,7 +51,7 @@
 ## 风险
 
 - 菜单字段若一次性贴近旧系统全量结构，会把前端路由、外链、缓存、可见性等决策提前放大；本阶段应先保留核心字段。
-- 授权快照 DTO 变更会影响 `artemis-system-client`、`artemis-api-system` 与 `artemis-auth`，需要保持向后兼容或同步测试。
+- 授权快照 DTO 变更会影响 `artemis-system-client` 与 `artemis-auth`，需要保持向后兼容或同步测试。
 - `sys_role_menu` 与后续租户套餐、数据权限存在扩展关系，本阶段要避免把租户规则写死进菜单模型。
 - 当前工作树已有大量既有修改，实施时只应触碰本阶段相关文件。
 

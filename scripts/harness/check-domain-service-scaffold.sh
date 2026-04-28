@@ -12,10 +12,16 @@ trap 'rm -rf "$temp_dir"' EXIT
 print_step "Checking domain service scaffold preview output"
 scripts/dev/new-domain-service.sh phase1-demo --port 9410 --output-root "$temp_dir" --skip-register >/dev/null
 
+if [[ -e "${temp_dir}/artemis-api" ]]; then
+  echo "Scaffold output must not generate artemis-api bridge modules." >&2
+  exit 1
+fi
+
 required_files=(
-  "artemis-api/artemis-api-phase1-demo/pom.xml"
-  "artemis-api/artemis-api-phase1-demo/src/main/java/com/aotemiao/artemis/api/phase1/demo/package-info.java"
   "artemis-modules/artemis-phase1-demo/pom.xml"
+  "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-client/pom.xml"
+  "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-client/src/main/java/com/aotemiao/artemis/phase1/demo/client/api/Phase1DemoPingService.java"
+  "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-client/src/main/java/com/aotemiao/artemis/phase1/demo/client/dto/PingResponse.java"
   "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-client/CLIENT_CONTRACT.md"
   "artemis-modules/artemis-phase1-demo/SERVICE_API.md"
   "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-app/src/test/java/com/aotemiao/artemis/phase1/demo/app/query/GetPhase1DemoPingQryExeTest.java"

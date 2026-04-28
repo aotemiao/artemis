@@ -5,7 +5,6 @@
 根 POM（`com.aotemiao:artemis`）SHALL 作为聚合 POM，packaging 类型为 `pom`，声明所有顶层模块。顶层模块 SHALL 包含以下固定成员：
 
 - `artemis-dependencies`：BOM 模块
-- `artemis-api`：内部契约聚合与客户端 BOM
 - `artemis-framework`：公共能力聚合模块
 - `artemis-gateway`：API 网关
 - `artemis-auth`：认证授权服务
@@ -16,26 +15,23 @@
 #### Scenario: 根 POM 模块声明完整
 
 - **WHEN** 开发者查看根 `pom.xml` 的 `<modules>` 节
-- **THEN** SHALL 包含上述固定顶层模块列表（含 `artemis-api` 与 `artemis-symphony`）
+- **THEN** SHALL 包含上述固定顶层模块列表（含 `artemis-symphony`）
 
-### Requirement: API 聚合模块用于收敛内部客户端契约
+### Requirement: 内部客户端契约随领域服务放置
 
-`artemis-api` SHALL 作为聚合 POM，承载以下两类子模块：
+内部微服务之间的 Java 调用契约 SHALL 放在各业务领域自身目录下的 `*-client` 模块中。仓库 MUST NOT 再通过顶层 `artemis-api` 聚合 POM、`artemis-api-bom` 或 `artemis-api-<domain>` bridge 模块转发这些契约。
 
-- `artemis-api-bom`：对内客户端 BOM，统一管理 `artemis-api-*` 与 `artemis-*-client` 版本
-- `artemis-api-<domain>`：按领域聚合的 API bridge 模块，对外转发对应 `artemis-<domain>-client`
+`*-client` 模块 MUST NOT 依赖对应服务的 `adapter`、`app`、`domain`、`infra` 或 `start`。其职责是承载 Dubbo 接口、跨服务 DTO/Result 与 `CLIENT_CONTRACT.md`，不承载服务实现。
 
-`artemis-api-<domain>` MUST NOT 依赖对应服务的 `adapter`、`app`、`domain`、`infra` 或 `start`。其职责是为调用方提供稳定入口，而不是复制服务实现。
+#### Scenario: 系统领域提供 colocated client 契约
 
-#### Scenario: 系统领域提供统一 API bridge
-
-- **WHEN** 查看 `artemis-api` 目录
-- **THEN** SHALL 至少包含 `artemis-api-bom` 与 `artemis-api-system`
-- **AND** `artemis-api-system` SHALL 仅依赖 `artemis-system-client`
+- **WHEN** 查看 `artemis-modules/artemis-system` 目录
+- **THEN** SHALL 包含 `artemis-system-client`
+- **AND** 内部调用方 SHALL 直接依赖 `artemis-system-client`
 
 ### Requirement: BOM 模块统一依赖版本
 
-`artemis-dependencies` 模块 SHALL 采用 `pom` packaging，在 `<dependencyManagement>` 中声明所有第三方依赖及 artemis 内部模块的版本。所有其他模块 SHALL 通过 import 该 BOM 来管理依赖版本，MUST NOT 在子模块中单独指定已被 BOM 管理的依赖版本号。
+`artemis-dependencies` 模块 SHALL 采用 `pom` packaging，在 `<dependencyManagement>` 中声明所有第三方依赖及 artemis 内部模块的版本，包括各业务领域发布的 `*-client` 版本。所有其他模块 SHALL 通过 import 该 BOM 来管理依赖版本，MUST NOT 在子模块中单独指定已被 BOM 管理的依赖版本号。
 
 #### Scenario: 子模块引用 BOM 管理的依赖
 
@@ -69,14 +65,14 @@
 
 ### Requirement: 跨服务调用区分内部契约与对外 REST API
 
-内部微服务之间的调用 SHALL 通过各业务领域 colocated 的 `*-client` 模块暴露契约。`*-client` 模块 SHALL 承载供内部调用的 Dubbo 接口与 DTO/Result；仓库 MAY 通过 `artemis-api-<domain>` 作为聚合 bridge 暴露这些契约。调用方 SHALL 仅依赖该 `*-client` 模块或对应 `artemis-api-<domain>`，MUST NOT 直接依赖被调用方的 app/domain/infra 等实现模块。
+内部微服务之间的调用 SHALL 通过各业务领域 colocated 的 `*-client` 模块暴露契约。`*-client` 模块 SHALL 承载供内部调用的 Dubbo 接口与 DTO/Result；调用方 SHALL 仅依赖该 `*-client` 模块，MUST NOT 直接依赖被调用方的 app/domain/infra 等实现模块。
 
 面向网关、浏览器、第三方系统或开放 API 的对外能力 SHALL 通过 adapter 层暴露的 REST API 定义和发布。外部调用方 SHALL 通过 HTTP 客户端或基于 OpenAPI 生成的客户端访问上述 REST API，而不是直接依赖 Java `*-client` 模块。各领域对外 REST 契约 SHALL 通过 SpringDoc/OpenAPI 维护，契约变更 SHALL 遵循语义化版本规则。
 
 #### Scenario: 内部微服务调用系统服务
 
 - **WHEN** `artemis-auth` 等内部微服务需要调用系统服务（如校验用户凭证）
-- **THEN** SHALL 通过 `artemis-system-client` 或 `artemis-api-system` 暴露的契约进行调用，MUST NOT 直接依赖 `artemis-system-app`、`artemis-system-domain` 或 `artemis-system-infra`，也 MUST NOT 通过 HTTP 调用 internal REST 接口
+- **THEN** SHALL 通过 `artemis-system-client` 暴露的契约进行调用，MUST NOT 直接依赖 `artemis-system-app`、`artemis-system-domain` 或 `artemis-system-infra`，也 MUST NOT 通过 HTTP 调用 internal REST 接口
 
 #### Scenario: 网关或外部系统调用系统服务
 
@@ -88,6 +84,7 @@
 `artemis-modules` SHALL 作为聚合 POM，每个业务微服务作为其子模块。初始阶段 SHALL 包含：
 
 - `artemis-system`：系统管理（用户、角色、菜单、部门、字典、租户等）
+- `artemis-resource`：资源管理样板服务
 
 每个业务微服务 SHALL 按 COLA 分层拆分为内部子模块（详见 `ddd-cola-layering` spec）。
 

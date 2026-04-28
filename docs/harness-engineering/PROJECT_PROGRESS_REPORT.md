@@ -1,12 +1,12 @@
 # Artemis 项目进度汇报
 
 Status: maintained
-Last Reviewed: 2026-03-25
+Last Reviewed: 2026-04-28
 Review Cadence: 30 days
 
 ## 汇总结论
 
-截至 `2026-03-25`，Artemis 已完成当前一轮 Harness Engineering 封板，并完成 `docs/exec-plans/completed/` 中已规划的 `Phase 1` 到 `Phase 8`。项目已经越过“只有工程骨架”的阶段，形成了“系统域 + 认证 + 网关最小 RBAC + Symphony 编排”的最小闭环。
+截至 `2026-04-28`，Artemis 已完成当前一轮 Harness Engineering 封板，并完成 `docs/exec-plans/completed/` 中已规划的 `Phase 1` 到 `Phase 8`。项目已经越过“只有工程骨架”的阶段，形成了“系统域 + 认证 + 网关最小 RBAC + Symphony 编排”的最小闭环。
 
 但这不等于“平台建设已经结束”。更准确的判断是：**工程底座已基本成形，核心主链路已经可用，项目正处于从 MVP 骨架走向规模化业务与真实交付的过渡阶段。**
 
@@ -62,7 +62,7 @@ Review Cadence: 30 days
 |------|----------|------|
 | 工程底座 | 已完成当前轮封板 | `CHECKLIST.md` 已全量落仓，`QUALITY_SCORE.md` 已给出封板结论 |
 | 仓库治理与验证 | 高完成度 | 文档、脚本、`mvn verify`、`full-verify`、治理工作流已形成闭环 |
-| 领域服务复制能力 | 已具备可复制骨架 | `artemis-api`、`new-domain-service.sh`、`artemis-resource` 样板与服务目录守门已落仓 |
+| 领域服务复制能力 | 已具备可复制骨架 | colocated `*-client`、`new-domain-service.sh`、`artemis-resource` 样板与服务目录守门已落仓 |
 | 平台主链路 | 已形成 MVP 闭环 | `system -> auth -> gateway` 已贯通用户、角色、授权快照与最小 RBAC |
 | 业务能力深度 | 基础完成，仍需扩展 | 当前重点完成了 lookup、用户目录、角色目录、用户角色绑定与内部授权快照，菜单、部门、租户、配置、审计等仍待继续补齐 |
 | 运行可靠性 | 入口已齐，真实演练仍需加强 | readiness、smoke、部署 / 回滚 runbook 已有，但真实环境持续演练还不足 |
@@ -79,7 +79,7 @@ Review Cadence: 30 days
 
 ### 2. 服务模板与复制能力已落地
 
-- 已建立 `artemis-api` 聚合层与客户端 BOM。
+- 内部契约已收敛到各领域服务自身的 `*-client` 模块，版本由根 BOM 统一管理。
 - 已提供 `scripts/dev/new-domain-service.sh`，默认生成领域服务所需的模块、脚本、文档、测试和守门资产。
 - 已生成第二个样板服务 `artemis-resource`，说明模板不再只停留在 `artemis-system` 单点样板。
 
@@ -101,7 +101,7 @@ Review Cadence: 30 days
 
 1. `artemis-system` 还没有补齐菜单、部门、租户、配置、审计、权限点等更完整的平台主数据能力。
 2. `artemis-resource` 目前更像模板验证服务，还不是承载真实业务的第二领域样板。
-3. `*-client` 与 `artemis-api` 已形成结构，但兼容性、版本化和回归策略仍需继续增强。
+3. `*-client` 已形成结构，但兼容性、版本化和回归策略仍需继续增强。
 4. 部署 / 回滚 runbook 已有统一入口，但真实环境演练频次和故障回放能力还不足。
 5. `artemis-symphony` 已完成当前一轮核心加固，下一步重点更偏向持续演练、真实业务接入与默认交付流程沉淀。
 

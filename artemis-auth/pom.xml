@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>com.aotemiao</groupId>
-            <artifactId>artemis-api-system</artifactId>
+            <artifactId>artemis-system-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.dubbo</groupId>

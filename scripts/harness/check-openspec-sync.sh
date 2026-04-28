@@ -17,7 +17,12 @@ mode="${1:-staged}"
 if [[ "$mode" == "staged" ]]; then
   changed_files="$(git diff --cached --name-only)"
 elif [[ "$mode" == "working-tree" ]]; then
-  changed_files="$(git diff --name-only)"
+  changed_files="$(
+    {
+      git diff --name-only
+      git ls-files --others --exclude-standard
+    } | sort -u
+  )"
 elif [[ "$mode" == "range" ]]; then
   base_ref="${2:-}"
   head_ref="${3:-HEAD}"

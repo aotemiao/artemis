@@ -82,7 +82,6 @@ fi
 
 service_artifact="artemis-${domain}"
 client_artifact="${service_artifact}-client"
-api_artifact="artemis-api-${domain}"
 class_prefix="$(python3 - "$domain" <<'PY'
 import sys
 parts = sys.argv[1].split("-")
@@ -97,10 +96,7 @@ PY
 package_suffix="${domain//-/.}"
 base_package="com.aotemiao.artemis.${package_suffix}"
 package_path="$(printf '%s' "$base_package" | tr '.' '/')"
-api_package="com.aotemiao.artemis.api.${package_suffix}"
-api_package_path="$(printf '%s' "$api_package" | tr '.' '/')"
 service_dir="${target_root}/artemis-modules/${service_artifact}"
-api_dir="${target_root}/artemis-api/${api_artifact}"
 service_api_doc="${service_dir}/SERVICE_API.md"
 client_contract_doc="${service_dir}/${client_artifact}/CLIENT_CONTRACT.md"
 nacos_config="${target_root}/config/nacos/${service_artifact}.yml"
@@ -112,7 +108,6 @@ service_catalog_path="${target_root}/scripts/lib/service-catalog.sh"
 
 paths_to_create=(
   "${service_dir}"
-  "${api_dir}"
   "${nacos_config}"
   "${run_script}"
   "${readiness_script}"
@@ -179,43 +174,6 @@ PY
 }
 
 print_step "Generating service scaffold for ${service_artifact}"
-
-write_file "${api_dir}/pom.xml" <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>com.aotemiao</groupId>
-        <artifactId>artemis-api</artifactId>
-        <version>\${revision}</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-
-    <artifactId>${api_artifact}</artifactId>
-    <name>Artemis API ${class_prefix}</name>
-    <description>Bridge module for ${service_artifact} client contracts</description>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.aotemiao</groupId>
-            <artifactId>${client_artifact}</artifactId>
-            <version>\${project.version}</version>
-        </dependency>
-    </dependencies>
-</project>
-EOF
-
-write_file "${api_dir}/src/main/java/${api_package_path}/package-info.java" <<EOF
-/**
- * ${service_artifact} 的 API bridge。
- *
- * <p>该模块只聚合 \`${client_artifact}\`，供调用方以统一入口依赖。</p>
- */
-package ${api_package};
-EOF
 
 write_file "${service_dir}/pom.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1220,34 +1178,10 @@ if [[ "$skip_register" != "1" ]]; then
     "    </modules>" \
     "        <module>${service_artifact}</module>"
 
-  insert_before_last \
-    "${repo_path}/artemis-api/pom.xml" \
-    "    </modules>" \
-    "        <module>${api_artifact}</module>"
-
-  insert_before_last \
-    "${repo_path}/artemis-api/artemis-api-bom/pom.xml" \
-    "        </dependencies>" \
-"            <dependency>
-                <groupId>com.aotemiao</groupId>
-                <artifactId>${api_artifact}</artifactId>
-                <version>\${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.aotemiao</groupId>
-                <artifactId>${client_artifact}</artifactId>
-                <version>\${project.version}</version>
-            </dependency>"
-
   insert_after_first \
     "${repo_path}/artemis-dependencies/pom.xml" \
     "            <!-- Artemis 内部模块 -->" \
 "            <dependency>
-                <groupId>com.aotemiao</groupId>
-                <artifactId>${api_artifact}</artifactId>
-                <version>\${revision}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.aotemiao</groupId>
                 <artifactId>${client_artifact}</artifactId>
                 <version>\${revision}</version>
@@ -1256,11 +1190,10 @@ if [[ "$skip_register" != "1" ]]; then
   insert_before_last \
     "${service_catalog_path}" \
     "  # -- end generated service records --" \
-"  \"${domain}|domain|artemis-modules/${service_artifact}/${service_artifact}-start|${port}|config/nacos/application-common.yml,config/nacos/datasource.yml,config/nacos/${service_artifact}.yml|smoke||||scripts/smoke/${domain}-ping.sh|logs/${service_artifact}.log|docker/Dockerfile.${domain}|${api_artifact}\""
+"  \"${domain}|domain|artemis-modules/${service_artifact}/${service_artifact}-start|${port}|config/nacos/application-common.yml,config/nacos/datasource.yml,config/nacos/${service_artifact}.yml|smoke||||scripts/smoke/${domain}-ping.sh|logs/${service_artifact}.log|docker/Dockerfile.${domain}|${client_artifact}\""
 fi
 
 print_step "Domain service scaffold generated"
 echo "Service module: ${service_dir}"
-echo "API bridge: ${api_dir}"
 echo "Run script: ${run_script}"
 echo "Smoke script: ${smoke_script}"

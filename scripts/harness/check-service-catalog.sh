@@ -14,7 +14,7 @@ while IFS= read -r service; do
   [[ "$kind" != "domain" ]] && continue
 
   start_module="$(service_catalog_field "$service" start_module)"
-  api_bridge="$(service_catalog_field "$service" api_bridge)"
+  client_module="$(service_catalog_field "$service" client_module)"
   smoke_script="$(service_catalog_field "$service" smoke_script)"
   dockerfile="$(service_catalog_field "$service" dockerfile)"
 
@@ -22,7 +22,7 @@ while IFS= read -r service; do
   service_artifact="$(basename "$service_root")"
 
   require_repo_path_exact "$service_root"
-  require_repo_path_exact "artemis-api/${api_bridge}"
+  require_repo_path_exact "${service_root}/${client_module}"
   require_repo_path_exact "$smoke_script"
   require_repo_path_exact "scripts/dev/run-${service}.sh"
   require_repo_path_exact "scripts/dev/check-${service}-readiness.sh"

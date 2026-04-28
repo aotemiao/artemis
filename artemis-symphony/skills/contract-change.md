@@ -1,6 +1,6 @@
 # 契约变更 Skill
 
-适用场景：需要修改 `*-client`、`artemis-api-*`、Dubbo DTO 或对外 API 文档。
+适用场景：需要修改 `*-client`、Dubbo DTO 或对外 API 文档。
 
 ## 先读
 

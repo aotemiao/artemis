@@ -33,7 +33,6 @@
 
     <modules>
         <module>artemis-dependencies</module>
-        <module>artemis-api</module>
         <module>artemis-framework</module>
         <module>artemis-gateway</module>
         <module>artemis-auth</module>
