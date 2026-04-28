@@ -9,12 +9,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.aotemiao.artemis.framework.core.exception.BizException;
-import com.aotemiao.artemis.system.app.command.CreateLookupTypeCmdExe;
-import com.aotemiao.artemis.system.app.command.DeleteLookupTypeCmdExe;
-import com.aotemiao.artemis.system.app.command.UpdateLookupTypeCmdExe;
-import com.aotemiao.artemis.system.app.query.FindLookupTypeByIdQryExe;
-import com.aotemiao.artemis.system.app.query.GetLookupItemsByTypeCodeQryExe;
-import com.aotemiao.artemis.system.app.query.LookupTypePageQryExe;
+import com.aotemiao.artemis.system.app.command.lookup.CreateLookupTypeCmdExe;
+import com.aotemiao.artemis.system.app.command.lookup.DeleteLookupTypeCmdExe;
+import com.aotemiao.artemis.system.app.command.lookup.UpdateLookupTypeCmdExe;
+import com.aotemiao.artemis.system.app.query.lookup.FindLookupTypeByIdQryExe;
+import com.aotemiao.artemis.system.app.query.lookup.GetLookupItemsByTypeCodeQryExe;
+import com.aotemiao.artemis.system.app.query.lookup.LookupTypePageQryExe;
 import com.aotemiao.artemis.system.domain.model.LookupItem;
 import com.aotemiao.artemis.system.domain.model.LookupType;
 import jakarta.servlet.ServletException;

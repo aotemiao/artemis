@@ -14,12 +14,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.aotemiao.artemis.framework.core.domain.PageResult;
 import com.aotemiao.artemis.framework.core.exception.BizException;
-import com.aotemiao.artemis.system.app.command.CreateSystemUserCmdExe;
-import com.aotemiao.artemis.system.app.command.ReplaceUserRolesCmdExe;
-import com.aotemiao.artemis.system.app.command.UpdateSystemUserCmdExe;
-import com.aotemiao.artemis.system.app.query.FindSystemUserByIdQryExe;
-import com.aotemiao.artemis.system.app.query.ListUserRolesQryExe;
-import com.aotemiao.artemis.system.app.query.SystemUserPageQryExe;
+import com.aotemiao.artemis.system.app.command.user.CreateSystemUserCmdExe;
+import com.aotemiao.artemis.system.app.command.user.ReplaceUserRolesCmdExe;
+import com.aotemiao.artemis.system.app.command.user.UpdateSystemUserCmdExe;
+import com.aotemiao.artemis.system.app.query.user.FindSystemUserByIdQryExe;
+import com.aotemiao.artemis.system.app.query.user.ListUserRolesQryExe;
+import com.aotemiao.artemis.system.app.query.user.SystemUserPageQryExe;
 import com.aotemiao.artemis.system.domain.model.SystemRole;
 import com.aotemiao.artemis.system.domain.model.SystemUser;
 import jakarta.servlet.ServletException;

@@ -1,7 +1,7 @@
 package com.aotemiao.artemis.resource.adapter.web;
 
 import com.aotemiao.artemis.framework.core.domain.R;
-import com.aotemiao.artemis.resource.app.query.GetResourcePingQryExe;
+import com.aotemiao.artemis.resource.app.query.ping.GetResourcePingQryExe;
 import com.aotemiao.artemis.resource.client.dto.PingResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

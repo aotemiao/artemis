@@ -1,7 +1,7 @@
 package com.aotemiao.artemis.system.adapter.dubbo;
 
-import com.aotemiao.artemis.system.app.query.GetUserAuthorizationQry;
-import com.aotemiao.artemis.system.app.query.GetUserAuthorizationQryExe;
+import com.aotemiao.artemis.system.app.query.auth.GetUserAuthorizationQry;
+import com.aotemiao.artemis.system.app.query.auth.GetUserAuthorizationQryExe;
 import com.aotemiao.artemis.system.client.api.UserAuthorizationService;
 import com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO;
 import java.util.Optional;

@@ -13,10 +13,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.aotemiao.artemis.framework.core.exception.BizException;
-import com.aotemiao.artemis.system.app.command.CreateSystemMenuCmdExe;
-import com.aotemiao.artemis.system.app.command.UpdateSystemMenuCmdExe;
-import com.aotemiao.artemis.system.app.query.FindSystemMenuByIdQryExe;
-import com.aotemiao.artemis.system.app.query.ListSystemMenusQryExe;
+import com.aotemiao.artemis.system.app.command.menu.CreateSystemMenuCmdExe;
+import com.aotemiao.artemis.system.app.command.menu.UpdateSystemMenuCmdExe;
+import com.aotemiao.artemis.system.app.query.menu.FindSystemMenuByIdQryExe;
+import com.aotemiao.artemis.system.app.query.menu.ListSystemMenusQryExe;
 import com.aotemiao.artemis.system.domain.model.SystemMenu;
 import jakarta.servlet.ServletException;
 import java.util.List;

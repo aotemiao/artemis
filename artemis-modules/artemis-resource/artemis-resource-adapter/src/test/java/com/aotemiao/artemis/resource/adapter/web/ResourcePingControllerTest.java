@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.aotemiao.artemis.resource.app.query.GetResourcePingQryExe;
+import com.aotemiao.artemis.resource.app.query.ping.GetResourcePingQryExe;
 import com.aotemiao.artemis.resource.domain.model.ServicePing;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

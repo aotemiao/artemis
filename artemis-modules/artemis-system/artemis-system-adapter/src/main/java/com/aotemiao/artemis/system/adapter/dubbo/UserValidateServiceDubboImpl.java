@@ -1,7 +1,7 @@
 package com.aotemiao.artemis.system.adapter.dubbo;
 
-import com.aotemiao.artemis.system.app.command.ValidateCredentialsCmd;
-import com.aotemiao.artemis.system.app.command.ValidateCredentialsCmdExe;
+import com.aotemiao.artemis.system.app.command.auth.ValidateCredentialsCmd;
+import com.aotemiao.artemis.system.app.command.auth.ValidateCredentialsCmdExe;
 import com.aotemiao.artemis.system.client.api.UserValidateService;
 import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
 import java.util.Optional;

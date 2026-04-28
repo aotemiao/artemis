@@ -11,7 +11,7 @@ required_files=(
   "artemis-auth/src/test/java/com/aotemiao/artemis/auth/client/SystemUserValidateClientTest.java"
   "artemis-auth/src/test/java/com/aotemiao/artemis/auth/web/AuthControllerTest.java"
   "artemis-auth/src/test/java/com/aotemiao/artemis/auth/web/AuthExceptionHandlerTest.java"
-  "artemis-modules/artemis-system/artemis-system-app/src/test/java/com/aotemiao/artemis/system/app/command/ValidateCredentialsCmdExeTest.java"
+  "artemis-modules/artemis-system/artemis-system-app/src/test/java/com/aotemiao/artemis/system/app/command/auth/ValidateCredentialsCmdExeTest.java"
   "artemis-modules/artemis-system/artemis-system-adapter/src/test/java/com/aotemiao/artemis/system/adapter/web/InternalAuthControllerTest.java"
   "artemis-modules/artemis-system/artemis-system-infra/src/test/java/com/aotemiao/artemis/system/infra/LookupTypeGatewayImplIntegrationTest.java"
   "artemis-modules/artemis-system/artemis-system-infra/src/test/java/com/aotemiao/artemis/system/infra/UserCredentialsGatewayImplTest.java"

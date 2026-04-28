@@ -1,6 +1,6 @@
 package com.aotemiao.artemis.resource.adapter.dubbo;
 
-import com.aotemiao.artemis.resource.app.query.GetResourcePingQryExe;
+import com.aotemiao.artemis.resource.app.query.ping.GetResourcePingQryExe;
 import com.aotemiao.artemis.resource.client.api.ResourcePingService;
 import com.aotemiao.artemis.resource.client.dto.PingResponse;
 import org.apache.dubbo.config.annotation.DubboService;

@@ -14,12 +14,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.aotemiao.artemis.framework.core.domain.PageResult;
 import com.aotemiao.artemis.framework.core.exception.BizException;
-import com.aotemiao.artemis.system.app.command.CreateSystemRoleCmdExe;
-import com.aotemiao.artemis.system.app.command.ReplaceRoleMenusCmdExe;
-import com.aotemiao.artemis.system.app.command.UpdateSystemRoleCmdExe;
-import com.aotemiao.artemis.system.app.query.FindSystemRoleByIdQryExe;
-import com.aotemiao.artemis.system.app.query.ListRoleMenusQryExe;
-import com.aotemiao.artemis.system.app.query.SystemRolePageQryExe;
+import com.aotemiao.artemis.system.app.command.role.CreateSystemRoleCmdExe;
+import com.aotemiao.artemis.system.app.command.role.ReplaceRoleMenusCmdExe;
+import com.aotemiao.artemis.system.app.command.role.UpdateSystemRoleCmdExe;
+import com.aotemiao.artemis.system.app.query.menu.ListRoleMenusQryExe;
+import com.aotemiao.artemis.system.app.query.role.FindSystemRoleByIdQryExe;
+import com.aotemiao.artemis.system.app.query.role.SystemRolePageQryExe;
 import com.aotemiao.artemis.system.domain.model.SystemMenu;
 import com.aotemiao.artemis.system.domain.model.SystemRole;
 import jakarta.servlet.ServletException;
