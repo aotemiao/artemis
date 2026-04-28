@@ -64,6 +64,7 @@ public class SystemRoleController {
         this.replaceRoleMenusCmdExe = replaceRoleMenusCmdExe;
     }
 
+    @OperLogRecord(title = "角色管理", businessType = "INSERT")
     @PostMapping
     public R<SystemRoleDTO> create(@Valid @RequestBody CreateSystemRoleRequest request) {
         SystemRole systemRole =
@@ -71,6 +72,7 @@ public class SystemRoleController {
         return R.ok(toDTO(systemRole));
     }
 
+    @OperLogRecord(title = "角色管理", businessType = "UPDATE")
     @PutMapping("/{id}")
     public R<SystemRoleDTO> update(@PathVariable Long id, @Valid @RequestBody UpdateSystemRoleRequest request) {
         if (id == null || id <= 0) {
@@ -113,6 +115,7 @@ public class SystemRoleController {
                 .toList());
     }
 
+    @OperLogRecord(title = "角色管理", businessType = "GRANT")
     @PutMapping("/{roleId}/menus")
     public R<List<SystemMenuDTO>> replaceMenus(
             @PathVariable Long roleId, @Valid @RequestBody ReplaceRoleMenusRequest request) {

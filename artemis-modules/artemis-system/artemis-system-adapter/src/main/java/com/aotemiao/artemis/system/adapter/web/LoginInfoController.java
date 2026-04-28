@@ -5,7 +5,7 @@ import com.aotemiao.artemis.framework.core.domain.PageRequest;
 import com.aotemiao.artemis.framework.core.domain.PageResult;
 import com.aotemiao.artemis.framework.core.domain.R;
 import com.aotemiao.artemis.framework.core.exception.BizException;
-import com.aotemiao.artemis.system.adapter.web.dto.DeleteLoginInfoRequest;
+import com.aotemiao.artemis.system.adapter.web.dto.DeleteAuditLogRequest;
 import com.aotemiao.artemis.system.adapter.web.dto.LoginInfoDTO;
 import com.aotemiao.artemis.system.app.command.audit.ClearLoginInfoCmd;
 import com.aotemiao.artemis.system.app.command.audit.ClearLoginInfoCmdExe;
@@ -68,12 +68,14 @@ public class LoginInfoController {
         return R.ok(toDTO(loginInfo));
     }
 
+    @OperLogRecord(title = "登录日志", businessType = "DELETE")
     @DeleteMapping
-    public R<Void> delete(@Valid @RequestBody DeleteLoginInfoRequest request) {
+    public R<Void> delete(@Valid @RequestBody DeleteAuditLogRequest request) {
         deleteLoginInfoCmdExe.execute(new DeleteLoginInfoCmd(request.ids()));
         return R.ok();
     }
 
+    @OperLogRecord(title = "登录日志", businessType = "CLEAN")
     @PostMapping("/clear")
     public R<Void> clear() {
         clearLoginInfoCmdExe.execute(new ClearLoginInfoCmd());

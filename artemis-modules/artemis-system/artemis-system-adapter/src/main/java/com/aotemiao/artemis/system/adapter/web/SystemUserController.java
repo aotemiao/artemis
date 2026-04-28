@@ -64,6 +64,7 @@ public class SystemUserController {
         this.replaceUserRolesCmdExe = replaceUserRolesCmdExe;
     }
 
+    @OperLogRecord(title = "用户管理", businessType = "INSERT")
     @PostMapping
     public R<SystemUserDTO> create(@Valid @RequestBody CreateSystemUserRequest request) {
         SystemUser systemUser = createSystemUserCmdExe.execute(
@@ -71,6 +72,7 @@ public class SystemUserController {
         return R.ok(toDTO(systemUser));
     }
 
+    @OperLogRecord(title = "用户管理", businessType = "UPDATE")
     @PutMapping("/{id}")
     public R<SystemUserDTO> update(@PathVariable Long id, @Valid @RequestBody UpdateSystemUserRequest request) {
         if (id == null || id <= 0) {
@@ -113,6 +115,7 @@ public class SystemUserController {
                 .toList());
     }
 
+    @OperLogRecord(title = "用户管理", businessType = "GRANT")
     @PutMapping("/{userId}/roles")
     public R<List<SystemRoleDTO>> replaceRoles(
             @PathVariable Long userId, @Valid @RequestBody ReplaceUserRolesRequest request) {

@@ -71,6 +71,7 @@ public class SystemConfigController {
         this.getSystemConfigValueQryExe = getSystemConfigValueQryExe;
     }
 
+    @OperLogRecord(title = "参数配置", businessType = "INSERT")
     @PostMapping
     public R<SystemConfigDTO> create(@Valid @RequestBody SystemConfigRequest request) {
         SystemConfig systemConfig = createSystemConfigCmdExe.execute(new CreateSystemConfigCmd(
@@ -82,6 +83,7 @@ public class SystemConfigController {
         return R.ok(toDTO(systemConfig));
     }
 
+    @OperLogRecord(title = "参数配置", businessType = "UPDATE")
     @PutMapping("/{id}")
     public R<SystemConfigDTO> update(@PathVariable Long id, @Valid @RequestBody SystemConfigRequest request) {
         SystemConfig systemConfig = updateSystemConfigCmdExe.execute(new UpdateSystemConfigCmd(
@@ -94,6 +96,7 @@ public class SystemConfigController {
         return R.ok(toDTO(systemConfig));
     }
 
+    @OperLogRecord(title = "参数配置", businessType = "UPDATE")
     @PutMapping("/key/{configKey}")
     public R<SystemConfigDTO> updateValueByKey(
             @PathVariable String configKey, @Valid @RequestBody UpdateSystemConfigValueRequest request) {
@@ -102,6 +105,7 @@ public class SystemConfigController {
         return R.ok(toDTO(systemConfig));
     }
 
+    @OperLogRecord(title = "参数配置", businessType = "DELETE")
     @DeleteMapping("/{id}")
     public R<Void> delete(@PathVariable Long id) {
         deleteSystemConfigCmdExe.execute(new DeleteSystemConfigCmd(id));
@@ -137,6 +141,7 @@ public class SystemConfigController {
         return R.ok(value);
     }
 
+    @OperLogRecord(title = "参数配置", businessType = "CLEAN")
     @PostMapping("/cache/refresh")
     public R<Void> refreshCache() {
         refreshSystemConfigCacheCmdExe.execute(new RefreshSystemConfigCacheCmd());
