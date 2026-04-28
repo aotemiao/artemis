@@ -5,9 +5,12 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.aotemiao.artemis.auth.client.SystemClientValidateClient;
 import com.aotemiao.artemis.auth.client.SystemLoginInfoRecordClient;
 import com.aotemiao.artemis.auth.client.SystemUserAuthorizationClient;
+import com.aotemiao.artemis.auth.client.SystemUserRegisterClient;
 import com.aotemiao.artemis.auth.client.SystemUserValidateClient;
 import com.aotemiao.artemis.auth.web.dto.LoginResponse;
+import com.aotemiao.artemis.auth.web.dto.RegisterResponse;
 import com.aotemiao.artemis.system.client.dto.RecordLoginInfoRequest;
+import com.aotemiao.artemis.system.client.dto.RegisterUserRequest;
 import com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO;
 import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,16 +33,19 @@ public class AuthController {
     private final SystemUserAuthorizationClient systemUserAuthorizationClient;
     private final SystemClientValidateClient systemClientValidateClient;
     private final SystemLoginInfoRecordClient systemLoginInfoRecordClient;
+    private final SystemUserRegisterClient systemUserRegisterClient;
 
     public AuthController(
             SystemUserValidateClient systemUserValidateClient,
             SystemUserAuthorizationClient systemUserAuthorizationClient,
             SystemClientValidateClient systemClientValidateClient,
-            SystemLoginInfoRecordClient systemLoginInfoRecordClient) {
+            SystemLoginInfoRecordClient systemLoginInfoRecordClient,
+            SystemUserRegisterClient systemUserRegisterClient) {
         this.systemUserValidateClient = systemUserValidateClient;
         this.systemUserAuthorizationClient = systemUserAuthorizationClient;
         this.systemClientValidateClient = systemClientValidateClient;
         this.systemLoginInfoRecordClient = systemLoginInfoRecordClient;
+        this.systemUserRegisterClient = systemUserRegisterClient;
     }
 
     /** 登录：校验用户名密码后签发 Token，会话存 Redis。 */
@@ -61,6 +67,24 @@ public class AuthController {
         syncAuthorizationSession(snapshot);
         recordLoginInfo(request, servletRequest, "SUCCESS", "登录成功");
         return buildLoginResponse(snapshot);
+    }
+
+    /** 注册：开关、用户类型和唯一性由系统服务统一校验。 */
+    @PostMapping("/register")
+    public RegisterResponse register(
+            @Valid @RequestBody RegisterUserRequest request, HttpServletRequest servletRequest) {
+        if (!systemClientValidateClient.validate(request.clientId(), request.grantType())) {
+            recordRegisterInfo(request, servletRequest, "FAIL", "客户端或授权类型无效");
+            throw new InvalidCredentialsException("Invalid client or grant type");
+        }
+        try {
+            Long userId = systemUserRegisterClient.register(request);
+            recordRegisterInfo(request, servletRequest, "SUCCESS", "注册成功");
+            return new RegisterResponse(userId, request.username());
+        } catch (RuntimeException ex) {
+            recordRegisterInfo(request, servletRequest, "FAIL", "注册失败：" + ex.getMessage());
+            throw ex;
+        }
     }
 
     /** 登出：使当前 Token 对应会话失效。 */
@@ -137,6 +161,22 @@ public class AuthController {
                 os(userAgent),
                 "SUCCESS",
                 "登出成功"));
+    }
+
+    private void recordRegisterInfo(
+            RegisterUserRequest request, HttpServletRequest servletRequest, String status, String msg) {
+        String userAgent = header(servletRequest, "User-Agent");
+        systemLoginInfoRecordClient.record(new RecordLoginInfoRequest(
+                request.tenantId(),
+                request.username(),
+                request.clientId(),
+                null,
+                clientIp(servletRequest),
+                "未知",
+                browser(userAgent),
+                os(userAgent),
+                status,
+                msg));
     }
 
     private String currentUsername() {

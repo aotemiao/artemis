@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.aotemiao.artemis.framework.core.exception.BizException;
+import com.aotemiao.artemis.system.app.service.config.SystemConfigCache;
 import com.aotemiao.artemis.system.domain.gateway.user.SystemUserGateway;
 import com.aotemiao.artemis.system.domain.model.user.SystemUser;
 import java.util.Optional;
@@ -21,6 +22,9 @@ class CreateSystemUserCmdExeTest {
 
     @Mock
     private SystemUserGateway systemUserGateway;
+
+    @Mock
+    private SystemConfigCache systemConfigCache;
 
     @InjectMocks
     private CreateSystemUserCmdExe createSystemUserCmdExe;
@@ -54,5 +58,17 @@ class CreateSystemUserCmdExeTest {
         when(systemUserGateway.findByUsername("admin")).thenReturn(Optional.of(existing));
 
         assertThatThrownBy(() -> createSystemUserCmdExe.execute(cmd)).isInstanceOf(BizException.class);
+    }
+
+    @Test
+    void execute_whenPasswordBlank_usesInitialPasswordConfig() {
+        CreateSystemUserCmd cmd = new CreateSystemUserCmd("demo", "演示用户", "");
+        when(systemUserGateway.findByUsername("demo")).thenReturn(Optional.empty());
+        when(systemConfigCache.getValue("sys.user.initPassword")).thenReturn(Optional.of("init@123"));
+        when(systemUserGateway.save(any(SystemUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        SystemUser result = createSystemUserCmdExe.execute(cmd);
+
+        assertThat(result.getPassword()).isEqualTo("init@123");
     }
 }

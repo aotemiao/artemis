@@ -1,4 +1,4 @@
-package com.aotemiao.artemis.system.app.command.user;
+package com.aotemiao.artemis.system.app.command.auth;
 
 import com.aotemiao.artemis.framework.core.constant.CommonErrorCode;
 import com.aotemiao.artemis.framework.core.exception.BizException;
@@ -8,11 +8,10 @@ import com.aotemiao.artemis.system.domain.model.user.SystemUser;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.stereotype.Component;
 
-/** 新增系统用户命令执行器。 */
 @Component
-public class CreateSystemUserCmdExe {
+public class RegisterUserCmdExe {
 
-    private static final String INIT_PASSWORD_KEY = "sys.user.initPassword";
+    private static final String REGISTER_SWITCH_KEY = "sys.account.registerUser";
 
     @SuppressFBWarnings(
             value = "EI_EXPOSE_REP2",
@@ -24,28 +23,34 @@ public class CreateSystemUserCmdExe {
             justification = "Spring injects the cache as a managed collaborator; this executor does not expose it.")
     private final SystemConfigCache systemConfigCache;
 
-    public CreateSystemUserCmdExe(SystemUserGateway systemUserGateway, SystemConfigCache systemConfigCache) {
+    public RegisterUserCmdExe(SystemUserGateway systemUserGateway, SystemConfigCache systemConfigCache) {
         this.systemUserGateway = systemUserGateway;
         this.systemConfigCache = systemConfigCache;
     }
 
-    public SystemUser execute(CreateSystemUserCmd cmd) {
+    public Long execute(RegisterUserCmd cmd) {
+        if (!registerEnabled()) {
+            throw new BizException(CommonErrorCode.BAD_REQUEST, "User registration is disabled");
+        }
+        if (!"SYSTEM".equals(cmd.userType())) {
+            throw new BizException(CommonErrorCode.BAD_REQUEST, "Unsupported user type: " + cmd.userType());
+        }
         systemUserGateway.findByUsername(cmd.username()).ifPresent(existing -> {
             throw new BizException(CommonErrorCode.BAD_REQUEST, "Username already exists: " + cmd.username());
         });
 
         SystemUser systemUser = new SystemUser();
         systemUser.setUsername(cmd.username());
-        systemUser.setDisplayName(cmd.displayName());
-        systemUser.setPassword(resolvePassword(cmd.password()));
+        systemUser.setDisplayName(cmd.username());
+        systemUser.setPassword(cmd.password());
         systemUser.setEnabled(true);
-        return systemUserGateway.save(systemUser);
+        return systemUserGateway.save(systemUser).getId();
     }
 
-    private String resolvePassword(String requestedPassword) {
-        if (requestedPassword != null && !requestedPassword.isBlank()) {
-            return requestedPassword;
-        }
-        return systemConfigCache.getValue(INIT_PASSWORD_KEY).orElse("123456");
+    private boolean registerEnabled() {
+        return systemConfigCache
+                .getValue(REGISTER_SWITCH_KEY)
+                .map(Boolean::parseBoolean)
+                .orElse(false);
     }
 }

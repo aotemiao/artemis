@@ -14,9 +14,11 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.aotemiao.artemis.auth.client.SystemClientValidateClient;
 import com.aotemiao.artemis.auth.client.SystemLoginInfoRecordClient;
 import com.aotemiao.artemis.auth.client.SystemUserAuthorizationClient;
+import com.aotemiao.artemis.auth.client.SystemUserRegisterClient;
 import com.aotemiao.artemis.auth.client.SystemUserValidateClient;
 import com.aotemiao.artemis.auth.web.dto.LoginResponse;
 import com.aotemiao.artemis.system.client.dto.RecordLoginInfoRequest;
+import com.aotemiao.artemis.system.client.dto.RegisterUserRequest;
 import com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO;
 import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,6 +49,9 @@ class AuthControllerTest {
 
     @Mock
     private SystemLoginInfoRecordClient systemLoginInfoRecordClient;
+
+    @Mock
+    private SystemUserRegisterClient systemUserRegisterClient;
 
     @InjectMocks
     private AuthController authController;
@@ -120,6 +125,22 @@ class AuthControllerTest {
                         org.mockito.Mockito.mock(HttpServletRequest.class)))
                 .isInstanceOf(AuthController.InvalidCredentialsException.class)
                 .hasMessage("Invalid client or grant type");
+    }
+
+    @Test
+    void register_whenAllowed_returnsUserIdAndRecordsAudit() {
+        RegisterUserRequest registerRequest =
+                new RegisterUserRequest("000000", "artemis-admin", "password", "demo", "123456", "SYSTEM");
+        when(systemClientValidateClient.validate("artemis-admin", "password")).thenReturn(true);
+        when(systemUserRegisterClient.register(registerRequest)).thenReturn(2L);
+
+        var response = authController.register(registerRequest, org.mockito.Mockito.mock(HttpServletRequest.class));
+
+        assertThat(response.userId()).isEqualTo(2L);
+        assertThat(response.username()).isEqualTo("demo");
+        org.mockito.Mockito.verify(systemLoginInfoRecordClient)
+                .record(org.mockito.ArgumentMatchers.argThat(
+                        request -> "demo".equals(request.username()) && "SUCCESS".equals(request.status())));
     }
 
     @Test

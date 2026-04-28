@@ -6,6 +6,7 @@
 
 - `ROUTE: POST /auth/login`
 - `ROUTE: POST /auth/logout`
+- `ROUTE: POST /auth/register`
 - `ROUTE: POST /auth/refresh`
 
 ## 说明
@@ -14,5 +15,7 @@
   请求体为 `username`、`password`，成功返回当前登录 Token、`userId`、`roleKeys` 与 `permissionCodes`，并把最小授权快照同步进当前登录会话。
 - `POST /auth/logout`
   使当前 Token 对应会话失效，成功返回 `204 No Content`。
+- `POST /auth/register`
+  请求体为 `tenantId`、`clientId`、`grantType`、`username`、`password`、`userType`，系统服务校验注册开关和用户类型后创建用户，并记录注册日志。
 - `POST /auth/refresh`
   用于续期当前登录态，并刷新当前会话中的最小授权快照后返回 `userId`、`roleKeys` 与 `permissionCodes`；未登录时返回鉴权失败状态。
