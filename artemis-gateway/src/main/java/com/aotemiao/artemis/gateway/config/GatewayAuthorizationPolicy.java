@@ -15,7 +15,8 @@ public class GatewayAuthorizationPolicy {
 
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
     private static final List<String> BLOCKED_EXTERNAL_PATHS = List.of("/api/system/internal/**");
-    private static final List<String> SUPER_ADMIN_PATHS = List.of("/api/system/users/**", "/api/system/roles/**");
+    private static final List<String> SUPER_ADMIN_PATHS =
+            List.of("/api/system/users/**", "/api/system/roles/**", "/api/system/menus/**");
 
     public void checkBeforeLogin(String path) {
         if (blocksByGateway(path)) {

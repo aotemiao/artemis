@@ -68,7 +68,8 @@ public class AuthController {
     }
 
     private LoginResponse buildLoginResponse(UserAuthorizationSnapshotDTO snapshot) {
-        return new LoginResponse(StpUtil.getTokenValue(), snapshot.userId(), snapshot.roleKeys());
+        return new LoginResponse(
+                StpUtil.getTokenValue(), snapshot.userId(), snapshot.roleKeys(), snapshot.permissionCodes());
     }
 
     /**
@@ -77,6 +78,7 @@ public class AuthController {
     private void syncAuthorizationSession(UserAuthorizationSnapshotDTO snapshot) {
         SaSession session = StpUtil.getSessionByLoginId(snapshot.userId());
         session.set(SaSession.ROLE_LIST, snapshot.roleKeys());
+        session.set(SaSession.PERMISSION_LIST, snapshot.permissionCodes());
 
         Map<String, Object> userProfile = new HashMap<>();
         userProfile.put("userId", snapshot.userId());

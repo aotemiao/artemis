@@ -48,6 +48,8 @@ class GatewayAuthorizationPolicyTest {
                 .isTrue();
         assertThat(gatewayAuthorizationPolicy.requiresSuperAdmin("/api/system/roles/1"))
                 .isTrue();
+        assertThat(gatewayAuthorizationPolicy.requiresSuperAdmin("/api/system/menus/1"))
+                .isTrue();
         assertThat(gatewayAuthorizationPolicy.requiresSuperAdmin("/api/system/lookup/types"))
                 .isFalse();
     }

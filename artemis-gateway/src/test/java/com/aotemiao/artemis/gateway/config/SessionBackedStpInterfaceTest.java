@@ -42,4 +42,19 @@ class SessionBackedStpInterfaceTest {
         assertThat(sessionBackedStpInterface.getRoleList(99L, StpUtil.getLoginType()))
                 .isEmpty();
     }
+
+    @Test
+    void getPermissionList_whenSessionContainsPermissionCodes_shouldReturnPermissionCodes() {
+        StpUtil.login(2L);
+        StpUtil.getSessionByLoginId(2L).set(SaSession.PERMISSION_LIST, List.of("system:user:list", "system:menu:add"));
+
+        assertThat(sessionBackedStpInterface.getPermissionList(2L, StpUtil.getLoginType()))
+                .containsExactly("system:user:list", "system:menu:add");
+    }
+
+    @Test
+    void getPermissionList_whenSessionMissing_shouldReturnEmptyList() {
+        assertThat(sessionBackedStpInterface.getPermissionList(199L, StpUtil.getLoginType()))
+                .isEmpty();
+    }
 }

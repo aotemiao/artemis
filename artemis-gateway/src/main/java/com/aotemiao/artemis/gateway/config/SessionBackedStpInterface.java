@@ -12,7 +12,18 @@ public class SessionBackedStpInterface implements StpInterface {
 
     @Override
     public List<String> getPermissionList(Object loginId, String loginType) {
-        return List.of();
+        SaSession session = StpUtil.getSessionByLoginId(loginId, false);
+        if (session == null) {
+            return List.of();
+        }
+        Object permissionList = session.get(SaSession.PERMISSION_LIST);
+        if (!(permissionList instanceof List<?> permissions)) {
+            return List.of();
+        }
+        return permissions.stream()
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .toList();
     }
 
     @Override

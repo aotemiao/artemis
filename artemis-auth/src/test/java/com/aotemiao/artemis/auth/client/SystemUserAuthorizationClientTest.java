@@ -33,8 +33,8 @@ class SystemUserAuthorizationClientTest {
 
     @Test
     void getByUserId_delegatesToDubboService_andReturnsResult() {
-        UserAuthorizationSnapshotDTO snapshot =
-                new UserAuthorizationSnapshotDTO(1L, "admin", "管理员", List.of("super-admin"));
+        UserAuthorizationSnapshotDTO snapshot = new UserAuthorizationSnapshotDTO(
+                1L, "admin", "管理员", List.of("super-admin"), List.of("system:user:list"));
         when(userAuthorizationService.getByUserId(1L)).thenReturn(Optional.of(snapshot));
 
         Optional<UserAuthorizationSnapshotDTO> result = systemUserAuthorizationClient.getByUserId(1L);

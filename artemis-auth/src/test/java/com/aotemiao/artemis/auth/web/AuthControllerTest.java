@@ -67,14 +67,18 @@ class AuthControllerTest {
     void login_whenCredentialsValid_returnsTokenAndRoleKeys() {
         when(systemUserValidateClient.validate("admin", "123456")).thenReturn(Optional.of(1L));
         when(systemUserAuthorizationClient.getByUserId(1L))
-                .thenReturn(Optional.of(new UserAuthorizationSnapshotDTO(1L, "admin", "管理员", List.of("super-admin"))));
+                .thenReturn(Optional.of(new UserAuthorizationSnapshotDTO(
+                        1L, "admin", "管理员", List.of("super-admin"), List.of("system:user:list"))));
 
         LoginResponse response = authController.login(new ValidateCredentialsRequest("admin", "123456"));
 
         assertThat(response.token()).isNotBlank();
         assertThat(response.userId()).isEqualTo(1L);
         assertThat(response.roleKeys()).containsExactly("super-admin");
+        assertThat(response.permissionCodes()).containsExactly("system:user:list");
         assertThat(StpUtil.getSessionByLoginId(1L).get(SaSession.ROLE_LIST)).isEqualTo(List.of("super-admin"));
+        assertThat(StpUtil.getSessionByLoginId(1L).get(SaSession.PERMISSION_LIST))
+                .isEqualTo(List.of("system:user:list"));
         Object userProfile = StpUtil.getSessionByLoginId(1L).get(SaSession.USER);
         assertThat(userProfile).isInstanceOf(Map.class);
         Map<?, ?> userProfileMap = (Map<?, ?>) userProfile;
@@ -86,7 +90,8 @@ class AuthControllerTest {
     @Test
     void refresh_whenLoggedIn_returnsTokenAndRoleKeys() {
         when(systemUserAuthorizationClient.getByUserId(1L))
-                .thenReturn(Optional.of(new UserAuthorizationSnapshotDTO(1L, "admin", "管理员", List.of("super-admin"))));
+                .thenReturn(Optional.of(new UserAuthorizationSnapshotDTO(
+                        1L, "admin", "管理员", List.of("super-admin"), List.of("system:user:list"))));
 
         StpUtil.login(1L);
         StpUtil.getSessionByLoginId(1L).set(SaSession.ROLE_LIST, List.of("legacy-role"));
@@ -95,7 +100,10 @@ class AuthControllerTest {
         assertThat(response.token()).isNotBlank();
         assertThat(response.userId()).isEqualTo(1L);
         assertThat(response.roleKeys()).containsExactly("super-admin");
+        assertThat(response.permissionCodes()).containsExactly("system:user:list");
         assertThat(StpUtil.getSessionByLoginId(1L).get(SaSession.ROLE_LIST)).isEqualTo(List.of("super-admin"));
+        assertThat(StpUtil.getSessionByLoginId(1L).get(SaSession.PERMISSION_LIST))
+                .isEqualTo(List.of("system:user:list"));
     }
 
     private static final class TestSaTokenContext implements SaTokenContext {
