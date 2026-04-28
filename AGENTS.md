@@ -92,6 +92,7 @@ Review Cadence: 90 days
 - 检查 OpenSpec 同步：`scripts/harness/check-openspec-sync.sh`
 - 检查 API 文档同步：`scripts/harness/check-api-doc-sync.sh`
 - 检查 Dubbo client 契约：`scripts/harness/check-client-contracts.sh`
+- 检查业务能力包结构：`scripts/harness/check-capability-package-structure.sh`
 - 检查领域服务脚手架：`scripts/harness/check-domain-service-scaffold.sh`
 - 检查领域服务运行资产：`scripts/harness/check-service-catalog.sh`
 - 检查 Symphony 任务资产：`scripts/harness/check-symphony-assets.sh`

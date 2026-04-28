@@ -1,6 +1,6 @@
 ## Purpose
 
-定义 Artemis 业务微服务的 client 契约模块、COLA 五模块分层、层间依赖方向、各层职责边界、包命名与 App 层用例组织规则。
+定义 Artemis 业务微服务的 client 契约模块、COLA 五模块分层、层间依赖方向、各层职责边界、包命名与业务能力组织规则。
 
 ## Requirements
 
@@ -148,13 +148,13 @@ Infra 层 MUST NOT：
 | client | `com.aotemiao.artemis.system.client.api` / `.client.dto` |
 | adapter | `com.aotemiao.artemis.system.adapter.web` |
 | app | `com.aotemiao.artemis.system.app.service` / `.app.command.<use-case>` / `.app.query.<use-case>` |
-| domain | `com.aotemiao.artemis.system.domain.model` / `.domain.service` / `.domain.gateway` / `.domain.event` |
-| infra | `com.aotemiao.artemis.system.infra.gateway` / `.infra.repository` / `.infra.mapper` / `.infra.dataobject` / `.infra.converter` |
+| domain | `com.aotemiao.artemis.system.domain.model.<capability>` / `.domain.service.<capability>` / `.domain.gateway.<capability>` / `.domain.event.<capability>` |
+| infra | `com.aotemiao.artemis.system.infra.gateway.<capability>` / `.infra.repository.<capability>` / `.infra.mapper.<capability>` / `.infra.dataobject.<capability>` / `.infra.converter.<capability>` |
 
 #### Scenario: 按包路径定位代码
 
 - **WHEN** 开发者需要查找用户领域的 Gateway 接口
-- **THEN** SHALL 在 `com.aotemiao.artemis.system.domain.gateway` 包下找到 `UserGateway` 接口
+- **THEN** SHALL 在 `com.aotemiao.artemis.system.domain.gateway.user` 包下找到 `SystemUserGateway` 接口
 
 ### Requirement: App 层用例按子包组织
 
@@ -171,3 +171,25 @@ Infra 层 MUST NOT：
 - **WHEN** 检查任一业务微服务的 `app.command` 或 `app.query` 根包
 - **THEN** 该根包 MUST NOT 直接包含具体 `*Cmd`、`*CmdExe`、`*Qry` 或 `*QryExe` 类
 - **AND** 具体用例类 SHALL 位于至少一级子包中
+
+### Requirement: Domain 与 Infra 层按业务能力子包组织
+
+`-domain` 与 `-infra` 模块中的具体类型 SHALL 以业务能力为维度放入子包，例如 `auth`、`lookup`、`menu`、`role`、`user`、`ping`。`domain.model`、`domain.gateway`、`domain.service`、`domain.event`、`infra.gateway`、`infra.repository`、`infra.dataobject`、`infra.converter`、`infra.mapper` 根包 MAY 仅保留 `package-info.java` 等包说明文件，MUST NOT 平铺放置具体领域模型、Gateway、DO、Repository、Converter 或 GatewayImpl 类型。测试代码 SHALL 与 main 代码保持同构能力子包；共享测试配置 MAY 保留在测试根包。
+
+#### Scenario: 系统领域模型按能力定位
+
+- **WHEN** 开发者需要查找系统用户领域模型
+- **THEN** SHALL 在 `com.aotemiao.artemis.system.domain.model.user` 包下找到 `SystemUser`
+- **AND** 系统用户 Gateway 接口 SHALL 位于 `com.aotemiao.artemis.system.domain.gateway.user`
+
+#### Scenario: 系统基础设施实现按能力定位
+
+- **WHEN** 开发者需要查找 lookup 持久化实现
+- **THEN** SHALL 在 `com.aotemiao.artemis.system.infra.gateway.lookup`、`.infra.repository.lookup`、`.infra.dataobject.lookup` 与 `.infra.converter.lookup` 包下找到相关类型
+- **AND** 对应集成测试 SHALL 位于 `src/test/java` 下同名能力子包（如 `com.aotemiao.artemis.system.infra.lookup`）
+
+#### Scenario: Domain 与 Infra 根包不承载具体业务类
+
+- **WHEN** 检查任一业务微服务的 Domain 或 Infra 根分类包
+- **THEN** 根分类包 MUST NOT 直接包含具体业务类
+- **AND** 具体业务类 SHALL 位于至少一级能力子包中

@@ -289,17 +289,17 @@ write_file "${service_dir}/${service_artifact}-domain/pom.xml" <<EOF
 </project>
 EOF
 
-write_file "${service_dir}/${service_artifact}-domain/src/main/java/${package_path}/domain/model/ServicePing.java" <<EOF
-package ${base_package}.domain.model;
+write_file "${service_dir}/${service_artifact}-domain/src/main/java/${package_path}/domain/model/ping/ServicePing.java" <<EOF
+package ${base_package}.domain.model.ping;
 
 /** ${service_artifact} 的最小领域状态。 */
 public record ServicePing(String serviceCode, String message) {}
 EOF
 
-write_file "${service_dir}/${service_artifact}-domain/src/main/java/${package_path}/domain/gateway/${class_prefix}PingGateway.java" <<EOF
-package ${base_package}.domain.gateway;
+write_file "${service_dir}/${service_artifact}-domain/src/main/java/${package_path}/domain/gateway/ping/${class_prefix}PingGateway.java" <<EOF
+package ${base_package}.domain.gateway.ping;
 
-import ${base_package}.domain.model.ServicePing;
+import ${base_package}.domain.model.ping.ServicePing;
 
 /** ${service_artifact} 读取最小状态的领域网关。 */
 public interface ${class_prefix}PingGateway {
@@ -415,11 +415,11 @@ write_file "${service_dir}/${service_artifact}-app/pom.xml" <<EOF
 </project>
 EOF
 
-write_file "${service_dir}/${service_artifact}-app/src/main/java/${package_path}/app/query/Get${class_prefix}PingQryExe.java" <<EOF
-package ${base_package}.app.query;
+write_file "${service_dir}/${service_artifact}-app/src/main/java/${package_path}/app/query/ping/Get${class_prefix}PingQryExe.java" <<EOF
+package ${base_package}.app.query.ping;
 
-import ${base_package}.domain.gateway.${class_prefix}PingGateway;
-import ${base_package}.domain.model.ServicePing;
+import ${base_package}.domain.gateway.ping.${class_prefix}PingGateway;
+import ${base_package}.domain.model.ping.ServicePing;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.stereotype.Component;
 
@@ -443,15 +443,15 @@ public class Get${class_prefix}PingQryExe {
 }
 EOF
 
-write_file "${service_dir}/${service_artifact}-app/src/test/java/${package_path}/app/query/Get${class_prefix}PingQryExeTest.java" <<EOF
-package ${base_package}.app.query;
+write_file "${service_dir}/${service_artifact}-app/src/test/java/${package_path}/app/query/ping/Get${class_prefix}PingQryExeTest.java" <<EOF
+package ${base_package}.app.query.ping;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import ${base_package}.domain.gateway.${class_prefix}PingGateway;
-import ${base_package}.domain.model.ServicePing;
+import ${base_package}.domain.gateway.ping.${class_prefix}PingGateway;
+import ${base_package}.domain.model.ping.ServicePing;
 import org.junit.jupiter.api.Test;
 
 class Get${class_prefix}PingQryExeTest {
@@ -558,11 +558,11 @@ write_file "${service_dir}/${service_artifact}-infra/pom.xml" <<EOF
 </project>
 EOF
 
-write_file "${service_dir}/${service_artifact}-infra/src/main/java/${package_path}/infra/gateway/${class_prefix}PingGatewayImpl.java" <<EOF
-package ${base_package}.infra.gateway;
+write_file "${service_dir}/${service_artifact}-infra/src/main/java/${package_path}/infra/gateway/ping/${class_prefix}PingGatewayImpl.java" <<EOF
+package ${base_package}.infra.gateway.ping;
 
-import ${base_package}.domain.gateway.${class_prefix}PingGateway;
-import ${base_package}.domain.model.ServicePing;
+import ${base_package}.domain.gateway.ping.${class_prefix}PingGateway;
+import ${base_package}.domain.model.ping.ServicePing;
 import org.springframework.stereotype.Component;
 
 /** ${service_artifact} 最小状态网关实现。 */
@@ -576,8 +576,8 @@ public class ${class_prefix}PingGatewayImpl implements ${class_prefix}PingGatewa
 }
 EOF
 
-write_file "${service_dir}/${service_artifact}-infra/src/test/java/${package_path}/infra/gateway/${class_prefix}PingGatewayImplTest.java" <<EOF
-package ${base_package}.infra.gateway;
+write_file "${service_dir}/${service_artifact}-infra/src/test/java/${package_path}/infra/gateway/ping/${class_prefix}PingGatewayImplTest.java" <<EOF
+package ${base_package}.infra.gateway.ping;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -695,7 +695,7 @@ EOF
 write_file "${service_dir}/${service_artifact}-adapter/src/main/java/${package_path}/adapter/web/${class_prefix}PingController.java" <<EOF
 package ${base_package}.adapter.web;
 
-import ${base_package}.app.query.Get${class_prefix}PingQryExe;
+import ${base_package}.app.query.ping.Get${class_prefix}PingQryExe;
 import ${base_package}.client.dto.PingResponse;
 import com.aotemiao.artemis.framework.core.domain.R;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -727,7 +727,7 @@ EOF
 write_file "${service_dir}/${service_artifact}-adapter/src/main/java/${package_path}/adapter/dubbo/${class_prefix}PingServiceDubboImpl.java" <<EOF
 package ${base_package}.adapter.dubbo;
 
-import ${base_package}.app.query.Get${class_prefix}PingQryExe;
+import ${base_package}.app.query.ping.Get${class_prefix}PingQryExe;
 import ${base_package}.client.api.${class_prefix}PingService;
 import ${base_package}.client.dto.PingResponse;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -760,8 +760,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import ${base_package}.app.query.Get${class_prefix}PingQryExe;
-import ${base_package}.domain.model.ServicePing;
+import ${base_package}.app.query.ping.Get${class_prefix}PingQryExe;
+import ${base_package}.domain.model.ping.ServicePing;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;

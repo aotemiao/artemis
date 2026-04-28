@@ -24,7 +24,12 @@ required_files=(
   "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-client/src/main/java/com/aotemiao/artemis/phase1/demo/client/dto/PingResponse.java"
   "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-client/CLIENT_CONTRACT.md"
   "artemis-modules/artemis-phase1-demo/SERVICE_API.md"
-  "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-app/src/test/java/com/aotemiao/artemis/phase1/demo/app/query/GetPhase1DemoPingQryExeTest.java"
+  "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-domain/src/main/java/com/aotemiao/artemis/phase1/demo/domain/model/ping/ServicePing.java"
+  "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-domain/src/main/java/com/aotemiao/artemis/phase1/demo/domain/gateway/ping/Phase1DemoPingGateway.java"
+  "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-app/src/main/java/com/aotemiao/artemis/phase1/demo/app/query/ping/GetPhase1DemoPingQryExe.java"
+  "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-app/src/test/java/com/aotemiao/artemis/phase1/demo/app/query/ping/GetPhase1DemoPingQryExeTest.java"
+  "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-infra/src/main/java/com/aotemiao/artemis/phase1/demo/infra/gateway/ping/Phase1DemoPingGatewayImpl.java"
+  "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-infra/src/test/java/com/aotemiao/artemis/phase1/demo/infra/gateway/ping/Phase1DemoPingGatewayImplTest.java"
   "artemis-modules/artemis-phase1-demo/artemis-phase1-demo-start/src/test/java/com/aotemiao/artemis/phase1/demo/arch/Phase1DemoLayerDependencyRulesTest.java"
   "config/nacos/artemis-phase1-demo.yml"
   "scripts/dev/run-phase1-demo.sh"
@@ -50,6 +55,12 @@ grep -Fq 'ROUTE: GET /api/phase1-demo/ping' \
   "${temp_dir}/artemis-modules/artemis-phase1-demo/SERVICE_API.md"
 grep -Fq 'INTERFACE: com.aotemiao.artemis.phase1.demo.client.api.Phase1DemoPingService' \
   "${temp_dir}/artemis-modules/artemis-phase1-demo/artemis-phase1-demo-client/CLIENT_CONTRACT.md"
+grep -Fq 'package com.aotemiao.artemis.phase1.demo.app.query.ping;' \
+  "${temp_dir}/artemis-modules/artemis-phase1-demo/artemis-phase1-demo-app/src/main/java/com/aotemiao/artemis/phase1/demo/app/query/ping/GetPhase1DemoPingQryExe.java"
+grep -Fq 'package com.aotemiao.artemis.phase1.demo.domain.model.ping;' \
+  "${temp_dir}/artemis-modules/artemis-phase1-demo/artemis-phase1-demo-domain/src/main/java/com/aotemiao/artemis/phase1/demo/domain/model/ping/ServicePing.java"
+grep -Fq 'package com.aotemiao.artemis.phase1.demo.infra.gateway.ping;' \
+  "${temp_dir}/artemis-modules/artemis-phase1-demo/artemis-phase1-demo-infra/src/main/java/com/aotemiao/artemis/phase1/demo/infra/gateway/ping/Phase1DemoPingGatewayImpl.java"
 
 bash -n "${temp_dir}/scripts/dev/run-phase1-demo.sh"
 bash -n "${temp_dir}/scripts/dev/check-phase1-demo-readiness.sh"

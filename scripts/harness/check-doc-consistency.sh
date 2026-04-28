@@ -9,7 +9,7 @@ run_in_repo_root
 contains_fixed_string() {
   local pattern="$1"
   local file="$2"
-  if command -v rg >/dev/null 2>&1; then
+  if command -v rg >/dev/null 2>&1 && rg --version >/dev/null 2>&1; then
     rg -q --fixed-strings "$pattern" "$file"
     return
   fi
@@ -60,6 +60,7 @@ require_file_contains "README.md" "scripts/dev/service-status.sh"
 require_file_contains "README.md" "scripts/dev/deploy-drill.sh"
 require_file_contains "README.md" "scripts/dev/rollback-drill.sh"
 require_file_contains "README.md" "scripts/harness/run-governance-checks.sh"
+require_file_contains "README.md" "scripts/harness/check-capability-package-structure.sh"
 require_file_contains "README.md" "scripts/harness/check-service-catalog.sh"
 require_file_contains "README.md" "scripts/harness/check-symphony-assets.sh"
 require_file_contains "README.md" "scripts/smoke/all-services.sh"
@@ -84,6 +85,7 @@ require_file_contains "AGENTS.md" "scripts/dev/deploy-drill.sh"
 require_file_contains "AGENTS.md" "scripts/dev/rollback-drill.sh"
 require_file_contains "AGENTS.md" "scripts/harness/check-api-doc-sync.sh"
 require_file_contains "AGENTS.md" "scripts/harness/check-client-contracts.sh"
+require_file_contains "AGENTS.md" "scripts/harness/check-capability-package-structure.sh"
 require_file_contains "AGENTS.md" "scripts/harness/check-domain-service-scaffold.sh"
 require_file_contains "AGENTS.md" "scripts/harness/check-service-catalog.sh"
 require_file_contains "AGENTS.md" "scripts/harness/check-symphony-assets.sh"

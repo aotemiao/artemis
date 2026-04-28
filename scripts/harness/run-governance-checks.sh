@@ -23,6 +23,7 @@ run_governance_check "Docs Consistency" scripts/harness/check-doc-consistency.sh
 run_governance_check "Docs Freshness" scripts/harness/check-doc-freshness.sh
 run_governance_check "API Doc Sync" scripts/harness/check-api-doc-sync.sh
 run_governance_check "Client Contracts" scripts/harness/check-client-contracts.sh
+run_governance_check "Capability Package Structure" scripts/harness/check-capability-package-structure.sh
 run_governance_check "Domain Service Scaffold" scripts/harness/check-domain-service-scaffold.sh
 run_governance_check "Service Catalog" scripts/harness/check-service-catalog.sh
 run_governance_check "Symphony Assets" scripts/harness/check-symphony-assets.sh

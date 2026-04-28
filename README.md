@@ -132,6 +132,7 @@ artemis/
 - `scripts/e2e/run-symphony-live-e2e.sh`：Symphony 真实 Linear / Codex / SSH 端到端演练入口
 - `scripts/harness/`：OpenSpec 同步、增量验证、全量验证
 - `scripts/harness/run-governance-checks.sh`：文档、契约、重复模式与质量问题治理入口
+- `scripts/harness/check-capability-package-structure.sh`：业务能力包结构守门入口
 - `scripts/harness/check-service-catalog.sh`：领域服务运行资产守门入口
 - `scripts/harness/check-symphony-assets.sh`：Symphony 任务资产守门入口
 - `scripts/smoke/`：最小 smoke 验证脚本
@@ -186,6 +187,7 @@ Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将
   - `scripts/harness/verify-changed.sh`：增量验证入口
   - `scripts/harness/full-verify.sh`：仓库级全量验证入口
   - `scripts/harness/run-governance-checks.sh`：治理与文档守门入口
+  - `scripts/harness/check-capability-package-structure.sh`：app/domain/infra 能力子包结构守门
   - `scripts/harness/check-service-catalog.sh`：领域服务运行资产守门
   - `scripts/harness/check-symphony-assets.sh`：Symphony 任务资产守门
   - `mvn verify`：测试、Spotless、Checkstyle、SpotBugs 统一质量门

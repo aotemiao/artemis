@@ -31,6 +31,13 @@ Review Cadence: 90 days
 
 `start` 只负责组装。
 
+包结构按业务能力继续下钻，不在层内分类根包平铺具体类。例如默认 ping 闭环使用：
+
+- `app.query.ping`
+- `domain.model.ping`
+- `domain.gateway.ping`
+- `infra.gateway.ping`
+
 ## 推荐步骤
 
 1. 优先使用 `scripts/dev/new-domain-service.sh <domain>` 生成骨架。
