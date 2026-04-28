@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.aotemiao.artemis.framework.core.exception.BizException;
 import com.aotemiao.artemis.system.app.command.auth.ValidateCredentialsCmdExe;
 import com.aotemiao.artemis.system.app.query.auth.GetUserAuthorizationQryExe;
+import com.aotemiao.artemis.system.app.query.client.ValidateSystemClientQryExe;
 import com.aotemiao.artemis.system.domain.model.auth.UserAuthorizationSnapshot;
 import jakarta.servlet.ServletException;
 import java.util.List;
@@ -30,13 +31,15 @@ class InternalAuthControllerTest {
 
     private ValidateCredentialsCmdExe validateCredentialsCmdExe;
     private GetUserAuthorizationQryExe getUserAuthorizationQryExe;
+    private ValidateSystemClientQryExe validateSystemClientQryExe;
 
     @BeforeEach
     void setUp() {
         validateCredentialsCmdExe = mock(ValidateCredentialsCmdExe.class);
         getUserAuthorizationQryExe = mock(GetUserAuthorizationQryExe.class);
-        mockMvc = MockMvcBuilders.standaloneSetup(
-                        new InternalAuthController(validateCredentialsCmdExe, getUserAuthorizationQryExe))
+        validateSystemClientQryExe = mock(ValidateSystemClientQryExe.class);
+        mockMvc = MockMvcBuilders.standaloneSetup(new InternalAuthController(
+                        validateCredentialsCmdExe, getUserAuthorizationQryExe, validateSystemClientQryExe))
                 .build();
     }
 
@@ -48,6 +51,8 @@ class InternalAuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
+                                  "clientId": "artemis-admin",
+                                  "grantType": "password",
                                   "username": "admin",
                                   "password": "123456"
                                 }
@@ -67,6 +72,8 @@ class InternalAuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
+                                  "clientId": "artemis-admin",
+                                  "grantType": "password",
                                   "username": "admin",
                                   "password": "bad"
                                 }
@@ -89,5 +96,21 @@ class InternalAuthControllerTest {
                 .andExpect(jsonPath("$.data.displayName").value("管理员"))
                 .andExpect(jsonPath("$.data.roleKeys[0]").value("super-admin"))
                 .andExpect(jsonPath("$.data.permissionCodes[0]").value("system:user:list"));
+    }
+
+    @Test
+    void validateClient_whenAllowed_returnsTrue() throws Exception {
+        when(validateSystemClientQryExe.execute(any())).thenReturn(true);
+
+        mockMvc.perform(post(InternalAuthController.BASE_PATH + "/clients/validate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientId": "artemis-admin",
+                                  "grantType": "password"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value(true));
     }
 }

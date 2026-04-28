@@ -1,6 +1,7 @@
 package com.aotemiao.artemis.system.app.command.auth;
 
 import com.aotemiao.artemis.system.domain.gateway.auth.UserCredentialsGateway;
+import com.aotemiao.artemis.system.domain.gateway.client.SystemClientGateway;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
@@ -14,8 +15,15 @@ public class ValidateCredentialsCmdExe {
             justification = "Spring injects the gateway as a managed collaborator; this executor does not expose it.")
     private final UserCredentialsGateway userCredentialsGateway;
 
-    public ValidateCredentialsCmdExe(UserCredentialsGateway userCredentialsGateway) {
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "Spring injects the gateway as a managed collaborator; this executor does not expose it.")
+    private final SystemClientGateway systemClientGateway;
+
+    public ValidateCredentialsCmdExe(
+            UserCredentialsGateway userCredentialsGateway, SystemClientGateway systemClientGateway) {
         this.userCredentialsGateway = userCredentialsGateway;
+        this.systemClientGateway = systemClientGateway;
     }
 
     /**
@@ -25,6 +33,13 @@ public class ValidateCredentialsCmdExe {
      * @return 校验通过时返回 userId，否则 empty
      */
     public Optional<Long> execute(ValidateCredentialsCmd cmd) {
+        boolean clientAllowed = systemClientGateway
+                .findByClientId(cmd.clientId())
+                .filter(client -> client.isNormal() && client.supportsGrantType(cmd.grantType()))
+                .isPresent();
+        if (!clientAllowed) {
+            return Optional.empty();
+        }
         return userCredentialsGateway.validate(cmd.username(), cmd.password());
     }
 }

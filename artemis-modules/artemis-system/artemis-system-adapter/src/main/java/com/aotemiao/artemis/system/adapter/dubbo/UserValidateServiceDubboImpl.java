@@ -22,7 +22,8 @@ public class UserValidateServiceDubboImpl implements UserValidateService {
 
     @Override
     public Optional<Long> validate(ValidateCredentialsRequest request) {
-        var cmd = new ValidateCredentialsCmd(request.username(), request.password());
+        var cmd = new ValidateCredentialsCmd(
+                request.clientId(), request.grantType(), request.username(), request.password());
         return validateCredentialsCmdExe.execute(cmd);
     }
 }

@@ -11,6 +11,7 @@ import cn.dev33.satoken.context.model.SaResponse;
 import cn.dev33.satoken.context.model.SaStorage;
 import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
+import com.aotemiao.artemis.auth.client.SystemClientValidateClient;
 import com.aotemiao.artemis.auth.client.SystemUserAuthorizationClient;
 import com.aotemiao.artemis.auth.client.SystemUserValidateClient;
 import com.aotemiao.artemis.auth.web.dto.LoginResponse;
@@ -38,6 +39,9 @@ class AuthControllerTest {
     @Mock
     private SystemUserAuthorizationClient systemUserAuthorizationClient;
 
+    @Mock
+    private SystemClientValidateClient systemClientValidateClient;
+
     @InjectMocks
     private AuthController authController;
 
@@ -56,7 +60,9 @@ class AuthControllerTest {
 
     @Test
     void login_whenCredentialsInvalid_throwsInvalidCredentialsException() {
-        when(systemUserValidateClient.validate("admin", "bad-password")).thenReturn(Optional.empty());
+        when(systemClientValidateClient.validate("artemis-admin", "password")).thenReturn(true);
+        when(systemUserValidateClient.validate("artemis-admin", "password", "admin", "bad-password"))
+                .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authController.login(new ValidateCredentialsRequest("admin", "bad-password")))
                 .isInstanceOf(AuthController.InvalidCredentialsException.class)
@@ -65,7 +71,9 @@ class AuthControllerTest {
 
     @Test
     void login_whenCredentialsValid_returnsTokenAndRoleKeys() {
-        when(systemUserValidateClient.validate("admin", "123456")).thenReturn(Optional.of(1L));
+        when(systemClientValidateClient.validate("artemis-admin", "password")).thenReturn(true);
+        when(systemUserValidateClient.validate("artemis-admin", "password", "admin", "123456"))
+                .thenReturn(Optional.of(1L));
         when(systemUserAuthorizationClient.getByUserId(1L))
                 .thenReturn(Optional.of(new UserAuthorizationSnapshotDTO(
                         1L, "admin", "管理员", List.of("super-admin"), List.of("system:user:list"))));
@@ -85,6 +93,16 @@ class AuthControllerTest {
         assertThat(userProfileMap.get("userId")).isEqualTo(1L);
         assertThat(userProfileMap.get("username")).isEqualTo("admin");
         assertThat(userProfileMap.get("displayName")).isEqualTo("管理员");
+    }
+
+    @Test
+    void login_whenClientInvalid_throwsInvalidCredentialsException() {
+        when(systemClientValidateClient.validate("bad-client", "password")).thenReturn(false);
+
+        assertThatThrownBy(() -> authController.login(
+                        new ValidateCredentialsRequest("bad-client", "password", "admin", "123456")))
+                .isInstanceOf(AuthController.InvalidCredentialsException.class)
+                .hasMessage("Invalid client or grant type");
     }
 
     @Test

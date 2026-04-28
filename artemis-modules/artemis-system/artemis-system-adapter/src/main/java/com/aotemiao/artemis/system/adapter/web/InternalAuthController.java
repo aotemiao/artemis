@@ -7,7 +7,10 @@ import com.aotemiao.artemis.system.app.command.auth.ValidateCredentialsCmd;
 import com.aotemiao.artemis.system.app.command.auth.ValidateCredentialsCmdExe;
 import com.aotemiao.artemis.system.app.query.auth.GetUserAuthorizationQry;
 import com.aotemiao.artemis.system.app.query.auth.GetUserAuthorizationQryExe;
+import com.aotemiao.artemis.system.app.query.client.ValidateSystemClientQry;
+import com.aotemiao.artemis.system.app.query.client.ValidateSystemClientQryExe;
 import com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO;
+import com.aotemiao.artemis.system.client.dto.ValidateClientRequest;
 import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,22 +31,37 @@ public class InternalAuthController {
 
     private final ValidateCredentialsCmdExe validateCredentialsCmdExe;
     private final GetUserAuthorizationQryExe getUserAuthorizationQryExe;
+    private final ValidateSystemClientQryExe validateSystemClientQryExe;
 
     public InternalAuthController(
             ValidateCredentialsCmdExe validateCredentialsCmdExe,
-            GetUserAuthorizationQryExe getUserAuthorizationQryExe) {
+            GetUserAuthorizationQryExe getUserAuthorizationQryExe,
+            ValidateSystemClientQryExe validateSystemClientQryExe) {
         this.validateCredentialsCmdExe = validateCredentialsCmdExe;
         this.getUserAuthorizationQryExe = getUserAuthorizationQryExe;
+        this.validateSystemClientQryExe = validateSystemClientQryExe;
     }
 
     /** 校验用户名与密码，返回用户 ID。 校验失败返回 401。 */
     @PostMapping("/validate")
     public R<Long> validate(@Valid @RequestBody ValidateCredentialsRequest request) {
-        var cmd = new ValidateCredentialsCmd(request.username(), request.password());
+        var cmd = new ValidateCredentialsCmd(
+                request.clientId(), request.grantType(), request.username(), request.password());
         Long userId = validateCredentialsCmdExe
                 .execute(cmd)
                 .orElseThrow(() -> new BizException(CommonErrorCode.UNAUTHORIZED, "Invalid username or password"));
         return R.ok(userId);
+    }
+
+    /** 校验客户端存在、状态正常且支持指定授权类型。 */
+    @PostMapping("/clients/validate")
+    public R<Boolean> validateClient(@Valid @RequestBody ValidateClientRequest request) {
+        boolean allowed = validateSystemClientQryExe.execute(
+                new ValidateSystemClientQry(request.clientId(), request.grantType()));
+        if (!allowed) {
+            throw new BizException(CommonErrorCode.UNAUTHORIZED, "Invalid client or grant type");
+        }
+        return R.ok(true);
     }
 
     /** 按用户 ID 查询最小授权快照。 */

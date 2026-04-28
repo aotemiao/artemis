@@ -23,7 +23,7 @@ public class SystemUserValidateClient {
      * @param password 密码
      * @return 校验通过时返回 userId，否则 empty
      */
-    public Optional<Long> validate(String username, String password) {
-        return userValidateService.validate(new ValidateCredentialsRequest(username, password));
+    public Optional<Long> validate(String clientId, String grantType, String username, String password) {
+        return userValidateService.validate(new ValidateCredentialsRequest(clientId, grantType, username, password));
     }
 }

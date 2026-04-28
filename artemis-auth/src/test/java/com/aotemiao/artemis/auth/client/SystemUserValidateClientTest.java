@@ -33,13 +33,16 @@ class SystemUserValidateClientTest {
 
     @Test
     void validate_delegatesToDubboService_andReturnsResult() {
-        when(userValidateService.validate(new ValidateCredentialsRequest("admin", "123456")))
+        when(userValidateService.validate(
+                        new ValidateCredentialsRequest("artemis-admin", "password", "admin", "123456")))
                 .thenReturn(Optional.of(1L));
 
-        Optional<Long> result = systemUserValidateClient.validate("admin", "123456");
+        Optional<Long> result = systemUserValidateClient.validate("artemis-admin", "password", "admin", "123456");
 
         ArgumentCaptor<ValidateCredentialsRequest> captor = ArgumentCaptor.forClass(ValidateCredentialsRequest.class);
         verify(userValidateService).validate(captor.capture());
+        assertThat(captor.getValue().clientId()).isEqualTo("artemis-admin");
+        assertThat(captor.getValue().grantType()).isEqualTo("password");
         assertThat(captor.getValue().username()).isEqualTo("admin");
         assertThat(captor.getValue().password()).isEqualTo("123456");
         assertThat(result).contains(1L);

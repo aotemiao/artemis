@@ -2,6 +2,7 @@ package com.aotemiao.artemis.auth.web;
 
 import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
+import com.aotemiao.artemis.auth.client.SystemClientValidateClient;
 import com.aotemiao.artemis.auth.client.SystemUserAuthorizationClient;
 import com.aotemiao.artemis.auth.client.SystemUserValidateClient;
 import com.aotemiao.artemis.auth.web.dto.LoginResponse;
@@ -24,19 +25,25 @@ public class AuthController {
 
     private final SystemUserValidateClient systemUserValidateClient;
     private final SystemUserAuthorizationClient systemUserAuthorizationClient;
+    private final SystemClientValidateClient systemClientValidateClient;
 
     public AuthController(
             SystemUserValidateClient systemUserValidateClient,
-            SystemUserAuthorizationClient systemUserAuthorizationClient) {
+            SystemUserAuthorizationClient systemUserAuthorizationClient,
+            SystemClientValidateClient systemClientValidateClient) {
         this.systemUserValidateClient = systemUserValidateClient;
         this.systemUserAuthorizationClient = systemUserAuthorizationClient;
+        this.systemClientValidateClient = systemClientValidateClient;
     }
 
     /** 登录：校验用户名密码后签发 Token，会话存 Redis。 */
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody ValidateCredentialsRequest request) {
+        if (!systemClientValidateClient.validate(request.clientId(), request.grantType())) {
+            throw new InvalidCredentialsException("Invalid client or grant type");
+        }
         Long userId = systemUserValidateClient
-                .validate(request.username(), request.password())
+                .validate(request.clientId(), request.grantType(), request.username(), request.password())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
         UserAuthorizationSnapshotDTO snapshot = getAuthorizationSnapshot(userId);
         StpUtil.login(userId);

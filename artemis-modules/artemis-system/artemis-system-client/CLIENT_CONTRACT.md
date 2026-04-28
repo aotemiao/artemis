@@ -6,20 +6,27 @@
 
 - `INTERFACE: com.aotemiao.artemis.system.client.api.UserValidateService`
 - `METHOD: Optional<Long> validate(ValidateCredentialsRequest request)`
+- `INTERFACE: com.aotemiao.artemis.system.client.api.SystemClientValidateService`
+- `METHOD: boolean validate(ValidateClientRequest request)`
 - `INTERFACE: com.aotemiao.artemis.system.client.api.UserAuthorizationService`
 - `METHOD: Optional<UserAuthorizationSnapshotDTO> getByUserId(Long userId)`
 
 ## DTO 清单
 
-- `DTO: com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest(String username, String password)`
+- `DTO: com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest(String clientId, String grantType, String username, String password)`
+- `DTO: com.aotemiao.artemis.system.client.dto.ValidateClientRequest(String clientId, String grantType)`
 - `DTO: com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO(Long userId, String username, String displayName, List<String> roleKeys, List<String> permissionCodes)`
 
 ## 契约说明
 
 - `UserValidateService`
-  供 `artemis-auth` 等内部调用方通过 Dubbo 校验用户名与密码，成功时返回 `userId`。
+  供 `artemis-auth` 等内部调用方通过 Dubbo 校验客户端、授权类型、用户名与密码，成功时返回 `userId`。
+- `SystemClientValidateService`
+  供 `artemis-auth` 等内部调用方在登录前校验客户端存在、状态正常且支持指定授权类型。
 - `ValidateCredentialsRequest`
   作为 Dubbo 契约请求体，与系统服务内部 REST 校验接口保持字段对齐。
+- `ValidateClientRequest`
+  作为客户端授权校验请求体，与系统服务内部 REST 客户端校验接口保持字段对齐。
 - `UserAuthorizationService`
   供 `artemis-auth` 等内部调用方按 `userId` 查询最小授权快照，成功时返回用户基础信息、启用中的 `roleKeys` 与 `permissionCodes`。
 - `UserAuthorizationSnapshotDTO`
