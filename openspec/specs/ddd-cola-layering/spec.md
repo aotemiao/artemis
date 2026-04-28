@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+定义 Artemis 业务微服务的 client 契约模块、COLA 五模块分层、层间依赖方向、各层职责边界、包命名与 App 层用例组织规则。
+
+## Requirements
 
 ### Requirement: 业务微服务采用 client 契约模块与 COLA 五模块拆分
 
@@ -143,7 +147,7 @@ Infra 层 MUST NOT：
 |----|--------|
 | client | `com.aotemiao.artemis.system.client.api` / `.client.dto` |
 | adapter | `com.aotemiao.artemis.system.adapter.web` |
-| app | `com.aotemiao.artemis.system.app.service` / `.app.command` / `.app.query` |
+| app | `com.aotemiao.artemis.system.app.service` / `.app.command.<use-case>` / `.app.query.<use-case>` |
 | domain | `com.aotemiao.artemis.system.domain.model` / `.domain.service` / `.domain.gateway` / `.domain.event` |
 | infra | `com.aotemiao.artemis.system.infra.gateway` / `.infra.repository` / `.infra.mapper` / `.infra.dataobject` / `.infra.converter` |
 
@@ -151,3 +155,19 @@ Infra 层 MUST NOT：
 
 - **WHEN** 开发者需要查找用户领域的 Gateway 接口
 - **THEN** SHALL 在 `com.aotemiao.artemis.system.domain.gateway` 包下找到 `UserGateway` 接口
+
+### Requirement: App 层用例按子包组织
+
+`-app` 模块中的命令与查询类型 SHALL 以用例域或业务能力为维度放入 `app.command.<use-case>` 与 `app.query.<use-case>` 子包，例如 `auth`、`lookup`、`menu`、`role`、`user`、`ping`。`app.command` 与 `app.query` 根包 MAY 仅保留 `package-info.java` 等包说明文件，MUST NOT 平铺放置具体 `*Cmd`、`*CmdExe`、`*Qry` 或 `*QryExe` 类。测试代码 SHALL 与 main 代码保持同构包结构，便于按用例定位执行器与测试。
+
+#### Scenario: 系统查询执行器按用例定位
+
+- **WHEN** 开发者需要查找用户授权查询
+- **THEN** SHALL 在 `com.aotemiao.artemis.system.app.query.auth` 包下找到 `GetUserAuthorizationQry` 与 `GetUserAuthorizationQryExe`
+- **AND** 对应测试 SHALL 位于 `src/test/java` 下同名 `app.query.auth` 包
+
+#### Scenario: 根 command/query 包不承载具体用例类
+
+- **WHEN** 检查任一业务微服务的 `app.command` 或 `app.query` 根包
+- **THEN** 该根包 MUST NOT 直接包含具体 `*Cmd`、`*CmdExe`、`*Qry` 或 `*QryExe` 类
+- **AND** 具体用例类 SHALL 位于至少一级子包中
