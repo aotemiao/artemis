@@ -25,6 +25,12 @@
             <groupId>com.aotemiao</groupId>
             <artifactId>artemis-framework-jdbc</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
+            <version>4.8.3</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- 集成测试：Spring Boot Test + JUnit 5 + 内嵌 DB -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
