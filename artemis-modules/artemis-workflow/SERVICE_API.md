@@ -30,3 +30,26 @@ Review Cadence: 90 days
 - `ROUTE: GET /api/workflow/categories/export`
 - 用途：导出流程分类数据载荷
 - 返回：流程分类列表
+- `ROUTE: GET /api/workflow/spels`
+- 用途：分页查询流程 SpEL 表达式
+- 返回：流程 SpEL 表达式分页结果
+- `ROUTE: GET /api/workflow/spels/{id}`
+- 用途：查询流程 SpEL 表达式详情
+- 返回：流程 SpEL 表达式详情
+- `ROUTE: POST /api/workflow/spels`
+- 用途：创建流程 SpEL 表达式
+- 请求：`componentName`、`methodName`、`parameters`、`previewExpression`、`remarks`、`status`
+- 返回：创建后的流程 SpEL 表达式
+- `ROUTE: PUT /api/workflow/spels/{id}`
+- 用途：修改流程 SpEL 表达式
+- 请求：`componentName`、`methodName`、`parameters`、`previewExpression`、`remarks`、`status`
+- 返回：修改后的流程 SpEL 表达式
+- `ROUTE: DELETE /api/workflow/spels/{id}`
+- 用途：删除流程 SpEL 表达式
+- 返回：删除结果
+- `ROUTE: GET /api/workflow/spels/list`
+- 用途：查询流程 SpEL 表达式列表
+- 返回：流程 SpEL 表达式列表
+- `ROUTE: GET /api/workflow/spels/export`
+- 用途：导出流程 SpEL 表达式数据载荷
+- 返回：流程 SpEL 表达式列表
