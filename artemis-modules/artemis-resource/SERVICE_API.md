@@ -18,6 +18,10 @@ Review Cadence: 90 days
 - `ROUTE: PUT /api/resource/oss-configs/{id}/status`
 - `ROUTE: PUT /api/resource/oss-configs/{id}/default`
 - `ROUTE: DELETE /api/resource/oss-configs/{id}`
+- `ROUTE: POST /api/resource/messages/user`
+- `ROUTE: POST /api/resource/messages/broadcast`
+- `ROUTE: GET /api/resource/messages/inbox`
+- `ROUTE: PUT /api/resource/messages/{id}/read`
 - 用途：验证 `artemis-resource` 已经完成最小服务装配
 - 返回：`serviceCode` 与 `message`
 
@@ -47,3 +51,14 @@ Review Cadence: 90 days
 | `DELETE` | `/api/resource/oss-configs/{id}` | 删除 OSS 配置；内置配置不允许删除 |
 
 配置字段包含 `configKey`、`accessKey`、`secretKey`、`bucket`、`prefix`、`endpoint`、`customDomain`、`httpsEnabled`、`region`、`accessPolicy`、`status`、`defaultFlag`、`builtIn`、`provider` 和 `extJson`。
+
+## 站内消息
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `POST` | `/api/resource/messages/user` | 向指定用户发布站内消息 |
+| `POST` | `/api/resource/messages/broadcast` | 按用户 ID 列表发布全员/批量站内消息 |
+| `GET` | `/api/resource/messages/inbox?recipientUserId=1` | 查询用户收件箱 |
+| `PUT` | `/api/resource/messages/{id}/read?recipientUserId=1` | 将指定用户的消息标记为已读 |
+
+远程 `ResourceMessageService` 同步提供指定用户发布与批量发布能力，供工作流、登录欢迎消息等服务复用。

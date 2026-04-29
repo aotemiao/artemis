@@ -14,3 +14,8 @@ Review Cadence: 90 days
 - `DTO: com.aotemiao.artemis.resource.client.dto.UploadFileRequest(String originalFileName, byte[] content, String uploader, String extJson)`
 - `DTO: com.aotemiao.artemis.resource.client.dto.UploadedFileResponse(Long id, String fileName, String originalFileName, String url, String provider)`
 - `DTO: com.aotemiao.artemis.resource.client.dto.FileUrlResponse(Long id, String url)`
+- `INTERFACE: com.aotemiao.artemis.resource.client.api.ResourceMessageService`
+- `METHOD: PublishedMessageResponse publishToUser(PublishMessageRequest request)`
+- `METHOD: List<PublishedMessageResponse> publishToAll(PublishMessageRequest request)`
+- `DTO: com.aotemiao.artemis.resource.client.dto.PublishMessageRequest(String title, String content, String sender, Long recipientUserId, List<Long> recipientUserIds, String extJson)`
+- `DTO: com.aotemiao.artemis.resource.client.dto.PublishedMessageResponse(Long id, Long recipientUserId, String title, Integer readFlag)`
