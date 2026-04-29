@@ -53,3 +53,52 @@ Review Cadence: 90 days
 - `ROUTE: GET /api/workflow/spels/export`
 - 用途：导出流程 SpEL 表达式数据载荷
 - 返回：流程 SpEL 表达式列表
+- `ROUTE: GET /api/workflow/definitions`
+- 用途：分页查询流程定义
+- 返回：流程定义分页结果
+- `ROUTE: GET /api/workflow/definitions/{id}`
+- 用途：查询流程定义详情
+- 返回：流程定义详情
+- `ROUTE: POST /api/workflow/definitions`
+- 用途：创建流程定义
+- 请求：`flowCode`、`flowName`、`modelType`、`categoryId`、`version`、`customForm`、`formPath`、`listener`、`extJson`、`tenantId`、`definitionJson`、`definitionXml`
+- 返回：创建后的流程定义
+- `ROUTE: PUT /api/workflow/definitions/{id}`
+- 用途：修改流程定义
+- 请求：`flowCode`、`flowName`、`modelType`、`categoryId`、`version`、`customForm`、`formPath`、`listener`、`extJson`、`tenantId`、`definitionJson`、`definitionXml`
+- 返回：修改后的流程定义
+- `ROUTE: DELETE /api/workflow/definitions/{id}`
+- 用途：删除流程定义
+- 返回：删除结果
+- `ROUTE: POST /api/workflow/definitions/{id}/copy`
+- 用途：复制流程定义为新的未发布定义
+- 请求：`flowCode`、`flowName`
+- 返回：复制后的流程定义
+- `ROUTE: POST /api/workflow/definitions/{id}/sync-tenant`
+- 用途：同步流程定义到指定租户，生成该租户下的未发布定义
+- 请求：`tenantId`
+- 返回：同步后的流程定义
+- `ROUTE: POST /api/workflow/definitions/{id}/publish`
+- 用途：发布流程定义，发布前校验定义 JSON 包含办理人配置
+- 返回：发布后的流程定义
+- `ROUTE: POST /api/workflow/definitions/{id}/cancel-publish`
+- 用途：取消发布流程定义
+- 返回：取消发布后的流程定义
+- `ROUTE: POST /api/workflow/definitions/{id}/activate`
+- 用途：激活流程定义
+- 返回：激活后的流程定义
+- `ROUTE: POST /api/workflow/definitions/{id}/suspend`
+- 用途：挂起流程定义
+- 返回：挂起后的流程定义
+- `ROUTE: GET /api/workflow/definitions/unpublished`
+- 用途：查询未发布流程定义列表
+- 返回：未发布流程定义列表
+- `ROUTE: GET /api/workflow/definitions/export`
+- 用途：导出流程定义数据载荷
+- 返回：流程定义列表
+- `ROUTE: GET /api/workflow/definitions/{id}/json`
+- 用途：查看流程定义 JSON 字符串
+- 返回：流程定义 JSON 字符串
+- `ROUTE: GET /api/workflow/definitions/{id}/xml`
+- 用途：查看流程定义 XML 字符串
+- 返回：流程定义 XML 字符串
