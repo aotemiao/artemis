@@ -67,8 +67,8 @@ public class SystemUserController {
     @OperLogRecord(title = "用户管理", businessType = "INSERT")
     @PostMapping
     public R<SystemUserDTO> create(@Valid @RequestBody CreateSystemUserRequest request) {
-        SystemUser systemUser = createSystemUserCmdExe.execute(
-                new CreateSystemUserCmd(request.username(), request.displayName(), request.password()));
+        SystemUser systemUser = createSystemUserCmdExe.execute(new CreateSystemUserCmd(
+                request.tenantNo(), request.username(), request.displayName(), request.password()));
         return R.ok(toDTO(systemUser));
     }
 
@@ -129,7 +129,11 @@ public class SystemUserController {
 
     private SystemUserDTO toDTO(SystemUser systemUser) {
         return new SystemUserDTO(
-                systemUser.getId(), systemUser.getUsername(), systemUser.getDisplayName(), systemUser.isEnabled());
+                systemUser.getId(),
+                systemUser.getTenantNo(),
+                systemUser.getUsername(),
+                systemUser.getDisplayName(),
+                systemUser.isEnabled());
     }
 
     private SystemRoleDTO toRoleDTO(SystemRole systemRole) {

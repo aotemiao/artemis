@@ -37,6 +37,11 @@ public class SystemUserGatewayImpl implements SystemUserGateway {
     }
 
     @Override
+    public long countByTenantNo(String tenantNo) {
+        return systemUserRepository.countByTenantNoAndDeleted(tenantNo, 0);
+    }
+
+    @Override
     public PageResult<SystemUser> findPage(PageRequest pageRequest) {
         var page = systemUserRepository.findAllByDeletedOrderById(0, PageConversion.toPageable(pageRequest));
         var pageResult = PageConversion.toPageResult(page);

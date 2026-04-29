@@ -30,7 +30,8 @@ class UserCredentialsGatewayImplTest {
         systemUserDO.setDisplayName("管理员");
         systemUserDO.setPassword("123456");
         systemUserDO.setEnabled(true);
-        when(systemUserRepository.findByUsernameAndDeleted("admin", 0)).thenReturn(Optional.of(systemUserDO));
+        when(systemUserRepository.findByTenantNoAndUsernameAndDeleted("000000", "admin", 0))
+                .thenReturn(Optional.of(systemUserDO));
 
         assertThat(userCredentialsGateway.validate("admin", "123456")).contains(1L);
     }
@@ -43,7 +44,8 @@ class UserCredentialsGatewayImplTest {
         systemUserDO.setDisplayName("管理员");
         systemUserDO.setPassword("123456");
         systemUserDO.setEnabled(true);
-        when(systemUserRepository.findByUsernameAndDeleted("admin", 0)).thenReturn(Optional.of(systemUserDO));
+        when(systemUserRepository.findByTenantNoAndUsernameAndDeleted("000000", "admin", 0))
+                .thenReturn(Optional.of(systemUserDO));
 
         assertThat(userCredentialsGateway.validate("admin", "wrong")).isEmpty();
     }
@@ -56,9 +58,18 @@ class UserCredentialsGatewayImplTest {
         systemUserDO.setDisplayName("管理员");
         systemUserDO.setPassword("123456");
         systemUserDO.setEnabled(false);
-        when(systemUserRepository.findByUsernameAndDeleted("admin", 0)).thenReturn(Optional.of(systemUserDO));
+        when(systemUserRepository.findByTenantNoAndUsernameAndDeleted("000000", "admin", 0))
+                .thenReturn(Optional.of(systemUserDO));
 
         assertThat(userCredentialsGateway.validate("admin", "123456")).isEmpty();
+    }
+
+    @Test
+    void validate_whenTenantDoesNotMatch_returnsEmpty() {
+        when(systemUserRepository.findByTenantNoAndUsernameAndDeleted("100001", "admin", 0))
+                .thenReturn(Optional.empty());
+
+        assertThat(userCredentialsGateway.validate("100001", "admin", "123456")).isEmpty();
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.aotemiao.artemis.auth.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import cn.dev33.satoken.SaManager;
@@ -78,7 +79,7 @@ class AuthControllerTest {
     @Test
     void login_whenCredentialsInvalid_throwsInvalidCredentialsException() {
         when(systemClientValidateClient.validate("artemis-admin", "password")).thenReturn(true);
-        when(systemUserValidateClient.validate("artemis-admin", "password", "admin", "bad-password"))
+        when(systemUserValidateClient.validate(null, "artemis-admin", "password", "admin", "bad-password"))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authController.login(
@@ -91,16 +92,19 @@ class AuthControllerTest {
     @Test
     void login_whenCredentialsValid_returnsTokenAndRoleKeys() {
         when(systemClientValidateClient.validate("artemis-admin", "password")).thenReturn(true);
-        when(systemUserValidateClient.validate("artemis-admin", "password", "admin", "123456"))
+        when(systemUserValidateClient.validate("100001", "artemis-admin", "password", "admin", "123456"))
                 .thenReturn(Optional.of(1L));
         when(systemUserAuthorizationClient.getByUserId(1L))
                 .thenReturn(Optional.of(new UserAuthorizationSnapshotDTO(
                         1L, "admin", "管理员", List.of("super-admin"), List.of("system:user:list"))));
 
         HttpServletRequest request = org.mockito.Mockito.mock(HttpServletRequest.class);
-        when(request.getHeader("User-Agent"))
-                .thenReturn(
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36");
+        when(request.getHeader(anyString())).thenAnswer(invocation -> switch (invocation.getArgument(0, String.class)) {
+            case "X-Tenant-Id" -> "100001";
+            case "User-Agent" ->
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36";
+            default -> null;
+        });
         when(request.getRemoteAddr()).thenReturn("127.0.0.1");
 
         LoginResponse response = authController.login(new ValidateCredentialsRequest("admin", "123456"), request);
@@ -182,6 +186,37 @@ class AuthControllerTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().username()).isEqualTo("admin");
+    }
+
+    @Test
+    void switchTenant_whenSuperAdmin_setsDynamicTenant() {
+        StpUtil.login(1L);
+        StpUtil.getSession().set(SaSession.ROLE_LIST, List.of("super-admin"));
+
+        authController.switchTenant("100001");
+
+        assertThat(StpUtil.getSession().get("dynamicTenantId")).isEqualTo("100001");
+    }
+
+    @Test
+    void clearTenant_whenSuperAdmin_removesDynamicTenant() {
+        StpUtil.login(1L);
+        StpUtil.getSession().set(SaSession.ROLE_LIST, List.of("super-admin"));
+        StpUtil.getSession().set("dynamicTenantId", "100001");
+
+        authController.clearTenant();
+
+        assertThat(StpUtil.getSession().get("dynamicTenantId")).isNull();
+    }
+
+    @Test
+    void switchTenant_whenNotSuperAdmin_throwsForbidden() {
+        StpUtil.login(1L);
+        StpUtil.getSession().set(SaSession.ROLE_LIST, List.of("tenant-admin"));
+
+        assertThatThrownBy(() -> authController.switchTenant("100001"))
+                .isInstanceOf(AuthController.ForbiddenOperationException.class)
+                .hasMessage("Only super admin can switch tenant");
     }
 
     private static boolean successLoginInfo(RecordLoginInfoRequest request) {

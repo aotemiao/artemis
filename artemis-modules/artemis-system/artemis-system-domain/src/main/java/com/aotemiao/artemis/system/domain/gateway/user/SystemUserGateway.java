@@ -14,5 +14,7 @@ public interface SystemUserGateway {
 
     Optional<SystemUser> findByUsername(String username);
 
+    long countByTenantNo(String tenantNo);
+
     PageResult<SystemUser> findPage(PageRequest pageRequest);
 }

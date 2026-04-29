@@ -46,7 +46,7 @@ public class InternalAuthController {
     @PostMapping("/validate")
     public R<Long> validate(@Valid @RequestBody ValidateCredentialsRequest request) {
         var cmd = new ValidateCredentialsCmd(
-                request.clientId(), request.grantType(), request.username(), request.password());
+                request.tenantId(), request.clientId(), request.grantType(), request.username(), request.password());
         Long userId = validateCredentialsCmdExe
                 .execute(cmd)
                 .orElseThrow(() -> new BizException(CommonErrorCode.UNAUTHORIZED, "Invalid username or password"));

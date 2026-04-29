@@ -16,12 +16,12 @@ public class UserCredentialsGatewayImpl implements UserCredentialsGateway {
     }
 
     @Override
-    public Optional<Long> validate(String username, String password) {
+    public Optional<Long> validate(String tenantNo, String username, String password) {
         if (username == null || password == null) {
             return Optional.empty();
         }
         return systemUserRepository
-                .findByUsernameAndDeleted(username, 0)
+                .findByTenantNoAndUsernameAndDeleted(tenantNo, username, 0)
                 .filter(systemUserDO -> systemUserDO.isEnabled() && password.equals(systemUserDO.getPassword()))
                 .map(systemUserDO -> systemUserDO.getId());
     }

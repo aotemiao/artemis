@@ -103,6 +103,7 @@ public class TenantBootstrapService {
         roleMenuBindingGateway.replaceMenus(tenantAdminRole.getId(), tenantPackage.getMenuIds());
 
         SystemUser tenantAdmin = new SystemUser();
+        tenantAdmin.setTenantNo(tenant.getTenantNo());
         tenantAdmin.setUsername(tenant.getTenantNo() + "_admin");
         tenantAdmin.setDisplayName(tenant.getCompanyName() + "管理员");
         tenantAdmin.setPassword(systemConfigCache.getValue(INIT_PASSWORD_KEY).orElse(DEFAULT_INIT_PASSWORD));

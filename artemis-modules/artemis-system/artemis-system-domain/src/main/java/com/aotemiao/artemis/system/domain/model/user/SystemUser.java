@@ -6,6 +6,7 @@ import java.io.Serializable;
 public class SystemUser implements Serializable {
 
     private Long id;
+    private String tenantNo = "000000";
     private String username;
     private String displayName;
     private String password;
@@ -17,6 +18,14 @@ public class SystemUser implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getTenantNo() {
+        return tenantNo;
+    }
+
+    public void setTenantNo(String tenantNo) {
+        this.tenantNo = tenantNo;
     }
 
     public String getUsername() {

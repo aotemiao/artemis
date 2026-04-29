@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.aotemiao.artemis.framework.core.exception.BizException;
 import com.aotemiao.artemis.system.app.service.config.SystemConfigCache;
+import com.aotemiao.artemis.system.app.service.tenant.TenantRuntimeService;
 import com.aotemiao.artemis.system.domain.gateway.user.SystemUserGateway;
 import com.aotemiao.artemis.system.domain.model.user.SystemUser;
 import java.util.Optional;
@@ -26,6 +27,9 @@ class CreateSystemUserCmdExeTest {
     @Mock
     private SystemConfigCache systemConfigCache;
 
+    @Mock
+    private TenantRuntimeService tenantRuntimeService;
+
     @InjectMocks
     private CreateSystemUserCmdExe createSystemUserCmdExe;
 
@@ -38,6 +42,7 @@ class CreateSystemUserCmdExeTest {
         saved.setDisplayName("管理员");
         saved.setPassword("123456");
         saved.setEnabled(true);
+        when(tenantRuntimeService.normalizeTenantNo("000000")).thenReturn("000000");
         when(systemUserGateway.findByUsername("admin")).thenReturn(Optional.empty());
         when(systemUserGateway.save(any(SystemUser.class))).thenReturn(saved);
 
@@ -55,6 +60,7 @@ class CreateSystemUserCmdExeTest {
         SystemUser existing = new SystemUser();
         existing.setId(1L);
         existing.setUsername("admin");
+        when(tenantRuntimeService.normalizeTenantNo("000000")).thenReturn("000000");
         when(systemUserGateway.findByUsername("admin")).thenReturn(Optional.of(existing));
 
         assertThatThrownBy(() -> createSystemUserCmdExe.execute(cmd)).isInstanceOf(BizException.class);
@@ -63,6 +69,7 @@ class CreateSystemUserCmdExeTest {
     @Test
     void execute_whenPasswordBlank_usesInitialPasswordConfig() {
         CreateSystemUserCmd cmd = new CreateSystemUserCmd("demo", "演示用户", "");
+        when(tenantRuntimeService.normalizeTenantNo("000000")).thenReturn("000000");
         when(systemUserGateway.findByUsername("demo")).thenReturn(Optional.empty());
         when(systemConfigCache.getValue("sys.user.initPassword")).thenReturn(Optional.of("init@123"));
         when(systemUserGateway.save(any(SystemUser.class))).thenAnswer(invocation -> invocation.getArgument(0));

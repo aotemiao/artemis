@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.aotemiao.artemis.system.app.service.tenant.TenantRuntimeService;
 import com.aotemiao.artemis.system.domain.gateway.auth.UserCredentialsGateway;
 import com.aotemiao.artemis.system.domain.gateway.client.SystemClientGateway;
 import com.aotemiao.artemis.system.domain.model.client.SystemClient;
@@ -23,6 +24,9 @@ class ValidateCredentialsCmdExeTest {
     @Mock
     private SystemClientGateway systemClientGateway;
 
+    @Mock
+    private TenantRuntimeService tenantRuntimeService;
+
     @InjectMocks
     private ValidateCredentialsCmdExe validateCredentialsCmdExe;
 
@@ -30,11 +34,13 @@ class ValidateCredentialsCmdExeTest {
     void execute_delegatesToGateway_andReturnsUserId() {
         ValidateCredentialsCmd cmd = new ValidateCredentialsCmd("admin", "123456");
         when(systemClientGateway.findByClientId("artemis-admin")).thenReturn(Optional.of(sampleClient("NORMAL")));
-        when(userCredentialsGateway.validate("admin", "123456")).thenReturn(Optional.of(1L));
+        when(tenantRuntimeService.normalizeTenantNo("000000")).thenReturn("000000");
+        when(tenantRuntimeService.canLogin("000000")).thenReturn(true);
+        when(userCredentialsGateway.validate("000000", "admin", "123456")).thenReturn(Optional.of(1L));
 
         Optional<Long> result = validateCredentialsCmdExe.execute(cmd);
 
-        verify(userCredentialsGateway).validate("admin", "123456");
+        verify(userCredentialsGateway).validate("000000", "admin", "123456");
         assertThat(result).contains(1L);
     }
 

@@ -38,6 +38,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
 
+    private static final String DYNAMIC_TENANT_ID = "dynamicTenantId";
+
     private final SystemUserValidateClient systemUserValidateClient;
     private final SystemUserAuthorizationClient systemUserAuthorizationClient;
     private final SystemClientValidateClient systemClientValidateClient;
@@ -66,21 +68,22 @@ public class AuthController {
     @PostMapping("/login")
     public LoginResponse login(
             @Valid @RequestBody ValidateCredentialsRequest request, HttpServletRequest servletRequest) {
+        String tenantId = resolveTenantId(request.tenantId(), servletRequest);
         if (!systemClientValidateClient.validate(request.clientId(), request.grantType())) {
-            recordLoginInfo(request, servletRequest, "FAIL", "客户端或授权类型无效");
+            recordLoginInfo(tenantId, request, servletRequest, "FAIL", "客户端或授权类型无效");
             throw new InvalidCredentialsException("Invalid client or grant type");
         }
         Long userId = systemUserValidateClient
-                .validate(request.clientId(), request.grantType(), request.username(), request.password())
+                .validate(tenantId, request.clientId(), request.grantType(), request.username(), request.password())
                 .orElseThrow(() -> {
-                    recordLoginInfo(request, servletRequest, "FAIL", "用户名或密码错误");
+                    recordLoginInfo(tenantId, request, servletRequest, "FAIL", "用户名或密码错误");
                     return new InvalidCredentialsException("Invalid username or password");
                 });
         UserAuthorizationSnapshotDTO snapshot = getAuthorizationSnapshot(userId);
         StpUtil.login(userId);
         syncAuthorizationSession(snapshot);
         recordOnlineUser(snapshot, servletRequest);
-        recordLoginInfo(request, servletRequest, "SUCCESS", "登录成功");
+        recordLoginInfo(tenantId, request, servletRequest, "SUCCESS", "登录成功");
         return buildLoginResponse(snapshot);
     }
 
@@ -141,6 +144,24 @@ public class AuthController {
         return buildLoginResponse(snapshot);
     }
 
+    /** 超级管理员动态切换租户。 */
+    @PostMapping("/tenant/switch")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void switchTenant(@RequestParam String tenantId) {
+        StpUtil.checkLogin();
+        ensureSuperAdmin();
+        StpUtil.getSession().set(DYNAMIC_TENANT_ID, tenantId);
+    }
+
+    /** 超级管理员清除动态租户。 */
+    @PostMapping("/tenant/clear")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void clearTenant() {
+        StpUtil.checkLogin();
+        ensureSuperAdmin();
+        StpUtil.getSession().delete(DYNAMIC_TENANT_ID);
+    }
+
     private UserAuthorizationSnapshotDTO getAuthorizationSnapshot(Long userId) {
         return systemUserAuthorizationClient
                 .getByUserId(userId)
@@ -191,10 +212,14 @@ public class AuthController {
     }
 
     private void recordLoginInfo(
-            ValidateCredentialsRequest request, HttpServletRequest servletRequest, String status, String msg) {
+            String tenantId,
+            ValidateCredentialsRequest request,
+            HttpServletRequest servletRequest,
+            String status,
+            String msg) {
         String userAgent = header(servletRequest, "User-Agent");
         systemLoginInfoRecordClient.record(new RecordLoginInfoRequest(
-                header(servletRequest, "X-Tenant-Id"),
+                tenantId,
                 request.username(),
                 request.clientId(),
                 null,
@@ -252,6 +277,30 @@ public class AuthController {
         return request == null ? null : request.getHeader(name);
     }
 
+    private static String resolveTenantId(String requestedTenantId, HttpServletRequest request) {
+        if (requestedTenantId != null && !requestedTenantId.isBlank()) {
+            return requestedTenantId;
+        }
+        String headerTenantId = header(request, "X-Tenant-Id");
+        if (headerTenantId != null && !headerTenantId.isBlank()) {
+            return headerTenantId;
+        }
+        if (StpUtil.isLogin()) {
+            Object dynamicTenantId = StpUtil.getSession().get(DYNAMIC_TENANT_ID);
+            if (dynamicTenantId != null) {
+                return dynamicTenantId.toString();
+            }
+        }
+        return null;
+    }
+
+    private static void ensureSuperAdmin() {
+        Object roles = StpUtil.getSession().get(SaSession.ROLE_LIST);
+        if (!(roles instanceof List<?> roleList) || roleList.stream().noneMatch("super-admin"::equals)) {
+            throw new ForbiddenOperationException("Only super admin can switch tenant");
+        }
+    }
+
     private static String clientIp(HttpServletRequest request) {
         if (request == null) {
             return "unknown";
@@ -301,6 +350,13 @@ public class AuthController {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public static class InvalidCredentialsException extends RuntimeException {
         public InvalidCredentialsException(String message) {
+            super(message);
+        }
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public static class ForbiddenOperationException extends RuntimeException {
+        public ForbiddenOperationException(String message) {
             super(message);
         }
     }

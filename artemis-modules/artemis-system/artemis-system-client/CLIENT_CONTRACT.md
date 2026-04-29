@@ -17,7 +17,7 @@
 
 ## DTO 清单
 
-- `DTO: com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest(String clientId, String grantType, String username, String password)`
+- `DTO: com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest(String tenantId, String clientId, String grantType, String username, String password)`
 - `DTO: com.aotemiao.artemis.system.client.dto.RegisterUserRequest(String tenantId, String clientId, String grantType, String username, String password, String userType)`
 - `DTO: com.aotemiao.artemis.system.client.dto.ValidateClientRequest(String clientId, String grantType)`
 - `DTO: com.aotemiao.artemis.system.client.dto.RecordLoginInfoRequest(String tenantId, String username, String clientId, String deviceType, String ipaddr, String loginLocation, String browser, String os, String status, String msg)`
@@ -34,7 +34,7 @@
 - `LoginInfoRecordService`
   供 `artemis-auth` 等内部调用方记录登录成功、失败与登出访问日志。
 - `ValidateCredentialsRequest`
-  作为 Dubbo 契约请求体，与系统服务内部 REST 校验接口保持字段对齐。
+  作为 Dubbo 契约请求体，与系统服务内部 REST 校验接口保持字段对齐；`tenantId` 为空时按默认租户兼容旧调用。
 - `RegisterUserRequest`
   作为用户注册请求体，包含租户、客户端、授权类型、用户名、密码和用户类型。
 - `ValidateClientRequest`

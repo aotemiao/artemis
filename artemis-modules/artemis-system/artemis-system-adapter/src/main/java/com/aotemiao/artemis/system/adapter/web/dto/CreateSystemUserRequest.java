@@ -4,4 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 
 /** 新增系统用户请求。 */
 public record CreateSystemUserRequest(
-        @NotBlank String username, @NotBlank String displayName, String password) {}
+        String tenantNo,
+        @NotBlank String username,
+        @NotBlank String displayName,
+        String password) {}

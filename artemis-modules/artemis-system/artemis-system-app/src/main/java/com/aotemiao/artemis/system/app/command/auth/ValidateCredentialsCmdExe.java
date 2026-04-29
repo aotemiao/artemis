@@ -1,5 +1,6 @@
 package com.aotemiao.artemis.system.app.command.auth;
 
+import com.aotemiao.artemis.system.app.service.tenant.TenantRuntimeService;
 import com.aotemiao.artemis.system.domain.gateway.auth.UserCredentialsGateway;
 import com.aotemiao.artemis.system.domain.gateway.client.SystemClientGateway;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -20,10 +21,18 @@ public class ValidateCredentialsCmdExe {
             justification = "Spring injects the gateway as a managed collaborator; this executor does not expose it.")
     private final SystemClientGateway systemClientGateway;
 
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "Spring injects the service as a managed collaborator; this executor does not expose it.")
+    private final TenantRuntimeService tenantRuntimeService;
+
     public ValidateCredentialsCmdExe(
-            UserCredentialsGateway userCredentialsGateway, SystemClientGateway systemClientGateway) {
+            UserCredentialsGateway userCredentialsGateway,
+            SystemClientGateway systemClientGateway,
+            TenantRuntimeService tenantRuntimeService) {
         this.userCredentialsGateway = userCredentialsGateway;
         this.systemClientGateway = systemClientGateway;
+        this.tenantRuntimeService = tenantRuntimeService;
     }
 
     /**
@@ -40,6 +49,10 @@ public class ValidateCredentialsCmdExe {
         if (!clientAllowed) {
             return Optional.empty();
         }
-        return userCredentialsGateway.validate(cmd.username(), cmd.password());
+        String tenantNo = tenantRuntimeService.normalizeTenantNo(cmd.tenantId());
+        if (!tenantRuntimeService.canLogin(tenantNo)) {
+            return Optional.empty();
+        }
+        return userCredentialsGateway.validate(tenantNo, cmd.username(), cmd.password());
     }
 }

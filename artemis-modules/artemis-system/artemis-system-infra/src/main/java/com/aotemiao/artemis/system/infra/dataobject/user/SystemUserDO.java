@@ -12,6 +12,9 @@ public class SystemUserDO extends AuditAndSoftDeleteBase {
     @Column("id")
     private Long id;
 
+    @Column("tenant_no")
+    private String tenantNo;
+
     @Column("username")
     private String username;
 
@@ -30,6 +33,14 @@ public class SystemUserDO extends AuditAndSoftDeleteBase {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getTenantNo() {
+        return tenantNo;
+    }
+
+    public void setTenantNo(String tenantNo) {
+        this.tenantNo = tenantNo;
     }
 
     public String getUsername() {

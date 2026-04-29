@@ -13,6 +13,7 @@ public final class SystemUserConverter {
         }
         SystemUser systemUser = new SystemUser();
         systemUser.setId(systemUserDO.getId());
+        systemUser.setTenantNo(systemUserDO.getTenantNo());
         systemUser.setUsername(systemUserDO.getUsername());
         systemUser.setDisplayName(systemUserDO.getDisplayName());
         systemUser.setPassword(systemUserDO.getPassword());
@@ -26,6 +27,7 @@ public final class SystemUserConverter {
         }
         SystemUserDO systemUserDO = new SystemUserDO();
         systemUserDO.setId(systemUser.getId());
+        systemUserDO.setTenantNo(systemUser.getTenantNo());
         systemUserDO.setUsername(systemUser.getUsername());
         systemUserDO.setDisplayName(systemUser.getDisplayName());
         systemUserDO.setPassword(systemUser.getPassword());

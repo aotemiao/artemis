@@ -11,4 +11,8 @@ public interface SystemUserRepository extends CrudRepository<SystemUserDO, Long>
     Page<SystemUserDO> findAllByDeletedOrderById(Integer deleted, Pageable pageable);
 
     Optional<SystemUserDO> findByUsernameAndDeleted(String username, Integer deleted);
+
+    Optional<SystemUserDO> findByTenantNoAndUsernameAndDeleted(String tenantNo, String username, Integer deleted);
+
+    long countByTenantNoAndDeleted(String tenantNo, Integer deleted);
 }

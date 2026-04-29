@@ -24,6 +24,12 @@ public class SystemUserValidateClient {
      * @return 校验通过时返回 userId，否则 empty
      */
     public Optional<Long> validate(String clientId, String grantType, String username, String password) {
-        return userValidateService.validate(new ValidateCredentialsRequest(clientId, grantType, username, password));
+        return validate(null, clientId, grantType, username, password);
+    }
+
+    public Optional<Long> validate(
+            String tenantId, String clientId, String grantType, String username, String password) {
+        return userValidateService.validate(
+                new ValidateCredentialsRequest(tenantId, clientId, grantType, username, password));
     }
 }

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.aotemiao.artemis.framework.core.exception.BizException;
 import com.aotemiao.artemis.system.app.service.config.SystemConfigCache;
+import com.aotemiao.artemis.system.app.service.tenant.TenantRuntimeService;
 import com.aotemiao.artemis.system.domain.gateway.user.SystemUserGateway;
 import com.aotemiao.artemis.system.domain.model.user.SystemUser;
 import java.util.Optional;
@@ -25,12 +26,16 @@ class RegisterUserCmdExeTest {
     @Mock
     private SystemConfigCache systemConfigCache;
 
+    @Mock
+    private TenantRuntimeService tenantRuntimeService;
+
     @InjectMocks
     private RegisterUserCmdExe registerUserCmdExe;
 
     @Test
     void execute_whenRegisterEnabled_createsUser() {
         when(systemConfigCache.getValue("sys.account.registerUser")).thenReturn(Optional.of("true"));
+        when(tenantRuntimeService.normalizeTenantNo("000000")).thenReturn("000000");
         when(systemUserGateway.findByUsername("demo")).thenReturn(Optional.empty());
         when(systemUserGateway.save(any(SystemUser.class))).thenReturn(savedUser());
 
