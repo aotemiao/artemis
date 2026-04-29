@@ -6,6 +6,7 @@ import com.aotemiao.artemis.system.infra.converter.menu.SystemMenuConverter;
 import com.aotemiao.artemis.system.infra.dataobject.role.SystemRoleMenuDO;
 import com.aotemiao.artemis.system.infra.repository.menu.SystemMenuRepository;
 import com.aotemiao.artemis.system.infra.repository.role.SystemRoleMenuRepository;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,9 @@ public class RoleMenuBindingGatewayImpl implements RoleMenuBindingGateway {
     private final SystemRoleMenuRepository systemRoleMenuRepository;
     private final SystemMenuRepository systemMenuRepository;
 
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "Spring injects repositories as managed collaborators; this gateway does not expose them.")
     public RoleMenuBindingGatewayImpl(
             SystemRoleMenuRepository systemRoleMenuRepository, SystemMenuRepository systemMenuRepository) {
         this.systemRoleMenuRepository = systemRoleMenuRepository;
@@ -63,6 +67,15 @@ public class RoleMenuBindingGatewayImpl implements RoleMenuBindingGateway {
                     return binding;
                 })
                 .toList());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteByMenuIds(Collection<Long> menuIds) {
+        if (menuIds == null || menuIds.isEmpty()) {
+            return;
+        }
+        systemRoleMenuRepository.deleteAllByMenuIdIn(menuIds);
     }
 
     private List<SystemMenu> findMenusByIds(Collection<Long> menuIds) {

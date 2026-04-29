@@ -10,4 +10,6 @@ public interface SystemRoleMenuRepository extends CrudRepository<SystemRoleMenuD
     List<SystemRoleMenuDO> findAllByRoleIdOrderById(Long roleId);
 
     List<SystemRoleMenuDO> findAllByRoleIdInOrderById(Collection<Long> roleIds);
+
+    void deleteAllByMenuIdIn(Collection<Long> menuIds);
 }

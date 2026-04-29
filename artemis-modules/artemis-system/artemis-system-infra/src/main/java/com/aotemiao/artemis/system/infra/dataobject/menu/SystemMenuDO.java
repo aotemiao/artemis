@@ -30,14 +30,29 @@ public class SystemMenuDO extends AuditAndSoftDeleteBase {
     @Column("component")
     private String component;
 
+    @Column("query_param")
+    private String queryParam;
+
+    @Column("external_link")
+    private boolean externalLink;
+
+    @Column("cacheable")
+    private boolean cacheable;
+
     @Column("permission_code")
     private String permissionCode;
+
+    @Column("icon")
+    private String icon;
 
     @Column("visible")
     private boolean visible;
 
     @Column("enabled")
     private boolean enabled;
+
+    @Column("remarks")
+    private String remarks;
 
     public Long getId() {
         return id;
@@ -95,12 +110,44 @@ public class SystemMenuDO extends AuditAndSoftDeleteBase {
         this.component = component;
     }
 
+    public String getQueryParam() {
+        return queryParam;
+    }
+
+    public void setQueryParam(String queryParam) {
+        this.queryParam = queryParam;
+    }
+
+    public boolean isExternalLink() {
+        return externalLink;
+    }
+
+    public void setExternalLink(boolean externalLink) {
+        this.externalLink = externalLink;
+    }
+
+    public boolean isCacheable() {
+        return cacheable;
+    }
+
+    public void setCacheable(boolean cacheable) {
+        this.cacheable = cacheable;
+    }
+
     public String getPermissionCode() {
         return permissionCode;
     }
 
     public void setPermissionCode(String permissionCode) {
         this.permissionCode = permissionCode;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 
     public boolean isVisible() {
@@ -117,5 +164,13 @@ public class SystemMenuDO extends AuditAndSoftDeleteBase {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 }

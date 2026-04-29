@@ -8,5 +8,7 @@ public interface TenantPackageMenuRepository extends CrudRepository<TenantPackag
 
     List<TenantPackageMenuDO> findAllByPackageId(Long packageId);
 
+    void deleteAllByMenuIdIn(List<Long> menuIds);
+
     void deleteAllByPackageId(Long packageId);
 }

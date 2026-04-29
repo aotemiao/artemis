@@ -16,9 +16,14 @@ public class SystemMenu implements Serializable {
     private Integer sortOrder = 0;
     private String path;
     private String component;
+    private String queryParam;
+    private boolean externalLink = false;
+    private boolean cacheable = true;
     private String permissionCode;
+    private String icon;
     private boolean visible = true;
     private boolean enabled = true;
+    private String remarks;
 
     public Long getId() {
         return id;
@@ -76,12 +81,44 @@ public class SystemMenu implements Serializable {
         this.component = component;
     }
 
+    public String getQueryParam() {
+        return queryParam;
+    }
+
+    public void setQueryParam(String queryParam) {
+        this.queryParam = queryParam;
+    }
+
+    public boolean isExternalLink() {
+        return externalLink;
+    }
+
+    public void setExternalLink(boolean externalLink) {
+        this.externalLink = externalLink;
+    }
+
+    public boolean isCacheable() {
+        return cacheable;
+    }
+
+    public void setCacheable(boolean cacheable) {
+        this.cacheable = cacheable;
+    }
+
     public String getPermissionCode() {
         return permissionCode;
     }
 
     public void setPermissionCode(String permissionCode) {
         this.permissionCode = permissionCode;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 
     public boolean isVisible() {
@@ -98,6 +135,14 @@ public class SystemMenu implements Serializable {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 
     public boolean isButton() {

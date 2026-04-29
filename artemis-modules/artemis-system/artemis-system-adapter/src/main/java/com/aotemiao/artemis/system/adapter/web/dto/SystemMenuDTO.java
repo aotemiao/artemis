@@ -11,7 +11,12 @@ public record SystemMenuDTO(
         Integer sortOrder,
         String path,
         String component,
+        String queryParam,
+        Boolean externalLink,
+        Boolean cacheable,
         String permissionCode,
+        String icon,
         Boolean visible,
-        Boolean enabled)
+        Boolean enabled,
+        String remarks)
         implements Serializable {}

@@ -12,4 +12,6 @@ public interface RoleMenuBindingGateway {
     List<SystemMenu> findMenusByRoleIds(Collection<Long> roleIds);
 
     void replaceMenus(Long roleId, List<Long> menuIds);
+
+    void deleteByMenuIds(Collection<Long> menuIds);
 }

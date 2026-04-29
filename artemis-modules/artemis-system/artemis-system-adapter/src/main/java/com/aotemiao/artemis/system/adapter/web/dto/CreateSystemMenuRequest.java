@@ -10,5 +10,10 @@ public record CreateSystemMenuRequest(
         Integer sortOrder,
         String path,
         String component,
+        String queryParam,
+        Boolean externalLink,
+        Boolean cacheable,
         String permissionCode,
-        Boolean visible) {}
+        String icon,
+        Boolean visible,
+        String remarks) {}

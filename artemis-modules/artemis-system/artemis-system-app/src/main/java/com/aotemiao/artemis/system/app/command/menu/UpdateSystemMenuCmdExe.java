@@ -40,9 +40,14 @@ public class UpdateSystemMenuCmdExe {
         existing.setSortOrder(SystemMenuCommandSupport.normalizeSortOrder(cmd.sortOrder()));
         existing.setPath(path);
         existing.setComponent(SystemMenuCommandSupport.normalizeText(cmd.component()));
+        existing.setQueryParam(SystemMenuCommandSupport.normalizeText(cmd.queryParam()));
+        existing.setExternalLink(cmd.externalLink() != null && cmd.externalLink());
+        existing.setCacheable(cmd.cacheable() == null || cmd.cacheable());
         existing.setPermissionCode(SystemMenuCommandSupport.normalizeText(cmd.permissionCode()));
+        existing.setIcon(SystemMenuCommandSupport.normalizeText(cmd.icon()));
         existing.setVisible(cmd.visible() == null || cmd.visible());
         existing.setEnabled(cmd.enabled() == null || cmd.enabled());
+        existing.setRemarks(SystemMenuCommandSupport.normalizeText(cmd.remarks()));
         return systemMenuGateway.save(existing);
     }
 }

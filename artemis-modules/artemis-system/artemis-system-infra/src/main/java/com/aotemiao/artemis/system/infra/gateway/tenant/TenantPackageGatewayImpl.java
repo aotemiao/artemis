@@ -84,6 +84,15 @@ public class TenantPackageGatewayImpl implements TenantPackageGateway {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public void deleteMenuBindingsByMenuIds(List<Long> menuIds) {
+        if (menuIds == null || menuIds.isEmpty()) {
+            return;
+        }
+        menuRepository.deleteAllByMenuIdIn(menuIds);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteById(Long id) {
         repository.findById(id).ifPresent(entity -> {
             entity.setDeleted(1);

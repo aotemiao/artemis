@@ -35,9 +35,14 @@ public class CreateSystemMenuCmdExe {
         systemMenu.setSortOrder(SystemMenuCommandSupport.normalizeSortOrder(cmd.sortOrder()));
         systemMenu.setPath(path);
         systemMenu.setComponent(SystemMenuCommandSupport.normalizeText(cmd.component()));
+        systemMenu.setQueryParam(SystemMenuCommandSupport.normalizeText(cmd.queryParam()));
+        systemMenu.setExternalLink(cmd.externalLink() != null && cmd.externalLink());
+        systemMenu.setCacheable(cmd.cacheable() == null || cmd.cacheable());
         systemMenu.setPermissionCode(SystemMenuCommandSupport.normalizeText(cmd.permissionCode()));
+        systemMenu.setIcon(SystemMenuCommandSupport.normalizeText(cmd.icon()));
         systemMenu.setVisible(cmd.visible() == null || cmd.visible());
         systemMenu.setEnabled(true);
+        systemMenu.setRemarks(SystemMenuCommandSupport.normalizeText(cmd.remarks()));
         return systemMenuGateway.save(systemMenu);
     }
 }

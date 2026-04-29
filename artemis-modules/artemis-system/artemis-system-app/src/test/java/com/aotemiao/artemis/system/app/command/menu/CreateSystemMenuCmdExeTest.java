@@ -38,7 +38,19 @@ class CreateSystemMenuCmdExeTest {
         when(systemMenuGateway.save(any())).thenReturn(saved);
 
         SystemMenu result = createSystemMenuCmdExe.execute(new CreateSystemMenuCmd(
-                0L, "menu", " 用户管理 ", 10, " /system/users ", "system/user/index", "system:user:list", true));
+                0L,
+                "menu",
+                " 用户管理 ",
+                10,
+                " /system/users ",
+                "system/user/index",
+                "tab=profile",
+                false,
+                true,
+                "system:user:list",
+                "user",
+                true,
+                "用户菜单"));
 
         assertThat(result).isSameAs(saved);
         verify(systemMenuGateway).save(any(SystemMenu.class));
@@ -51,7 +63,19 @@ class CreateSystemMenuCmdExeTest {
         when(systemMenuGateway.findByParentIdAndMenuName(0L, "用户管理")).thenReturn(Optional.of(existing));
 
         assertThatThrownBy(() -> createSystemMenuCmdExe.execute(new CreateSystemMenuCmd(
-                        0L, "MENU", "用户管理", 10, "/system/users", null, "system:user:list", true)))
+                        0L,
+                        "MENU",
+                        "用户管理",
+                        10,
+                        "/system/users",
+                        null,
+                        null,
+                        null,
+                        null,
+                        "system:user:list",
+                        null,
+                        true,
+                        null)))
                 .isInstanceOf(BizException.class);
     }
 }

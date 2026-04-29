@@ -39,9 +39,14 @@ class SystemMenuGatewayImplIntegrationTest {
         menu.setSortOrder(10);
         menu.setPath("/system/users");
         menu.setComponent("system/user/index");
+        menu.setQueryParam("tab=profile");
+        menu.setExternalLink(false);
+        menu.setCacheable(true);
         menu.setPermissionCode("system:user:list");
+        menu.setIcon("user");
         menu.setVisible(true);
         menu.setEnabled(true);
+        menu.setRemarks("用户菜单");
 
         SystemMenu saved = systemMenuGateway.save(menu);
 
@@ -49,6 +54,8 @@ class SystemMenuGatewayImplIntegrationTest {
         Optional<SystemMenu> found = systemMenuGateway.findById(saved.getId());
         assertThat(found).isPresent();
         assertThat(found.get().getMenuName()).isEqualTo("用户管理");
+        assertThat(found.get().getQueryParam()).isEqualTo("tab=profile");
+        assertThat(found.get().getIcon()).isEqualTo("user");
         assertThat(found.get().getPermissionCode()).isEqualTo("system:user:list");
     }
 
@@ -88,5 +95,23 @@ class SystemMenuGatewayImplIntegrationTest {
         List<SystemMenu> menus = systemMenuGateway.findAll();
 
         assertThat(menus.stream().map(SystemMenu::getMenuName)).containsExactly("系统管理", "用户管理", "角色管理");
+    }
+
+    @Test
+    void deleteByIds_softDeletesMenus() {
+        SystemMenu menu = new SystemMenu();
+        menu.setParentId(0L);
+        menu.setMenuType(SystemMenu.TYPE_MENU);
+        menu.setMenuName("菜单删除");
+        menu.setSortOrder(10);
+        menu.setPath("/system/deleted");
+        menu.setVisible(true);
+        menu.setEnabled(true);
+        SystemMenu saved = systemMenuGateway.save(menu);
+
+        systemMenuGateway.deleteByIds(List.of(saved.getId()));
+
+        assertThat(systemMenuGateway.findById(saved.getId())).isEmpty();
+        assertThat(systemMenuGateway.findAll()).extracting(SystemMenu::getId).doesNotContain(saved.getId());
     }
 }

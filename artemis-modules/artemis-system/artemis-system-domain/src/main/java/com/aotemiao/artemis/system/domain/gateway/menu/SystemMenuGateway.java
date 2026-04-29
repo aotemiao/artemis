@@ -19,4 +19,6 @@ public interface SystemMenuGateway {
     List<SystemMenu> findByIds(Collection<Long> ids);
 
     List<SystemMenu> findAll();
+
+    void deleteByIds(Collection<Long> ids);
 }

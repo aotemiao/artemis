@@ -175,8 +175,13 @@ public class SystemRoleController {
                 systemMenu.getSortOrder(),
                 systemMenu.getPath(),
                 systemMenu.getComponent(),
+                systemMenu.getQueryParam(),
+                systemMenu.isExternalLink(),
+                systemMenu.isCacheable(),
                 systemMenu.getPermissionCode(),
+                systemMenu.getIcon(),
                 systemMenu.isVisible(),
-                systemMenu.isEnabled());
+                systemMenu.isEnabled(),
+                systemMenu.getRemarks());
     }
 }

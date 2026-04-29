@@ -21,5 +21,7 @@ public interface TenantPackageGateway {
 
     boolean isUsedByTenant(Long packageId);
 
+    void deleteMenuBindingsByMenuIds(List<Long> menuIds);
+
     void deleteById(Long id);
 }

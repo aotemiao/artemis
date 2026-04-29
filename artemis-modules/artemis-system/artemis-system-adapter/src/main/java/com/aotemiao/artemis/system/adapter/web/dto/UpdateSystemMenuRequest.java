@@ -11,6 +11,11 @@ public record UpdateSystemMenuRequest(
         Integer sortOrder,
         String path,
         String component,
+        String queryParam,
+        Boolean externalLink,
+        Boolean cacheable,
         String permissionCode,
+        String icon,
         @NotNull Boolean visible,
-        @NotNull Boolean enabled) {}
+        @NotNull Boolean enabled,
+        String remarks) {}

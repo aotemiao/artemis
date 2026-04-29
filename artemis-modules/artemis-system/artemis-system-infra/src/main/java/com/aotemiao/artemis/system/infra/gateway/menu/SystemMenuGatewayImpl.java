@@ -27,7 +27,10 @@ public class SystemMenuGatewayImpl implements SystemMenuGateway {
 
     @Override
     public Optional<SystemMenu> findById(Long id) {
-        return systemMenuRepository.findById(id).map(SystemMenuConverter::toDomain);
+        return systemMenuRepository
+                .findById(id)
+                .filter(menu -> Integer.valueOf(0).equals(menu.getDeleted()))
+                .map(SystemMenuConverter::toDomain);
     }
 
     @Override
@@ -57,5 +60,16 @@ public class SystemMenuGatewayImpl implements SystemMenuGateway {
         return systemMenuRepository.findAllByDeletedOrderByParentIdAscSortOrderAscIdAsc(0).stream()
                 .map(SystemMenuConverter::toDomain)
                 .toList();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteByIds(Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        var menus = systemMenuRepository.findAllByIdInAndDeletedOrderByParentIdAscSortOrderAscIdAsc(ids, 0);
+        menus.forEach(menu -> menu.setDeleted(1));
+        systemMenuRepository.saveAll(menus);
     }
 }

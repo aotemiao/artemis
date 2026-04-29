@@ -35,8 +35,22 @@ class UpdateSystemMenuCmdExeTest {
         when(systemMenuGateway.findById(1L)).thenReturn(Optional.of(existing));
         when(systemMenuGateway.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        SystemMenu result = updateSystemMenuCmdExe.execute(
-                new UpdateSystemMenuCmd(1L, 0L, "BUTTON", "新增用户", 20, null, null, "system:user:add", true, false));
+        SystemMenu result = updateSystemMenuCmdExe.execute(new UpdateSystemMenuCmd(
+                1L,
+                0L,
+                "BUTTON",
+                "新增用户",
+                20,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "system:user:add",
+                null,
+                true,
+                false,
+                null));
 
         assertThat(result.getMenuType()).isEqualTo(SystemMenu.TYPE_BUTTON);
         assertThat(result.getPermissionCode()).isEqualTo("system:user:add");
@@ -48,7 +62,21 @@ class UpdateSystemMenuCmdExeTest {
         when(systemMenuGateway.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> updateSystemMenuCmdExe.execute(new UpdateSystemMenuCmd(
-                        99L, 0L, "MENU", "用户管理", 10, "/system/users", null, "system:user:list", true, true)))
+                        99L,
+                        0L,
+                        "MENU",
+                        "用户管理",
+                        10,
+                        "/system/users",
+                        null,
+                        null,
+                        null,
+                        null,
+                        "system:user:list",
+                        null,
+                        true,
+                        true,
+                        null)))
                 .isInstanceOf(BizException.class);
     }
 }

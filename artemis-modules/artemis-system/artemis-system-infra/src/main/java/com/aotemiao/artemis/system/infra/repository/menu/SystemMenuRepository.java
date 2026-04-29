@@ -16,4 +16,6 @@ public interface SystemMenuRepository extends CrudRepository<SystemMenuDO, Long>
     Optional<SystemMenuDO> findByParentIdAndMenuNameAndDeleted(Long parentId, String menuName, Integer deleted);
 
     Optional<SystemMenuDO> findByPathAndDeleted(String path, Integer deleted);
+
+    List<SystemMenuDO> findAllByParentIdInAndDeleted(Collection<Long> parentIds, Integer deleted);
 }
