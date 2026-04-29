@@ -11,6 +11,7 @@ SERVICE_RECORDS=(
   "symphony|platform|artemis-symphony/artemis-symphony-start|9500|WORKFLOW.md|http|http://127.0.0.1:9500/api/v1/state|200|GET|scripts/smoke/symphony-state.sh|||"
   # -- generated service records --
   "resource|domain|artemis-modules/artemis-resource/artemis-resource-start|9400|config/nacos/application-common.yml,config/nacos/datasource.yml,config/nacos/artemis-resource.yml|smoke||||scripts/smoke/resource-ping.sh|logs/artemis-resource.log|docker/Dockerfile.resource|artemis-resource-client"
+  "workflow|domain|artemis-modules/artemis-workflow/artemis-workflow-start|9410|config/nacos/application-common.yml,config/nacos/datasource.yml,config/nacos/artemis-workflow.yml|smoke||||scripts/smoke/workflow-ping.sh|logs/artemis-workflow.log|docker/Dockerfile.workflow|artemis-workflow-client"
   # -- end generated service records --
 )
 

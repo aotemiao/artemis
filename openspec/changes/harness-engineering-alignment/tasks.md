@@ -4,6 +4,7 @@
 - [x] 1.2 `SERVICE_API.md` 同步检查覆盖资源服务文件与 OSS 配置 Controller。
 - [x] 1.3 `SERVICE_API.md` 同步检查覆盖资源服务站内消息 Controller。
 - [x] 1.4 client contract 同步检查覆盖资源服务短信/邮件远程接口。
+- [x] 1.5 服务目录与 API 文档同步检查覆盖新增工作流服务与流程分类接口。
 
 ## 2. 验证
 

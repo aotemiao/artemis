@@ -30,7 +30,8 @@ artemis/
 ├── artemis-auth             # 认证服务
 ├── artemis-modules          # 业务微服务（按领域拆分，对外 REST API、对内 *-client + Dubbo）
 │   ├── artemis-system       # 系统管理 (client / adapter / app / domain / infra / start)
-│   └── artemis-resource     # 资源管理样板服务 (client / adapter / app / domain / infra / start)
+│   ├── artemis-resource     # 资源管理服务 (client / adapter / app / domain / infra / start)
+│   └── artemis-workflow     # 工作流服务 (client / adapter / app / domain / infra / start)
 ├── artemis-visual           # 运维基础设施（按需扩展）
 └── artemis-symphony         # Symphony：编码代理编排（WORKFLOW.md + Linear + Codex，可独立运行；见子目录 README）
 ```

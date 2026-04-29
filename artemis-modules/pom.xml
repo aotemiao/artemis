@@ -19,5 +19,6 @@
     <modules>
         <module>artemis-system</module>
         <module>artemis-resource</module>
+        <module>artemis-workflow</module>
     </modules>
 </project>
