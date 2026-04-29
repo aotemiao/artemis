@@ -138,6 +138,10 @@ public class SystemUserController {
 
     private SystemRoleDTO toRoleDTO(SystemRole systemRole) {
         return new SystemRoleDTO(
-                systemRole.getId(), systemRole.getRoleKey(), systemRole.getRoleName(), systemRole.isEnabled());
+                systemRole.getId(),
+                systemRole.getRoleKey(),
+                systemRole.getRoleName(),
+                systemRole.getDataScope(),
+                systemRole.isEnabled());
     }
 }

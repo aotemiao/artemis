@@ -8,6 +8,7 @@ public class SystemRole implements Serializable {
     private Long id;
     private String roleKey;
     private String roleName;
+    private String dataScope = "ALL";
     private boolean enabled = true;
 
     public Long getId() {
@@ -32,6 +33,14 @@ public class SystemRole implements Serializable {
 
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+
+    public String getDataScope() {
+        return dataScope;
+    }
+
+    public void setDataScope(String dataScope) {
+        this.dataScope = dataScope;
     }
 
     public boolean isEnabled() {

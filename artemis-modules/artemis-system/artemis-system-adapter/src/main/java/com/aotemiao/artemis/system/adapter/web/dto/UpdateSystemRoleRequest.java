@@ -7,4 +7,5 @@ import jakarta.validation.constraints.NotNull;
 public record UpdateSystemRoleRequest(
         @NotBlank String roleKey,
         @NotBlank String roleName,
+        String dataScope,
         @NotNull Boolean enabled) {}

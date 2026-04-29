@@ -16,6 +16,7 @@ public final class SystemRoleConverter {
         systemRoleDO.setId(systemRole.getId());
         systemRoleDO.setRoleKey(systemRole.getRoleKey());
         systemRoleDO.setRoleName(systemRole.getRoleName());
+        systemRoleDO.setDataScope(systemRole.getDataScope());
         systemRoleDO.setEnabled(systemRole.isEnabled());
         return systemRoleDO;
     }
@@ -28,6 +29,7 @@ public final class SystemRoleConverter {
         systemRole.setId(systemRoleDO.getId());
         systemRole.setRoleKey(systemRoleDO.getRoleKey());
         systemRole.setRoleName(systemRoleDO.getRoleName());
+        systemRole.setDataScope(systemRoleDO.getDataScope());
         systemRole.setEnabled(systemRoleDO.isEnabled());
         return systemRole;
     }

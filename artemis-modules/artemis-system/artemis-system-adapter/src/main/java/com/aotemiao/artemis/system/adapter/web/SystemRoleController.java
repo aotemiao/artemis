@@ -6,12 +6,15 @@ import com.aotemiao.artemis.framework.core.domain.PageResult;
 import com.aotemiao.artemis.framework.core.domain.R;
 import com.aotemiao.artemis.framework.core.exception.BizException;
 import com.aotemiao.artemis.system.adapter.web.dto.CreateSystemRoleRequest;
+import com.aotemiao.artemis.system.adapter.web.dto.ReplaceRoleDataScopeRequest;
 import com.aotemiao.artemis.system.adapter.web.dto.ReplaceRoleMenusRequest;
 import com.aotemiao.artemis.system.adapter.web.dto.SystemMenuDTO;
 import com.aotemiao.artemis.system.adapter.web.dto.SystemRoleDTO;
 import com.aotemiao.artemis.system.adapter.web.dto.UpdateSystemRoleRequest;
 import com.aotemiao.artemis.system.app.command.role.CreateSystemRoleCmd;
 import com.aotemiao.artemis.system.app.command.role.CreateSystemRoleCmdExe;
+import com.aotemiao.artemis.system.app.command.role.ReplaceRoleDataScopeCmd;
+import com.aotemiao.artemis.system.app.command.role.ReplaceRoleDataScopeCmdExe;
 import com.aotemiao.artemis.system.app.command.role.ReplaceRoleMenusCmd;
 import com.aotemiao.artemis.system.app.command.role.ReplaceRoleMenusCmdExe;
 import com.aotemiao.artemis.system.app.command.role.UpdateSystemRoleCmd;
@@ -20,6 +23,8 @@ import com.aotemiao.artemis.system.app.query.menu.ListRoleMenusQry;
 import com.aotemiao.artemis.system.app.query.menu.ListRoleMenusQryExe;
 import com.aotemiao.artemis.system.app.query.role.FindSystemRoleByIdQry;
 import com.aotemiao.artemis.system.app.query.role.FindSystemRoleByIdQryExe;
+import com.aotemiao.artemis.system.app.query.role.ListRoleDepartmentsQry;
+import com.aotemiao.artemis.system.app.query.role.ListRoleDepartmentsQryExe;
 import com.aotemiao.artemis.system.app.query.role.SystemRolePageQry;
 import com.aotemiao.artemis.system.app.query.role.SystemRolePageQryExe;
 import com.aotemiao.artemis.system.domain.model.menu.SystemMenu;
@@ -48,6 +53,8 @@ public class SystemRoleController {
     private final SystemRolePageQryExe systemRolePageQryExe;
     private final ListRoleMenusQryExe listRoleMenusQryExe;
     private final ReplaceRoleMenusCmdExe replaceRoleMenusCmdExe;
+    private final ListRoleDepartmentsQryExe listRoleDepartmentsQryExe;
+    private final ReplaceRoleDataScopeCmdExe replaceRoleDataScopeCmdExe;
 
     public SystemRoleController(
             CreateSystemRoleCmdExe createSystemRoleCmdExe,
@@ -55,20 +62,24 @@ public class SystemRoleController {
             FindSystemRoleByIdQryExe findSystemRoleByIdQryExe,
             SystemRolePageQryExe systemRolePageQryExe,
             ListRoleMenusQryExe listRoleMenusQryExe,
-            ReplaceRoleMenusCmdExe replaceRoleMenusCmdExe) {
+            ReplaceRoleMenusCmdExe replaceRoleMenusCmdExe,
+            ListRoleDepartmentsQryExe listRoleDepartmentsQryExe,
+            ReplaceRoleDataScopeCmdExe replaceRoleDataScopeCmdExe) {
         this.createSystemRoleCmdExe = createSystemRoleCmdExe;
         this.updateSystemRoleCmdExe = updateSystemRoleCmdExe;
         this.findSystemRoleByIdQryExe = findSystemRoleByIdQryExe;
         this.systemRolePageQryExe = systemRolePageQryExe;
         this.listRoleMenusQryExe = listRoleMenusQryExe;
         this.replaceRoleMenusCmdExe = replaceRoleMenusCmdExe;
+        this.listRoleDepartmentsQryExe = listRoleDepartmentsQryExe;
+        this.replaceRoleDataScopeCmdExe = replaceRoleDataScopeCmdExe;
     }
 
     @OperLogRecord(title = "角色管理", businessType = "INSERT")
     @PostMapping
     public R<SystemRoleDTO> create(@Valid @RequestBody CreateSystemRoleRequest request) {
-        SystemRole systemRole =
-                createSystemRoleCmdExe.execute(new CreateSystemRoleCmd(request.roleKey(), request.roleName()));
+        SystemRole systemRole = createSystemRoleCmdExe.execute(
+                new CreateSystemRoleCmd(request.roleKey(), request.roleName(), request.dataScope()));
         return R.ok(toDTO(systemRole));
     }
 
@@ -78,8 +89,8 @@ public class SystemRoleController {
         if (id == null || id <= 0) {
             throw new BizException(CommonErrorCode.BAD_REQUEST, "Invalid id: " + id);
         }
-        SystemRole systemRole = updateSystemRoleCmdExe.execute(
-                new UpdateSystemRoleCmd(id, request.roleKey(), request.roleName(), request.enabled()));
+        SystemRole systemRole = updateSystemRoleCmdExe.execute(new UpdateSystemRoleCmd(
+                id, request.roleKey(), request.roleName(), request.dataScope(), request.enabled()));
         return R.ok(toDTO(systemRole));
     }
 
@@ -127,9 +138,32 @@ public class SystemRoleController {
                 .toList());
     }
 
+    @GetMapping("/{roleId}/departments")
+    public R<List<Long>> listDepartments(@PathVariable Long roleId) {
+        if (roleId == null || roleId <= 0) {
+            throw new BizException(CommonErrorCode.BAD_REQUEST, "Invalid roleId: " + roleId);
+        }
+        return R.ok(listRoleDepartmentsQryExe.execute(new ListRoleDepartmentsQry(roleId)));
+    }
+
+    @OperLogRecord(title = "角色管理", businessType = "GRANT")
+    @PutMapping("/{roleId}/data-scope")
+    public R<List<Long>> replaceDataScope(
+            @PathVariable Long roleId, @Valid @RequestBody ReplaceRoleDataScopeRequest request) {
+        if (roleId == null || roleId <= 0) {
+            throw new BizException(CommonErrorCode.BAD_REQUEST, "Invalid roleId: " + roleId);
+        }
+        return R.ok(replaceRoleDataScopeCmdExe.execute(
+                new ReplaceRoleDataScopeCmd(roleId, request.dataScope(), request.departmentIds())));
+    }
+
     private SystemRoleDTO toDTO(SystemRole systemRole) {
         return new SystemRoleDTO(
-                systemRole.getId(), systemRole.getRoleKey(), systemRole.getRoleName(), systemRole.isEnabled());
+                systemRole.getId(),
+                systemRole.getRoleKey(),
+                systemRole.getRoleName(),
+                systemRole.getDataScope(),
+                systemRole.isEnabled());
     }
 
     private SystemMenuDTO toMenuDTO(SystemMenu systemMenu) {

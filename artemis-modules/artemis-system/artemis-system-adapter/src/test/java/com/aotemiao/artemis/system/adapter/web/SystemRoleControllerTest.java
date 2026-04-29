@@ -15,10 +15,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.aotemiao.artemis.framework.core.domain.PageResult;
 import com.aotemiao.artemis.framework.core.exception.BizException;
 import com.aotemiao.artemis.system.app.command.role.CreateSystemRoleCmdExe;
+import com.aotemiao.artemis.system.app.command.role.ReplaceRoleDataScopeCmdExe;
 import com.aotemiao.artemis.system.app.command.role.ReplaceRoleMenusCmdExe;
 import com.aotemiao.artemis.system.app.command.role.UpdateSystemRoleCmdExe;
 import com.aotemiao.artemis.system.app.query.menu.ListRoleMenusQryExe;
 import com.aotemiao.artemis.system.app.query.role.FindSystemRoleByIdQryExe;
+import com.aotemiao.artemis.system.app.query.role.ListRoleDepartmentsQryExe;
 import com.aotemiao.artemis.system.app.query.role.SystemRolePageQryExe;
 import com.aotemiao.artemis.system.domain.model.menu.SystemMenu;
 import com.aotemiao.artemis.system.domain.model.role.SystemRole;
@@ -41,6 +43,8 @@ class SystemRoleControllerTest {
     private SystemRolePageQryExe systemRolePageQryExe;
     private ListRoleMenusQryExe listRoleMenusQryExe;
     private ReplaceRoleMenusCmdExe replaceRoleMenusCmdExe;
+    private ListRoleDepartmentsQryExe listRoleDepartmentsQryExe;
+    private ReplaceRoleDataScopeCmdExe replaceRoleDataScopeCmdExe;
 
     @BeforeEach
     void setUp() {
@@ -50,13 +54,17 @@ class SystemRoleControllerTest {
         systemRolePageQryExe = mock(SystemRolePageQryExe.class);
         listRoleMenusQryExe = mock(ListRoleMenusQryExe.class);
         replaceRoleMenusCmdExe = mock(ReplaceRoleMenusCmdExe.class);
+        listRoleDepartmentsQryExe = mock(ListRoleDepartmentsQryExe.class);
+        replaceRoleDataScopeCmdExe = mock(ReplaceRoleDataScopeCmdExe.class);
         mockMvc = MockMvcBuilders.standaloneSetup(new SystemRoleController(
                         createSystemRoleCmdExe,
                         updateSystemRoleCmdExe,
                         findSystemRoleByIdQryExe,
                         systemRolePageQryExe,
                         listRoleMenusQryExe,
-                        replaceRoleMenusCmdExe))
+                        replaceRoleMenusCmdExe,
+                        listRoleDepartmentsQryExe,
+                        replaceRoleDataScopeCmdExe))
                 .build();
     }
 
@@ -66,6 +74,7 @@ class SystemRoleControllerTest {
         systemRole.setId(1L);
         systemRole.setRoleKey("super-admin");
         systemRole.setRoleName("超级管理员");
+        systemRole.setDataScope("ALL");
         systemRole.setEnabled(true);
         when(createSystemRoleCmdExe.execute(any())).thenReturn(systemRole);
 
@@ -82,6 +91,7 @@ class SystemRoleControllerTest {
                 .andExpect(jsonPath("$.data.id").value(1))
                 .andExpect(jsonPath("$.data.roleKey").value("super-admin"))
                 .andExpect(jsonPath("$.data.roleName").value("超级管理员"))
+                .andExpect(jsonPath("$.data.dataScope").value("ALL"))
                 .andExpect(jsonPath("$.data.enabled").value(true));
     }
 
@@ -91,6 +101,7 @@ class SystemRoleControllerTest {
         systemRole.setId(1L);
         systemRole.setRoleKey("system-admin");
         systemRole.setRoleName("系统管理员");
+        systemRole.setDataScope("CUSTOM");
         systemRole.setEnabled(false);
         when(updateSystemRoleCmdExe.execute(any())).thenReturn(systemRole);
 
@@ -100,12 +111,14 @@ class SystemRoleControllerTest {
                                 {
                                   "roleKey": "system-admin",
                                   "roleName": "系统管理员",
+                                  "dataScope": "CUSTOM",
                                   "enabled": false
                                 }
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.roleKey").value("system-admin"))
                 .andExpect(jsonPath("$.data.roleName").value("系统管理员"))
+                .andExpect(jsonPath("$.data.dataScope").value("CUSTOM"))
                 .andExpect(jsonPath("$.data.enabled").value(false));
     }
 
@@ -115,6 +128,7 @@ class SystemRoleControllerTest {
         systemRole.setId(1L);
         systemRole.setRoleKey("super-admin");
         systemRole.setRoleName("超级管理员");
+        systemRole.setDataScope("ALL");
         systemRole.setEnabled(true);
         when(findSystemRoleByIdQryExe.execute(any())).thenReturn(Optional.of(systemRole));
 
@@ -140,6 +154,7 @@ class SystemRoleControllerTest {
         systemRole.setId(1L);
         systemRole.setRoleKey("super-admin");
         systemRole.setRoleName("超级管理员");
+        systemRole.setDataScope("ALL");
         systemRole.setEnabled(true);
         when(systemRolePageQryExe.execute(any())).thenReturn(PageResult.of(1, List.of(systemRole), 1));
 
@@ -174,6 +189,33 @@ class SystemRoleControllerTest {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].permissionCode").value("system:user:list"));
+    }
+
+    @Test
+    void listDepartments_returnsRoleDepartmentIds() throws Exception {
+        when(listRoleDepartmentsQryExe.execute(any())).thenReturn(List.of(1L, 2L));
+
+        mockMvc.perform(get(SystemRoleController.BASE_PATH + "/{roleId}/departments", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0]").value(1))
+                .andExpect(jsonPath("$.data[1]").value(2));
+    }
+
+    @Test
+    void replaceDataScope_returnsUpdatedDepartmentIds() throws Exception {
+        when(replaceRoleDataScopeCmdExe.execute(any())).thenReturn(List.of(1L, 2L));
+
+        mockMvc.perform(put(SystemRoleController.BASE_PATH + "/{roleId}/data-scope", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "dataScope": "CUSTOM",
+                                  "departmentIds": [1, 2]
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0]").value(1))
+                .andExpect(jsonPath("$.data[1]").value(2));
     }
 
     private SystemMenu sampleMenu() {

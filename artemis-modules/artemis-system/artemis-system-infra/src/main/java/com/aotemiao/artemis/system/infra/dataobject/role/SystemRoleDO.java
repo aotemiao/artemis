@@ -18,6 +18,9 @@ public class SystemRoleDO extends AuditAndSoftDeleteBase {
     @Column("role_name")
     private String roleName;
 
+    @Column("data_scope")
+    private String dataScope;
+
     @Column("enabled")
     private boolean enabled;
 
@@ -43,6 +46,14 @@ public class SystemRoleDO extends AuditAndSoftDeleteBase {
 
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+
+    public String getDataScope() {
+        return dataScope;
+    }
+
+    public void setDataScope(String dataScope) {
+        this.dataScope = dataScope;
     }
 
     public boolean isEnabled() {
