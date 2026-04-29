@@ -10,6 +10,7 @@ import com.aotemiao.artemis.system.infra.dataobject.tenant.TenantPackageDO;
 import com.aotemiao.artemis.system.infra.dataobject.tenant.TenantPackageMenuDO;
 import com.aotemiao.artemis.system.infra.repository.tenant.TenantPackageMenuRepository;
 import com.aotemiao.artemis.system.infra.repository.tenant.TenantPackageRepository;
+import com.aotemiao.artemis.system.infra.repository.tenant.TenantRepository;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.Optional;
@@ -23,12 +24,18 @@ public class TenantPackageGatewayImpl implements TenantPackageGateway {
 
     private final TenantPackageMenuRepository menuRepository;
 
+    private final TenantRepository tenantRepository;
+
     @SuppressFBWarnings(
             value = "EI_EXPOSE_REP2",
             justification = "Spring injects repositories as managed collaborators; this gateway does not expose them.")
-    public TenantPackageGatewayImpl(TenantPackageRepository repository, TenantPackageMenuRepository menuRepository) {
+    public TenantPackageGatewayImpl(
+            TenantPackageRepository repository,
+            TenantPackageMenuRepository menuRepository,
+            TenantRepository tenantRepository) {
         this.repository = repository;
         this.menuRepository = menuRepository;
+        this.tenantRepository = tenantRepository;
     }
 
     @Override
@@ -72,8 +79,7 @@ public class TenantPackageGatewayImpl implements TenantPackageGateway {
 
     @Override
     public boolean isUsedByTenant(Long packageId) {
-        // TENANT-002 引入租户表后在这里接入真实引用计数。
-        return false;
+        return tenantRepository.existsByPackageIdAndDeleted(packageId, 0);
     }
 
     @Override

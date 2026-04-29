@@ -3,8 +3,11 @@ package com.aotemiao.artemis.system.infra.tenant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.aotemiao.artemis.framework.core.domain.PageRequest;
+import com.aotemiao.artemis.system.domain.gateway.tenant.TenantGateway;
 import com.aotemiao.artemis.system.domain.gateway.tenant.TenantPackageGateway;
+import com.aotemiao.artemis.system.domain.model.tenant.Tenant;
 import com.aotemiao.artemis.system.domain.model.tenant.TenantPackage;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -16,7 +19,8 @@ import org.springframework.test.context.TestPropertySource;
 @DataJdbcTest
 @Import({
     com.aotemiao.artemis.framework.jdbc.config.JdbcAutoConfiguration.class,
-    com.aotemiao.artemis.system.infra.gateway.tenant.TenantPackageGatewayImpl.class
+    com.aotemiao.artemis.system.infra.gateway.tenant.TenantPackageGatewayImpl.class,
+    com.aotemiao.artemis.system.infra.gateway.tenant.TenantGatewayImpl.class
 })
 @TestPropertySource(
         properties = {
@@ -30,6 +34,9 @@ class TenantPackageGatewayImplIntegrationTest {
 
     @Autowired
     private TenantPackageGateway tenantPackageGateway;
+
+    @Autowired
+    private TenantGateway tenantGateway;
 
     @Test
     void save_thenFindById_returnsPackageWithMenus() {
@@ -71,6 +78,14 @@ class TenantPackageGatewayImplIntegrationTest {
         assertThat(tenantPackageGateway.existsByPackageName("标准版", null)).isFalse();
     }
 
+    @Test
+    void isUsedByTenant_detectsTenantReference() {
+        TenantPackage saved = tenantPackageGateway.save(samplePackage("标准版", true, List.of(1L)));
+        tenantGateway.save(sampleTenant(saved.getId()));
+
+        assertThat(tenantPackageGateway.isUsedByTenant(saved.getId())).isTrue();
+    }
+
     private static TenantPackage samplePackage(String packageName, boolean enabled, List<Long> menuIds) {
         TenantPackage tenantPackage = new TenantPackage();
         tenantPackage.setPackageName(packageName);
@@ -79,5 +94,23 @@ class TenantPackageGatewayImplIntegrationTest {
         tenantPackage.setRemarks("测试套餐");
         tenantPackage.setMenuIds(menuIds);
         return tenantPackage;
+    }
+
+    private static Tenant sampleTenant(Long packageId) {
+        Tenant tenant = new Tenant();
+        tenant.setTenantNo("123456");
+        tenant.setCompanyName("阿特米斯科技");
+        tenant.setContactName("张三");
+        tenant.setContactPhone("13800000000");
+        tenant.setSocialCreditCode("91310000MA1");
+        tenant.setAddress("上海市");
+        tenant.setDomain("demo.artemis.com");
+        tenant.setIntro("示例租户");
+        tenant.setPackageId(packageId);
+        tenant.setExpireTime(LocalDateTime.parse("2030-01-01T00:00:00"));
+        tenant.setUserLimit(100);
+        tenant.setStatus("NORMAL");
+        tenant.setRemarks("基础说明");
+        return tenant;
     }
 }
