@@ -14,4 +14,11 @@
     <artifactId>artemis-resource-domain</artifactId>
     <name>Resource Domain</name>
     <description>Domain layer for artemis-resource</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.aotemiao</groupId>
+            <artifactId>artemis-framework-core</artifactId>
+        </dependency>
+    </dependencies>
 </project>

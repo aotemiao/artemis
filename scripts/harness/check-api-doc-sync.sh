@@ -84,10 +84,11 @@ def exact_exists(path: Path) -> bool:
 
 for service_doc in sorted(REPO.glob("artemis-modules/artemis-*/SERVICE_API.md")):
     service_root = service_doc.parent
-    controller_candidates = sorted(service_root.glob("artemis-*-adapter/src/main/java/**/adapter/web/*PingController.java"))
-    if len(controller_candidates) != 1:
+    controller_candidates = sorted(service_root.glob("artemis-*-adapter/src/main/java/**/adapter/web/*Controller.java"))
+    if not controller_candidates:
         continue
-    TARGETS.append((controller_candidates[0].relative_to(REPO), service_doc.relative_to(REPO)))
+    for controller_candidate in controller_candidates:
+        TARGETS.append((controller_candidate.relative_to(REPO), service_doc.relative_to(REPO)))
 
 
 def normalize_signature(value: str) -> str:
@@ -98,9 +99,12 @@ def resolve_mapping_arg(raw: str, constants: dict[str, str]) -> str:
     value = raw.strip()
     if not value:
         return ""
-    if "=" in value:
+    named_mapping = re.search(r'(?:value|path)\s*=\s*([^,]+)', value)
+    if named_mapping:
+        value = named_mapping.group(1).strip()
+    elif "=" in value:
         _, value = value.split("=", 1)
-        value = value.strip()
+        value = value.split(",", 1)[0].strip()
     if value.startswith('"') and value.endswith('"'):
         return value[1:-1]
     if value in constants:
@@ -153,19 +157,31 @@ def parse_doc_routes(doc_path: Path) -> set[str]:
 
 
 errors: list[str] = []
+targets_by_doc: dict[Path, list[Path]] = {}
 for controller, doc in TARGETS:
-    if not exact_exists(REPO / controller):
-        errors.append(f"missing controller path with exact casing: {controller}")
+    targets_by_doc.setdefault(doc, []).append(controller)
+
+for doc, controllers in targets_by_doc.items():
+    controller_routes: set[str] = set()
+    missing_controller_paths: list[Path] = []
+    for controller in controllers:
+        if not exact_exists(REPO / controller):
+            missing_controller_paths.append(controller)
+            continue
+        controller_routes.update(parse_routes(REPO / controller))
+    if missing_controller_paths:
+        for controller in missing_controller_paths:
+            errors.append(f"missing controller path with exact casing: {controller}")
         continue
     if not exact_exists(REPO / doc):
         errors.append(f"missing API doc path with exact casing: {doc}")
         continue
-    controller_routes = parse_routes(REPO / controller)
     doc_routes = parse_doc_routes(REPO / doc)
     missing = sorted(controller_routes - doc_routes)
     extra = sorted(doc_routes - controller_routes)
     if missing or extra:
-        errors.append(f"{controller} <-> {doc}")
+        controller_label = ", ".join(str(controller) for controller in controllers)
+        errors.append(f"{controller_label} <-> {doc}")
         for item in missing:
             errors.append(f"  missing in doc: {item}")
         for item in extra:
