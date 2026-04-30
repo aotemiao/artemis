@@ -19,6 +19,11 @@ Review Cadence: 90 days
 - `../QUALITY_SCORE.md`
   当前工程质量状态与优先补强方向
 
+## API Docs
+
+- `api/README.md`
+  对外 REST API 统一入口、联调通用约定、各模块 API 文档导航
+
 ## Harness Engineering
 
 - `harness-engineering/README.md`
