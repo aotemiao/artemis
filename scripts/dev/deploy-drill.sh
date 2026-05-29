@@ -37,7 +37,7 @@ else
 fi
 
 timestamp="$(date '+%Y-%m-%d-%H%M%S')"
-report_dir="docs/harness-engineering/deploy-drills"
+report_dir="docs/reports/deploy-drills"
 mkdir -p "$report_dir"
 report_path="${report_dir}/${timestamp}-${target}.md"
 

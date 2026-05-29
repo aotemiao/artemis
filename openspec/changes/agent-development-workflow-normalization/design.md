@@ -3,7 +3,7 @@
 Artemis 目前已经把执行入口、验证脚本、runbook 与 Symphony 编排能力铺开，但“默认 agent 开发方式”的知识散落在多个文件中：
 
 - `AGENTS.md` 说明先读哪些资料
-- `docs/harness-engineering/README.md` 说明 Harness 与 OpenSpec 的分工
+- `README.md` 说明 Harness 与 OpenSpec 的分工，并作为文档目录职责的权威入口
 - `openspec/specs/agent-task-assets/spec.md` 说明执行计划与规范变更的关系
 - `artemis-symphony/WORKFLOW.md.example` 说明默认执行时需要读哪些文件
 

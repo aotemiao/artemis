@@ -22,7 +22,7 @@ Review Cadence: 90 days
 3. 构建对应镜像
 4. 部署前确认配置、端口、依赖服务和 smoke 入口
 5. 部署后执行对应 smoke
-6. 将演练结果沉淀到 `docs/harness-engineering/deploy-drills/`
+6. 将演练结果沉淀到 `docs/reports/deploy-drills/`
 
 ## 打包示例
 

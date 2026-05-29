@@ -4,7 +4,7 @@
 
 ## 先读
 
-- `docs/harness-engineering/ADD_DUBBO_CLIENT_RUNBOOK.md`
+- `docs/runbooks/ADD_DUBBO_CLIENT_RUNBOOK.md`
 - `openspec/specs/engineering-constraints/spec.md`
 
 ## 输出要求

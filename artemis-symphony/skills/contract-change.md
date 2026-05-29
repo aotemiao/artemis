@@ -6,7 +6,7 @@
 
 - `openspec/specs/repository-structure/spec.md`
 - `openspec/specs/contract-doc-guardrails/spec.md`
-- `docs/harness-engineering/ADD_DUBBO_CLIENT_RUNBOOK.md`
+- `docs/runbooks/ADD_DUBBO_CLIENT_RUNBOOK.md`
 
 ## 输出要求
 

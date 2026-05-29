@@ -1,7 +1,7 @@
 # Artemis
 
 Status: maintained
-Last Reviewed: 2026-04-28
+Last Reviewed: 2026-05-29
 Review Cadence: 90 days
 
 Spring Cloud 微服务管理后台脚手架，采用 DDD/COLA 分层架构，参考 RuoYi-Cloud-Plus 与 COLA，面向 Clean Code 与可维护性。
@@ -35,6 +35,23 @@ artemis/
 ├── artemis-visual           # 运维基础设施（按需扩展）
 └── artemis-symphony         # Symphony：编码代理编排（WORKFLOW.md + Linear + Codex，可独立运行；见子目录 README）
 ```
+
+## 如何最快了解项目
+
+如果你第一次关注 Artemis，建议按下面顺序阅读，而不是从全部目录开始扫：
+
+1. `README.md`
+   了解项目定位、技术栈、模块结构、启动方式和 Harness 分层。
+2. `ARCHITECTURE.md`
+   了解服务拓扑、DDD/COLA 分层、内部 Dubbo client 契约和核心调用链。
+3. `QUALITY_SCORE.md`
+   了解当前工程质量、已封板能力和下一阶段优先级。
+4. 下方“文档与目录职责”和“常见问题定位”
+   按资产类型直接跳转到 runbook、治理规则、报告、执行计划或 Symphony 资产。
+5. `openspec/specs/`
+   查看稳定规则，例如模块边界、契约治理、质量门和默认 agent workflow。
+
+需要实际开发或验证时，再进入 `AGENTS.md`、`docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`、相关 runbook 与 `scripts/` 入口。
 
 ## 快速开始
 
@@ -109,98 +126,41 @@ artemis/
 
 ## Harness Engineering（仓库内落地）
 
-仓库已补齐一组面向 agent 与开发者共用的入口文件与脚本，用于把工程知识、执行步骤和验证回路固化在仓库内：
+Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将其视为单独工具。其目标是让开发者和 agent 共享同一套事实来源、执行入口、验证回路和交付编排。
 
-- `AGENTS.md`：agent 最小稳定入口
-- `ARCHITECTURE.md`：仓库级架构地图
-- `QUALITY_SCORE.md`：当前质量评分与优先补强项
-- `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`：当前项目完成程度、阶段里程碑与后续演进路线
-- `artemis-modules/*/*-client`：内部调用方的 colocated client 契约
-- `docs/harness-engineering/`：落地清单与阶段路线图
-- `docs/exec-plans/`：复杂任务执行计划目录
-- `scripts/dev/`：本地环境与服务启动入口
-- `scripts/dev/new-domain-service.sh`：新增领域服务脚手架入口
-- `scripts/dev/package-service.sh`：统一服务打包入口
-- `scripts/dev/build-image.sh`：统一镜像构建入口
-- `scripts/dev/service-status.sh`：统一查看服务状态、端口、smoke 与日志入口
-- `scripts/dev/deploy-drill.sh`：打包、镜像、配置与 smoke 的部署演练入口
-- `scripts/dev/rollback-drill.sh`：回滚目标检查与演练报告入口
-- `scripts/dev/wait-http.sh`：统一 HTTP 等待 / 启动断言入口
-- `scripts/dev/check-service-config.sh`：配置缺失检查入口
-- `scripts/dev/check-service-readiness.sh`：启动成功 / 慢启动 / 关键端点可达性断言入口
-- `scripts/dev/health.sh`：关键依赖与服务健康检查
-- `scripts/dev/tail-log.sh`：统一日志查看入口
-- `scripts/e2e/run-symphony-live-e2e.sh`：Symphony 真实 Linear / Codex / SSH 端到端演练入口
-- `scripts/harness/`：OpenSpec 同步、增量验证、全量验证
-- `scripts/harness/run-governance-checks.sh`：文档、契约、重复模式与质量问题治理入口
-- `scripts/harness/check-capability-package-structure.sh`：业务能力包结构守门入口
-- `scripts/harness/check-service-catalog.sh`：领域服务运行资产守门入口
-- `scripts/harness/check-symphony-assets.sh`：Symphony 任务资产守门入口
-- `scripts/smoke/`：最小 smoke 验证脚本
-- `scripts/smoke/all-services.sh`：关键服务聚合 smoke 入口
-- `docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`：服务 smoke 与启动顺序 runbook
-- `docs/harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md`：新增领域服务 runbook
-- `docs/harness-engineering/ADD_DUBBO_CLIENT_RUNBOOK.md`：新增 Dubbo client runbook
-- `docs/harness-engineering/ADD_ARCHUNIT_RULE_RUNBOOK.md`：ArchUnit 约束 runbook
-- `docs/harness-engineering/AGENT_REVIEW_LOOP.md`：agent 自评与 reviewer 回路
-- `docs/harness-engineering/QUALITY_ISSUE_STANDARD.md`：质量问题归档与关闭标准
-- `docs/harness-engineering/DOC_FRESHNESS_POLICY.md`：核心文档审阅 cadence 与防漂移规则
-- `docs/harness-engineering/DEPLOY_AND_ROLLBACK_RUNBOOK.md`：打包、镜像、部署与回滚 runbook
-- `docs/harness-engineering/deploy-drills/`：部署 / 回滚演练报告目录
-- `docs/harness-engineering/SYMPHONY_TROUBLESHOOTING.md`：Symphony 常见故障 runbook
-- `.github/workflows/governance.yml`：周期性文档 / 工程治理工作流
-- `.github/workflows/verify.yml`：CI 标准验证工作流
-- `docker/Dockerfile.*`：关键服务容器化模板
+### 分层收敛方向
 
-### 架构定位
+为了避免“知识库”和“执行层”继续交织，仓库按以下职责收敛：
 
-Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将其视为单独工具。其目标是把工程知识、执行入口、验证回路和 agent 编排统一沉淀在仓库内，使开发者与 agent 共享同一套事实来源和交付流程。
+- 事实源只说明项目是什么、规则是什么、当前状态是什么，不复制脚本细节。
+- 执行入口只说明怎么启动、怎么操作、怎么排障，不重新定义长期规则。
+- 验证守门只负责把规则变成可重复失败的检查，不承载业务架构说明。
+- 任务过程只记录本次复杂工作如何推进，不替代长期规范。
+- 编排资产只引用事实源和执行入口，不成为新的规则库。
 
-### 架构组成
+### 文档与目录职责
 
-1. **知识层**
+| 层 | 主要位置 | 职责 | 不承担 |
+|----|----------|------|--------|
+| 事实源 | `README.md`、`ARCHITECTURE.md`、`QUALITY_SCORE.md`、`openspec/specs/`、`artemis-modules/*/*-client` | 项目定位、模块边界、稳定规则、质量状态、内部契约 | 复制完整脚本清单和一次性执行步骤 |
+| 执行入口 | `scripts/dev/`、`scripts/smoke/`、`docs/runbooks/` | 启动服务、查看状态、smoke、打包、镜像、部署、回滚、常见任务操作步骤 | 定义模块边界、契约规则和默认 workflow 长期约束 |
+| 验证守门 | `scripts/harness/`、`mvn verify`、`.github/workflows/verify.yml`、`.github/workflows/governance.yml`、`docs/governance/DOC_FRESHNESS_POLICY.md` | 增量验证、全量验证、契约/API 文档同步、重复模式扫描、CI 与文档新鲜度守门 | 替代人工需求判断或记录复杂任务计划 |
+| 任务过程 | `docs/exec-plans/active/`、`docs/exec-plans/completed/`、`docs/exec-plans/templates/` | 复杂任务的背景、范围、步骤、风险、验证和归档 | 替代 OpenSpec 里的稳定规则 |
+| 编排资产 | `artemis-symphony/`、`artemis-symphony/WORKFLOW.md.example`、`artemis-symphony/skills/`、`artemis-symphony/prompts/` | issue 拉取、隔离 workspace、Codex 执行、进度回写、常见任务提示和自评模板 | 成为新的知识库或规范事实来源 |
+| 运行与交付资产 | `docker/`、`config/nacos/`、`scripts/e2e/`、`docs/reports/deploy-drills/` | 本地依赖、配置模板、镜像构建、真实 e2e 和部署/回滚演练记录 | 定义业务需求和领域模型 |
 
-   - `README.md`：仓库总览、启动方式与工程入口
-   - `AGENTS.md`：agent 稳定入口与执行约束
-   - `ARCHITECTURE.md`：模块边界、服务拓扑、依赖方向
-   - `QUALITY_SCORE.md`：当前质量状态、封板结论与扩展方向
-   - `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`：当前项目完成程度、阶段里程碑与后续演进路线
-   - `artemis-modules/*/*-client`：内部服务间 Dubbo client 契约
-   - `openspec/specs/`：分层、测试、工程约束等规范事实
+### 常见问题定位
 
-2. **执行层**
-
-  - `scripts/dev/`：基础设施、服务启动、健康检查、日志查看
-  - `scripts/dev/new-domain-service.sh`：新增领域服务脚手架入口
-  - `scripts/dev/package-service.sh`：统一服务打包入口
-  - `scripts/dev/build-image.sh`：统一镜像构建入口
-  - `scripts/dev/service-status.sh`：服务状态总览入口
-  - `scripts/dev/deploy-drill.sh`：部署演练入口
-  - `scripts/dev/rollback-drill.sh`：回滚演练入口
-  - `scripts/dev/wait-http.sh`：HTTP 等待与启动断言入口
-  - `scripts/dev/check-service-config.sh`：配置模板检查入口
-  - `scripts/dev/check-service-readiness.sh`：服务就绪断言入口
-  - `scripts/smoke/`：system、auth、gateway、symphony 等最小 smoke 入口
-  - `docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`：启动顺序与 smoke 组合标准
-
-3. **验证层**
-
-  - `scripts/harness/verify-changed.sh`：增量验证入口
-  - `scripts/harness/full-verify.sh`：仓库级全量验证入口
-  - `scripts/harness/run-governance-checks.sh`：治理与文档守门入口
-  - `scripts/harness/check-capability-package-structure.sh`：app/domain/infra 能力子包结构守门
-  - `scripts/harness/check-service-catalog.sh`：领域服务运行资产守门
-  - `scripts/harness/check-symphony-assets.sh`：Symphony 任务资产守门
-  - `mvn verify`：测试、Spotless、Checkstyle、SpotBugs 统一质量门
-  - `docs/harness-engineering/DOC_FRESHNESS_POLICY.md`：核心文档审阅 cadence 与防漂移规则
-  - `.github/workflows/verify.yml`：CI 中的 OpenSpec 差异检查、全量验证与镜像构建
-  - `.github/workflows/governance.yml`：周期性治理与文档整理守门
-
-4. **编排层**
-
-   - `artemis-symphony`：任务编排、隔离 workspace、状态观测与 workflow 驱动执行
-   - `artemis-symphony/WORKFLOW.md.example`：编排器默认读取的仓库级执行模型
-   - `docs/exec-plans/`：复杂任务计划、决策与归档目录
+| 你想了解 | 优先读 |
+|----------|--------|
+| 这个项目是什么、有哪些模块 | `README.md`、`ARCHITECTURE.md` |
+| 当前做到什么程度、还有什么缺口 | `QUALITY_SCORE.md`、`docs/reports/PROJECT_PROGRESS_REPORT.md` |
+| 某条规则是否是长期约束 | `openspec/specs/` |
+| 一个需求应该改代码、OpenSpec、runbook 还是 Symphony | `docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md` |
+| 如何新增领域服务、Dubbo client 或 ArchUnit 规则 | `docs/runbooks/`、`artemis-symphony/skills/` |
+| 如何启动、smoke、打包、部署或回滚 | `scripts/dev/`、`scripts/smoke/`、`docs/runbooks/SERVICE_SMOKE_RUNBOOK.md`、`docs/runbooks/DEPLOY_AND_ROLLBACK_RUNBOOK.md` |
+| 如何验证本次改动 | `scripts/harness/verify-changed.sh`；高风险或跨模块改动使用 `scripts/harness/full-verify.sh` |
+| 如何理解 agent 编排 | `artemis-symphony/README.md`、`artemis-symphony/WORKFLOW.md.example` |
 
 ### 标准工作流
 

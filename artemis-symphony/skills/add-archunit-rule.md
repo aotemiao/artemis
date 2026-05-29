@@ -4,7 +4,7 @@
 
 ## 先读
 
-- `docs/harness-engineering/ADD_ARCHUNIT_RULE_RUNBOOK.md`
+- `docs/runbooks/ADD_ARCHUNIT_RULE_RUNBOOK.md`
 - 对应 OpenSpec
 
 ## 输出要求

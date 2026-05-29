@@ -1,7 +1,7 @@
 # Docs Index
 
 Status: maintained
-Last Reviewed: 2026-03-25
+Last Reviewed: 2026-05-29
 Review Cadence: 90 days
 
 这个目录是 Artemis 的文档总入口，目标是让人和 agent 都能快速找到“现在该读哪份文档”。
@@ -24,38 +24,47 @@ Review Cadence: 90 days
 - `api/README.md`
   对外 REST API 统一入口、联调通用约定、各模块 API 文档导航
 
-## Harness Engineering
+## Governance
 
-- `harness-engineering/README.md`
-  Harness 文档目录说明
-- `harness-engineering/CHECKLIST.md`
+- `governance/CHECKLIST.md`
   当前落地清单
-- `harness-engineering/ROADMAP.md`
-  阶段路线图
-- `harness-engineering/PROJECT_PROGRESS_REPORT.md`
-  当前项目完成程度与后续演进路线
-- `harness-engineering/SERVICE_SMOKE_RUNBOOK.md`
-  服务启动顺序与 smoke 标准入口
-- `harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md`
-  新增领域服务 runbook
-- `harness-engineering/ADD_DUBBO_CLIENT_RUNBOOK.md`
-  新增 Dubbo client runbook
-- `harness-engineering/ADD_ARCHUNIT_RULE_RUNBOOK.md`
-  ArchUnit 约束 runbook
-- `harness-engineering/AGENT_REVIEW_LOOP.md`
-  agent 自评与 reviewer 回路
-- `harness-engineering/DOC_FRESHNESS_POLICY.md`
+- `governance/DOC_FRESHNESS_POLICY.md`
   核心文档审阅 cadence 与防漂移守门
-- `harness-engineering/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
-  打包、镜像、部署与回滚 runbook
-- `harness-engineering/deploy-drills/`
-  部署与回滚演练报告目录
-- `harness-engineering/SYMPHONY_TROUBLESHOOTING.md`
-  Symphony 常见故障与排查路径
-- `harness-engineering/QUALITY_ISSUE_STANDARD.md`
+- `governance/QUALITY_ISSUE_STANDARD.md`
   质量问题归档与关闭标准
-- `harness-engineering/quality-issues/`
+- `governance/quality-issues/`
   质量问题记录目录
+
+## Runbooks
+
+- `runbooks/SERVICE_SMOKE_RUNBOOK.md`
+  服务启动顺序与 smoke 标准入口
+- `runbooks/ADD_DOMAIN_SERVICE_RUNBOOK.md`
+  新增领域服务 runbook
+- `runbooks/ADD_DUBBO_CLIENT_RUNBOOK.md`
+  新增 Dubbo client runbook
+- `runbooks/ADD_ARCHUNIT_RULE_RUNBOOK.md`
+  ArchUnit 约束 runbook
+- `runbooks/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
+  打包、镜像、部署与回滚 runbook
+- `runbooks/SYMPHONY_TROUBLESHOOTING.md`
+  Symphony 常见故障与排查路径
+
+## Agent Workflow
+
+- `agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`
+  默认 agent 开发分流方式与需求受理入口
+- `agent-workflow/AGENT_REVIEW_LOOP.md`
+  agent 自评与 reviewer 回路
+
+## Reports
+
+- `reports/ROADMAP.md`
+  阶段路线图
+- `reports/PROJECT_PROGRESS_REPORT.md`
+  当前项目完成程度与后续演进路线
+- `reports/deploy-drills/`
+  部署与回滚演练报告目录
 
 ## Execution Plans
 

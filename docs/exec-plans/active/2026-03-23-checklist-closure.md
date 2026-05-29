@@ -2,7 +2,7 @@
 
 ## 背景
 
-`docs/harness-engineering/CHECKLIST.md` 中仍保留一批 `[~]` 与 `[ ]` 项。它们虽然不影响上一轮封板结论，但已经成为后续扩展增强的主要缺口：约束还没有完全系统化为测试与脚本，agent 工作流资产还不够细，周期性治理与重复模式控制也还没有成为仓库默认回路。
+`docs/governance/CHECKLIST.md` 中仍保留一批 `[~]` 与 `[ ]` 项。它们虽然不影响上一轮封板结论，但已经成为后续扩展增强的主要缺口：约束还没有完全系统化为测试与脚本，agent 工作流资产还不够细，周期性治理与重复模式控制也还没有成为仓库默认回路。
 
 ## 目标
 
@@ -18,7 +18,10 @@
 
 ## 范围
 
-- `docs/harness-engineering/`
+- `docs/governance/`
+- `docs/runbooks/`
+- `docs/reports/`
+- `docs/agent-workflow/`
 - `docs/exec-plans/`
 - `scripts/dev/`
 - `scripts/harness/`

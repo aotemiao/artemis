@@ -22,7 +22,7 @@
 - `artemis-api/`
 - `scripts/dev/new-domain-service.sh`
 - `scripts/harness/check-domain-service-scaffold.sh`
-- `docs/harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md`
+- `docs/runbooks/ADD_DOMAIN_SERVICE_RUNBOOK.md`
 - `openspec/specs/repository-structure/spec.md`
 
 ## 验证

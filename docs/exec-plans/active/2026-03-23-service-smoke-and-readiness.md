@@ -20,12 +20,14 @@
 
 - `scripts/dev/`
 - `scripts/smoke/`
-- `docs/harness-engineering/`
+- `docs/runbooks/`
+- `docs/governance/`
+- `docs/reports/`
 - `AGENTS.md`
 - `README.md`
 - `QUALITY_SCORE.md`
-- `docs/harness-engineering/CHECKLIST.md`
-- `docs/harness-engineering/ROADMAP.md`
+- `docs/governance/CHECKLIST.md`
+- `docs/reports/ROADMAP.md`
 
 ## 分步任务
 

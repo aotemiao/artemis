@@ -6,7 +6,7 @@
 
 ## What Changes
 
-- 新增仓库级工作流文档 `docs/harness-engineering/AGENT_DEVELOPMENT_WORKFLOW.md`，明确 `artemis-symphony`、Harness Engineering、OpenSpec 与执行计划的默认分工。
+- 新增仓库级工作流文档 `docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`，明确 `artemis-symphony`、Harness Engineering、OpenSpec 与执行计划的默认分工。
 - 新增 OpenSpec 能力 `agent-development-workflow`，把需求分流、模板与默认回写规则固化为稳定约束。
 - 新增 Symphony prompt 资产 `artemis-symphony/prompts/agent-requirement-intake.md`，让“先结构化需求再进入实现”成为可复用动作。
 - 为本次规则变化补 OpenSpec change 目录，保留 proposal / design / tasks 轨迹。
@@ -23,7 +23,7 @@
 
 ## Impact
 
-- `docs/harness-engineering/` 新增一份面向人和 agent 共用的工作流说明
+- `docs/agent-workflow/` 新增一份面向人和 agent 共用的工作流说明
 - `openspec/specs/` 新增一份稳定规范，同时在 `openspec/changes/` 保留变更轨迹
 - `artemis-symphony/prompts/` 新增一个可直接复用的需求受理 prompt
 - 不影响业务代码、运行时配置、数据库或服务契约

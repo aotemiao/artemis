@@ -1,7 +1,7 @@
 # Artemis Agent Guide
 
 Status: maintained
-Last Reviewed: 2026-04-28
+Last Reviewed: 2026-05-29
 Review Cadence: 90 days
 
 本文件是仓库内 agent 的稳定入口，目标是让任何自动化执行都先找到地图，再开始改代码。
@@ -14,9 +14,9 @@ Review Cadence: 90 days
    了解微服务拓扑、DDD/COLA 分层、模块边界与常见变更入口。
 3. `QUALITY_SCORE.md`
    了解当前质量短板、优先修复方向与“不要继续放大的问题”。
-4. `docs/harness-engineering/CHECKLIST.md`
+4. `docs/governance/CHECKLIST.md`
    了解本仓库对 Harness Engineering 的落地清单与当前完成度。
-5. `docs/harness-engineering/AGENT_DEVELOPMENT_WORKFLOW.md`
+5. `docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`
    了解默认的 agent 开发分流方式。
 6. `openspec/specs/`
    读取与本次改动直接相关的规范，避免只看局部代码做出越界修改。
@@ -42,13 +42,13 @@ Review Cadence: 90 days
 - 工程规则、测试约束、容器化、环境配置：
   先读 `openspec/specs/engineering-constraints/spec.md`
 - 内部客户端聚合、BOM 或新增领域服务模板：
-  先读 `openspec/specs/repository-structure/spec.md`、`docs/harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md`
+  先读 `openspec/specs/repository-structure/spec.md`、`docs/runbooks/ADD_DOMAIN_SERVICE_RUNBOOK.md`
 - 契约文档、覆盖率、readiness 或治理守门：
   先读 `openspec/specs/contract-doc-guardrails/spec.md`、`openspec/specs/service-readiness-automation/spec.md`、`openspec/specs/harness-governance/spec.md`
 - 项目进度、阶段汇报或演进路线：
-  先读 `QUALITY_SCORE.md`、`docs/harness-engineering/ROADMAP.md`、`docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`、相关 `docs/exec-plans/`
+  先读 `QUALITY_SCORE.md`、`docs/reports/ROADMAP.md`、`docs/reports/PROJECT_PROGRESS_REPORT.md`、相关 `docs/exec-plans/`
 - 编码代理编排与自动化：
-  先读 `artemis-symphony/README.md`、`docs/harness-engineering/AGENT_DEVELOPMENT_WORKFLOW.md`、`docs/harness-engineering/ROADMAP.md`、`openspec/specs/agent-task-assets/spec.md`
+  先读 `artemis-symphony/README.md`、`docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`、`docs/reports/ROADMAP.md`、`openspec/specs/agent-task-assets/spec.md`
 - 复杂任务或多步迁移：
   先在 `docs/exec-plans/active/` 建立或更新执行计划
 
@@ -107,14 +107,14 @@ Review Cadence: 90 days
 - 网关 RBAC smoke：`scripts/smoke/gateway-system-admin.sh`
 - Symphony 状态 smoke：`scripts/smoke/symphony-state.sh`
 - 聚合 smoke：`scripts/smoke/all-services.sh`
-- 服务 smoke runbook：`docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`
-- 新增领域服务 runbook：`docs/harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md`
-- 新增 Dubbo client runbook：`docs/harness-engineering/ADD_DUBBO_CLIENT_RUNBOOK.md`
-- ArchUnit 约束 runbook：`docs/harness-engineering/ADD_ARCHUNIT_RULE_RUNBOOK.md`
-- Agent review loop：`docs/harness-engineering/AGENT_REVIEW_LOOP.md`
-- 质量问题标准：`docs/harness-engineering/QUALITY_ISSUE_STANDARD.md`
-- 部署 / 回滚 runbook：`docs/harness-engineering/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
-- Symphony 故障 runbook：`docs/harness-engineering/SYMPHONY_TROUBLESHOOTING.md`
+- 服务 smoke runbook：`docs/runbooks/SERVICE_SMOKE_RUNBOOK.md`
+- 新增领域服务 runbook：`docs/runbooks/ADD_DOMAIN_SERVICE_RUNBOOK.md`
+- 新增 Dubbo client runbook：`docs/runbooks/ADD_DUBBO_CLIENT_RUNBOOK.md`
+- ArchUnit 约束 runbook：`docs/runbooks/ADD_ARCHUNIT_RULE_RUNBOOK.md`
+- Agent review loop：`docs/agent-workflow/AGENT_REVIEW_LOOP.md`
+- 质量问题标准：`docs/governance/QUALITY_ISSUE_STANDARD.md`
+- 部署 / 回滚 runbook：`docs/runbooks/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
+- Symphony 故障 runbook：`docs/runbooks/SYMPHONY_TROUBLESHOOTING.md`
 
 ## 产出要求
 
