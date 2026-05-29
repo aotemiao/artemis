@@ -127,7 +127,7 @@ Review Cadence: 90 days
 6. 判断是否需要 Symphony prompt / skill / workflow 资产补强
 7. 成组交付代码、测试、文档、脚本与规范
 8. 优先执行 `scripts/harness/verify-changed.sh`
-9. 交付前按 `docs/harness-engineering/AGENT_REVIEW_LOOP.md` 做自评
+9. 交付前按 `docs/agent-workflow/AGENT_REVIEW_LOOP.md` 做自评
 
 ## 常见例子
 

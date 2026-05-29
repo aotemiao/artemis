@@ -1,7 +1,7 @@
 # API Docs Index
 
 Status: maintained
-Last Reviewed: 2026-04-30
+Last Reviewed: 2026-05-29
 Review Cadence: 90 days
 
 这个目录是 Artemis 对外 REST API 文档的统一入口，面向前端开发、联调测试与调用方排障。
@@ -20,53 +20,53 @@ Review Cadence: 90 days
 
 ### 认证服务
 
-- [认证服务 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-auth/AUTH_API.md)
+- [认证服务 API](../../artemis-auth/AUTH_API.md)
   认证、登出、在线用户、注册、刷新、动态租户切换。
 
 ### 系统服务
 
-- [字典类型 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/LOOKUP_API.md)
+- [字典类型 API](../../artemis-modules/artemis-system/LOOKUP_API.md)
   字典类型与字典项查询。
-- [系统用户 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/USER_API.md)
+- [系统用户 API](../../artemis-modules/artemis-system/USER_API.md)
   用户目录、角色绑定。
-- [系统角色 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/ROLE_API.md)
+- [系统角色 API](../../artemis-modules/artemis-system/ROLE_API.md)
   角色目录、菜单权限、数据权限。
-- [菜单 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/MENU_API.md)
+- [菜单 API](../../artemis-modules/artemis-system/MENU_API.md)
   菜单树、权限点维护。
-- [参数配置 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/CONFIG_API.md)
+- [参数配置 API](../../artemis-modules/artemis-system/CONFIG_API.md)
   系统参数配置。
-- [通知公告 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/NOTICE_API.md)
+- [通知公告 API](../../artemis-modules/artemis-system/NOTICE_API.md)
   公告管理。
-- [部门 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/DEPARTMENT_API.md)
+- [部门 API](../../artemis-modules/artemis-system/DEPARTMENT_API.md)
   部门树与数据权限基础数据。
-- [岗位 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/POST_API.md)
+- [岗位 API](../../artemis-modules/artemis-system/POST_API.md)
   岗位目录。
-- [租户应用 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/CLIENT_API.md)
+- [租户应用 API](../../artemis-modules/artemis-system/CLIENT_API.md)
   OAuth 客户端或租户应用配置。
-- [登录日志 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/LOGIN_INFO_API.md)
+- [登录日志 API](../../artemis-modules/artemis-system/LOGIN_INFO_API.md)
   登录日志查询。
-- [操作日志 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/OPER_LOG_API.md)
+- [操作日志 API](../../artemis-modules/artemis-system/OPER_LOG_API.md)
   操作日志查询。
-- [租户 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/TENANT_API.md)
+- [租户 API](../../artemis-modules/artemis-system/TENANT_API.md)
   租户管理。
-- [租户套餐 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/TENANT_PACKAGE_API.md)
+- [租户套餐 API](../../artemis-modules/artemis-system/TENANT_PACKAGE_API.md)
   租户套餐管理。
-- [内部认证 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-system/INTERNAL_AUTH_API.md)
+- [内部认证 API](../../artemis-modules/artemis-system/INTERNAL_AUTH_API.md)
   仅供内部服务调用，不经网关对外暴露。
 
 ### 资源服务
 
-- [资源服务 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-resource/SERVICE_API.md)
+- [资源服务 API](../../artemis-modules/artemis-resource/SERVICE_API.md)
   OSS 文件、OSS 配置、站内消息。
 
 ### 工作流服务
 
-- [工作流服务 API](/C:/Users/aotem/IdeaProjects/artemis/artemis-modules/artemis-workflow/SERVICE_API.md)
+- [工作流服务 API](../../artemis-modules/artemis-workflow/SERVICE_API.md)
   流程分类、SpEL 表达式、流程定义。
 
 ### 网关与鉴权补充
 
-- [网关授权约定](/C:/Users/aotem/IdeaProjects/artemis/artemis-gateway/GATEWAY_AUTHORIZATION.md)
+- [网关授权约定](../../artemis-gateway/GATEWAY_AUTHORIZATION.md)
   白名单、登录后透传头、最小 RBAC、内部接口阻断规则。
 
 ## 通用约定
@@ -81,7 +81,7 @@ Review Cadence: 90 days
 ### 鉴权方式
 
 - 除白名单路径外，所有网关接口默认要求登录。
-- 当前白名单见 [网关授权约定](/C:/Users/aotem/IdeaProjects/artemis/artemis-gateway/GATEWAY_AUTHORIZATION.md)。
+- 当前白名单见 [网关授权约定](../../artemis-gateway/GATEWAY_AUTHORIZATION.md)。
 - 已登录请求通常通过 Sa-Token 的 token 机制鉴权；联调时应携带登录接口返回的 token。
 - 网关会向下游服务透传：
   - `X-User-Id`

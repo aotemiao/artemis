@@ -12,9 +12,9 @@ from pathlib import Path
 import sys
 
 repo = Path.cwd()
-base = repo / "docs/harness-engineering/quality-issues"
+base = repo / "docs/governance/quality-issues"
 required = [
-    repo / "docs/harness-engineering/QUALITY_ISSUE_STANDARD.md",
+    repo / "docs/governance/QUALITY_ISSUE_STANDARD.md",
     base / "README.md",
     base / "active/README.md",
     base / "archive/README.md",

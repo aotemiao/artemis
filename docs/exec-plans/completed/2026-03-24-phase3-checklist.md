@@ -12,7 +12,7 @@
 - [x] 新增 `scripts/dev/service-status.sh`
 - [x] 新增 `scripts/dev/deploy-drill.sh`
 - [x] 新增 `scripts/dev/rollback-drill.sh`
-- [x] 新增 `docs/harness-engineering/deploy-drills/` 报告目录
+- [x] 新增 `docs/reports/deploy-drills/` 报告目录
 - [x] 回写部署 / 回滚 runbook、README、ARCHITECTURE 与 docs 索引
 
 ## 已交付产物
@@ -20,7 +20,7 @@
 - `scripts/dev/service-status.sh`
 - `scripts/dev/deploy-drill.sh`
 - `scripts/dev/rollback-drill.sh`
-- `docs/harness-engineering/deploy-drills/README.md`
+- `docs/reports/deploy-drills/README.md`
 
 ## 结果
 

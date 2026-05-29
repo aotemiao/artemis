@@ -51,9 +51,9 @@ Before changing code, read these repository-local sources of truth:
 1. `AGENTS.md`
 2. `ARCHITECTURE.md`
 3. `QUALITY_SCORE.md`
-4. `docs/harness-engineering/CHECKLIST.md`
+4. `docs/governance/CHECKLIST.md`
 5. Relevant files under `openspec/specs/`
-6. `docs/harness-engineering/AGENT_DEVELOPMENT_WORKFLOW.md`
+6. `docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`
 7. Relevant active plan under `docs/exec-plans/active/`, if one exists
 8. `artemis-symphony/prompts/agent-requirement-intake.md`
 
@@ -81,7 +81,7 @@ Execution rules:
 - If a task changes stable behavior rules, constraints, contracts, or repository workflow, update the relevant OpenSpec artifacts in the same change whenever practical.
 - For complex implementation work, create or update an execution plan under `docs/exec-plans/active/`.
 - When a task both changes rules and requires staged delivery, use both: OpenSpec artifacts describe the rule change, and the execution plan tracks implementation, risk, and verification.
-- Before the final handoff, answer the self-review questions in `docs/harness-engineering/AGENT_REVIEW_LOOP.md` and use `artemis-symphony/prompts/self-review-and-handoff.md` as the output template.
+- Before the final handoff, answer the self-review questions in `docs/agent-workflow/AGENT_REVIEW_LOOP.md` and use `artemis-symphony/prompts/self-review-and-handoff.md` as the output template.
 - When the task is Phase-sized or multi-checklist, use `artemis-symphony/prompts/phase-delivery-plan.md` to structure the plan.
 
 Complete the task described in the issue.

@@ -13,7 +13,7 @@
 
 - `docs/system-requirements-ddd.md`：`IAM-006 菜单和按钮权限`、权限码表、核心数据对象 `sys_menu` / `sys_role_menu`
 - `docs/requirements-acceptance-checklist.md`：`UC-IAM-007 菜单与权限`、`BR-IAM-013 菜单同父级名称唯一，路由唯一`
-- `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`：Phase B 建议继续补齐菜单、部门、租户中的一组核心主数据能力
+- `docs/reports/PROJECT_PROGRESS_REPORT.md`：Phase B 建议继续补齐菜单、部门、租户中的一组核心主数据能力
 - `openspec/specs/ddd-cola-layering/spec.md`：继续遵循 `client / adapter / app / domain / infra / start` 分层与依赖方向
 - `openspec/specs/repository-structure/spec.md`：内部调用通过 colocated `*-client`，不绕过实现层
 - `openspec/specs/lookup-tdd-testing/spec.md`：新增 CmdExe / QryExe / Gateway 时同步补单元测试与集成测试

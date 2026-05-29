@@ -8,9 +8,9 @@ Review Cadence: 90 days
 
 ## 目录约定
 
-- `docs/harness-engineering/quality-issues/active/`
+- `docs/governance/quality-issues/active/`
   仍在处理中的质量问题
-- `docs/harness-engineering/quality-issues/archive/`
+- `docs/governance/quality-issues/archive/`
   已关闭或已接受的历史问题
 
 ## 何时建档

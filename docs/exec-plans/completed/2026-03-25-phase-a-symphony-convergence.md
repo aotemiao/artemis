@@ -43,10 +43,10 @@
 - `docs/exec-plans/completed/2026-03-25-symphony-linear-progress-comments.md`
 - `docs/exec-plans/completed/2026-03-25-symphony-reference-alignment.md`
 - `docs/exec-plans/completed/2026-03-25-symphony-live-e2e-alignment.md`
-- `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`
+- `docs/reports/PROJECT_PROGRESS_REPORT.md`
 - `artemis-symphony/README.md`
 - `artemis-symphony/WORKFLOW.md.example`
-- `docs/harness-engineering/SYMPHONY_TROUBLESHOOTING.md`
+- `docs/runbooks/SYMPHONY_TROUBLESHOOTING.md`
 
 验证入口：
 
@@ -87,5 +87,5 @@
 ## 完成后需要更新的仓库事实
 
 - 将 Phase A 相关子计划迁移到 `docs/exec-plans/completed/`
-- 更新 `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md` 中 Phase A 的状态与完成度判断
+- 更新 `docs/reports/PROJECT_PROGRESS_REPORT.md` 中 Phase A 的状态与完成度判断
 - 若评论回写规则或默认 workflow 约束发生稳定变化，同步更新相关 OpenSpec 与 runbook

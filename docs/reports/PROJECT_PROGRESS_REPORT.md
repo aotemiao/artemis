@@ -1,7 +1,7 @@
 # Artemis 项目进度汇报
 
 Status: maintained
-Last Reviewed: 2026-04-28
+Last Reviewed: 2026-05-29
 Review Cadence: 30 days
 
 ## 汇总结论
@@ -13,8 +13,8 @@ Review Cadence: 30 days
 ## 主要依据
 
 - `QUALITY_SCORE.md`
-- `docs/harness-engineering/CHECKLIST.md`
-- `docs/harness-engineering/ROADMAP.md`
+- `docs/governance/CHECKLIST.md`
+- `docs/reports/ROADMAP.md`
 - `docs/exec-plans/completed/2026-03-24-artemis-evolution-with-local-references.md`
 - `docs/exec-plans/completed/2026-03-24-phase1-checklist.md`
 - `docs/exec-plans/completed/2026-03-24-phase2-checklist.md`

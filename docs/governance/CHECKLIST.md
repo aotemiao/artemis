@@ -22,9 +22,9 @@ Review Cadence: 90 days
 - `[x]` 提供根入口文档 `AGENTS.md`
 - `[x]` 提供全局架构地图 `ARCHITECTURE.md`
 - `[x]` 提供质量看板 `QUALITY_SCORE.md`
-- `[x]` 提供 Harness 专项清单 `docs/harness-engineering/CHECKLIST.md`
-- `[x]` 提供阶段路线图 `docs/harness-engineering/ROADMAP.md`
-- `[x]` 提供项目进度汇报 `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`
+- `[x]` 提供 Harness 专项清单 `docs/governance/CHECKLIST.md`
+- `[x]` 提供阶段路线图 `docs/reports/ROADMAP.md`
+- `[x]` 提供项目进度汇报 `docs/reports/PROJECT_PROGRESS_REPORT.md`
 - `[x]` 提供执行计划目录 `docs/exec-plans/`
 - `[x]` 提供执行计划模板 `docs/exec-plans/templates/execution-plan-template.md`
 - `[x]` OpenSpec 已补更多具体场景（治理、agent 资产、契约文档、readiness）

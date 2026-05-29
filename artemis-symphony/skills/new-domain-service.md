@@ -4,7 +4,7 @@
 
 ## 先读
 
-- `docs/harness-engineering/ADD_DOMAIN_SERVICE_RUNBOOK.md`
+- `docs/runbooks/ADD_DOMAIN_SERVICE_RUNBOOK.md`
 - `openspec/specs/ddd-cola-layering/spec.md`
 - `openspec/specs/engineering-constraints/spec.md`
 

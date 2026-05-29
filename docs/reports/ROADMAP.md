@@ -1,7 +1,7 @@
 # Harness Engineering Roadmap
 
 Status: maintained
-Last Reviewed: 2026-03-23
+Last Reviewed: 2026-05-29
 Review Cadence: 90 days
 
 ## 目标
@@ -17,7 +17,10 @@ Review Cadence: 90 days
 - `AGENTS.md`
 - `ARCHITECTURE.md`
 - `QUALITY_SCORE.md`
-- `docs/harness-engineering/`
+- `docs/governance/`
+- `docs/runbooks/`
+- `docs/reports/`
+- `docs/agent-workflow/`
 - `docs/exec-plans/`
 - `scripts/dev/`
 - `scripts/harness/`

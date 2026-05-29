@@ -1,7 +1,7 @@
 # Doc Freshness Policy
 
 Status: maintained
-Last Reviewed: 2026-03-25
+Last Reviewed: 2026-05-29
 Review Cadence: 90 days
 
 本文件用于把“文档不要漂移”这件事变成仓库内的明确规则，而不是依赖维护者记忆。
@@ -16,13 +16,20 @@ Review Cadence: 90 days
 - `QUALITY_SCORE.md`
 - `docs/README.md`
 - `docs/exec-plans/README.md`
-- `docs/harness-engineering/README.md`
-- `docs/harness-engineering/CHECKLIST.md`
-- `docs/harness-engineering/ROADMAP.md`
-- `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`
-- `docs/harness-engineering/SERVICE_SMOKE_RUNBOOK.md`
-- `docs/harness-engineering/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
-- `docs/harness-engineering/SYMPHONY_TROUBLESHOOTING.md`
+- `docs/governance/CHECKLIST.md`
+- `docs/reports/ROADMAP.md`
+- `docs/reports/PROJECT_PROGRESS_REPORT.md`
+- `docs/runbooks/SERVICE_SMOKE_RUNBOOK.md`
+- `docs/runbooks/ADD_DOMAIN_SERVICE_RUNBOOK.md`
+- `docs/runbooks/ADD_DUBBO_CLIENT_RUNBOOK.md`
+- `docs/runbooks/ADD_ARCHUNIT_RULE_RUNBOOK.md`
+- `docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`
+- `docs/agent-workflow/AGENT_REVIEW_LOOP.md`
+- `docs/runbooks/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
+- `docs/runbooks/SYMPHONY_TROUBLESHOOTING.md`
+- `docs/governance/QUALITY_ISSUE_STANDARD.md`
+- `docs/governance/quality-issues/`
+- `docs/reports/deploy-drills/`
 
 ## 必须满足的规则
 

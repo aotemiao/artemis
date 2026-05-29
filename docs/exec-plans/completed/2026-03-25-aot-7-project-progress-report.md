@@ -7,7 +7,7 @@
 
 完成标准：
 
-- `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md` 能回答“现在完成到哪一步”和“接下来怎么推进”
+- `docs/reports/PROJECT_PROGRESS_REPORT.md` 能回答“现在完成到哪一步”和“接下来怎么推进”
 - 汇报口径与 `QUALITY_SCORE.md`、`ROADMAP.md`、已归档 / 进行中的执行计划保持一致
 - 至少执行一次可重复的文档类验证，避免新增漂移
 
@@ -36,10 +36,10 @@
 - `ARCHITECTURE.md`
 - `README.md`
 - `docs/README.md`
-- `docs/harness-engineering/README.md`
-- `docs/harness-engineering/CHECKLIST.md`
-- `docs/harness-engineering/DOC_FRESHNESS_POLICY.md`
-- `docs/harness-engineering/PROJECT_PROGRESS_REPORT.md`
+- `README.md`
+- `docs/governance/CHECKLIST.md`
+- `docs/governance/DOC_FRESHNESS_POLICY.md`
+- `docs/reports/PROJECT_PROGRESS_REPORT.md`
 - `docs/exec-plans/completed/2026-03-25-aot-7-project-progress-report.md`
 
 验证入口：
