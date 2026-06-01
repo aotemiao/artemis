@@ -13,6 +13,7 @@ docs=(
   "ARCHITECTURE.md"
   "QUALITY_SCORE.md"
   "docs/README.md"
+  "docs/api/README.md"
   "docs/exec-plans/README.md"
   "docs/governance/CHECKLIST.md"
   "docs/reports/ROADMAP.md"
@@ -28,8 +29,6 @@ docs=(
   "docs/runbooks/SYMPHONY_TROUBLESHOOTING.md"
   "docs/governance/QUALITY_ISSUE_STANDARD.md"
   "docs/governance/quality-issues/README.md"
-  "docs/governance/quality-issues/active/README.md"
-  "docs/governance/quality-issues/archive/README.md"
   "docs/governance/quality-issues/archive/2026-03-23-credential-request-duplication.md"
   "docs/reports/deploy-drills/README.md"
 )

@@ -1,7 +1,7 @@
 # Doc Freshness Policy
 
 Status: maintained
-Last Reviewed: 2026-05-29
+Last Reviewed: 2026-06-01
 Review Cadence: 90 days
 
 本文件用于把“文档不要漂移”这件事变成仓库内的明确规则，而不是依赖维护者记忆。
@@ -15,6 +15,7 @@ Review Cadence: 90 days
 - `ARCHITECTURE.md`
 - `QUALITY_SCORE.md`
 - `docs/README.md`
+- `docs/api/README.md`
 - `docs/exec-plans/README.md`
 - `docs/governance/CHECKLIST.md`
 - `docs/reports/ROADMAP.md`
@@ -28,8 +29,9 @@ Review Cadence: 90 days
 - `docs/runbooks/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
 - `docs/runbooks/SYMPHONY_TROUBLESHOOTING.md`
 - `docs/governance/QUALITY_ISSUE_STANDARD.md`
-- `docs/governance/quality-issues/`
-- `docs/reports/deploy-drills/`
+- `docs/governance/quality-issues/README.md`
+- `docs/governance/quality-issues/archive/2026-03-23-credential-request-duplication.md`
+- `docs/reports/deploy-drills/README.md`
 
 ## 必须满足的规则
 
