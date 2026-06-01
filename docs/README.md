@@ -63,6 +63,16 @@ Review Cadence: 90 days
   菜单权限 MVP 的示例 Spec，用于展示验收标准和验证映射写法。
 - `completed/2026-06-01-tenant-creation-initialization.md`
   租户创建与初始化能力的真实业务 Feature Spec 归档。
+- `completed/2026-06-02-user-directory-authentication.md`
+  用户目录与真实凭证认证能力的 Feature Spec 归档。
+- `completed/2026-06-02-role-directory-user-bindings.md`
+  角色目录与用户角色绑定能力的 Feature Spec 归档。
+- `completed/2026-06-02-internal-authorization-snapshot.md`
+  内部授权快照能力的 Feature Spec 归档。
+- `completed/2026-06-02-gateway-minimal-rbac.md`
+  网关最小 RBAC 能力的 Feature Spec 归档。
+- `completed/2026-06-02-menu-permission-mvp.md`
+  菜单权限 MVP 的真实业务 Feature Spec 归档。
 - `active/`
   进行中业务需求 Spec。
 - `completed/`

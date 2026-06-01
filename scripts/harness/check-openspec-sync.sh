@@ -30,6 +30,14 @@ elif [[ "$mode" == "range" ]]; then
     usage
     exit 1
   fi
+  if ! git rev-parse --verify --quiet "$base_ref^{commit}" >/dev/null; then
+    echo "Base ref is not available locally; skipping OpenSpec range check: $base_ref"
+    exit 0
+  fi
+  if ! git rev-parse --verify --quiet "$head_ref^{commit}" >/dev/null; then
+    echo "Head ref is not available locally; skipping OpenSpec range check: $head_ref"
+    exit 0
+  fi
   changed_files="$(git diff --name-only "$base_ref" "$head_ref")"
 else
   usage
