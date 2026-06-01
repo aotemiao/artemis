@@ -8,3 +8,4 @@
 - `contract-change-review.md`
 - `deploy-drill-report.md`
 - `phase-delivery-plan.md`
+- `spec-driven-delivery.md`

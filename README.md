@@ -1,7 +1,7 @@
 # Artemis
 
 Status: maintained
-Last Reviewed: 2026-05-29
+Last Reviewed: 2026-06-01
 Review Cadence: 90 days
 
 Spring Cloud 微服务管理后台脚手架，采用 DDD/COLA 分层架构，参考 RuoYi-Cloud-Plus 与 COLA，面向 Clean Code 与可维护性。
@@ -48,7 +48,9 @@ artemis/
    了解当前工程质量、已封板能力和下一阶段优先级。
 4. 下方“文档与目录职责”和“常见问题定位”
    按资产类型直接跳转到 runbook、治理规则、报告、执行计划或 Symphony 资产。
-5. `openspec/specs/`
+5. `docs/feature-specs/`
+   查看业务需求级 Spec、验收标准和验证映射模板。
+6. `openspec/specs/`
    查看稳定规则，例如模块边界、契约治理、质量门和默认 agent workflow。
 
 需要实际开发或验证时，再进入 `AGENTS.md`、`docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`、相关 runbook 与 `scripts/` 入口。
@@ -167,6 +169,7 @@ Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将
 | 层 | 主要位置 | 职责 | 不承担 |
 |----|----------|------|--------|
 | 事实源 | `README.md`、`ARCHITECTURE.md`、`QUALITY_SCORE.md`、`openspec/specs/`、`artemis-modules/*/*-client` | 项目定位、模块边界、稳定规则、质量状态、内部契约 | 复制完整脚本清单和一次性执行步骤 |
+| 需求规范 | `docs/feature-specs/`、`docs/patterns/spec-to-validation-mapping.md` | 业务需求、用户故事、业务规则、验收标准、验证映射 | 定义长期工程规则和模块边界 |
 | 执行入口 | `scripts/dev/`、`scripts/smoke/`、`docs/runbooks/` | 启动服务、查看状态、smoke、打包、镜像、部署、回滚、常见任务操作步骤 | 定义模块边界、契约规则和默认 workflow 长期约束 |
 | 验证守门 | `scripts/harness/`、`mvn verify`、`.github/workflows/verify.yml`、`.github/workflows/governance.yml`、`docs/governance/DOC_FRESHNESS_POLICY.md` | 增量验证、全量验证、契约/API 文档同步、重复模式扫描、CI 与文档新鲜度守门 | 替代人工需求判断或记录复杂任务计划 |
 | 任务过程 | `docs/exec-plans/active/`、`docs/exec-plans/completed/`、`docs/exec-plans/templates/` | 复杂任务的背景、范围、步骤、风险、验证和归档 | 替代 OpenSpec 里的稳定规则 |
@@ -180,6 +183,7 @@ Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将
 | 这个项目是什么、有哪些模块 | `README.md`、`ARCHITECTURE.md` |
 | 当前做到什么程度、还有什么缺口 | `QUALITY_SCORE.md`、`docs/reports/PROJECT_PROGRESS_REPORT.md` |
 | 某条规则是否是长期约束 | `openspec/specs/` |
+| 某个业务需求要交付什么、怎么验收 | `docs/feature-specs/`、`docs/patterns/spec-to-validation-mapping.md` |
 | 一个需求应该改代码、OpenSpec、runbook 还是 Symphony | `docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md` |
 | 如何新增领域服务、Dubbo client 或 ArchUnit 规则 | `docs/runbooks/`、`artemis-symphony/skills/` |
 | 如何启动、smoke、打包、部署或回滚 | `scripts/dev/`、`scripts/smoke/`、`docs/runbooks/SERVICE_SMOKE_RUNBOOK.md`、`docs/runbooks/DEPLOY_AND_ROLLBACK_RUNBOOK.md` |
@@ -189,13 +193,14 @@ Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将
 ### 标准工作流
 
 1. 阅读 `README.md`、`AGENTS.md`、`ARCHITECTURE.md` 与相关 OpenSpec
-2. 对跨模块或多步骤任务，在 `docs/exec-plans/active/` 建立执行计划
-3. 通过 `scripts/dev/start-all.sh` 一键启动核心链路，或通过 `scripts/dev/` 手动启动依赖、服务并完成健康检查
-4. 通过 `scripts/smoke/` 或 `SERVICE_SMOKE_RUNBOOK.md` 完成最小行为验证
-5. 实施代码、测试、脚本和文档的成组变更
-6. 优先执行 `scripts/harness/verify-changed.sh`
-7. 对高风险或跨模块改动执行 `scripts/harness/full-verify.sh`
-8. 通过 CI 工作流重复执行仓库级守门
+2. 对业务需求先判断是否需要 `docs/feature-specs/`，把用户故事、业务规则、验收标准和验证映射写清楚
+3. 对跨模块或多步骤任务，在 `docs/exec-plans/active/` 建立执行计划
+4. 通过 `scripts/dev/start-all.sh` 一键启动核心链路，或通过 `scripts/dev/` 手动启动依赖、服务并完成健康检查
+5. 通过 `scripts/smoke/` 或 `SERVICE_SMOKE_RUNBOOK.md` 完成最小行为验证
+6. 实施代码、测试、脚本和文档的成组变更
+7. 优先执行 `scripts/harness/verify-changed.sh`
+8. 对高风险或跨模块改动执行 `scripts/harness/full-verify.sh`
+9. 通过 CI 工作流重复执行仓库级守门
 
 ### 适用范围
 

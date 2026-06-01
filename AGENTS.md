@@ -1,7 +1,7 @@
 # Artemis Agent Guide
 
 Status: maintained
-Last Reviewed: 2026-05-29
+Last Reviewed: 2026-06-01
 Review Cadence: 90 days
 
 本文件是仓库内 agent 的稳定入口，目标是让任何自动化执行都先找到地图，再开始改代码。
@@ -18,17 +18,20 @@ Review Cadence: 90 days
    了解本仓库对 Harness Engineering 的落地清单与当前完成度。
 5. `docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`
    了解默认的 agent 开发分流方式。
-6. `openspec/specs/`
+6. `docs/feature-specs/README.md`
+   了解业务需求级 Spec、验收标准和验证映射。
+7. `openspec/specs/`
    读取与本次改动直接相关的规范，避免只看局部代码做出越界修改。
 
 ## 标准工作回路
 
 1. 先读相关规范与架构文档，再决定改动范围。
 2. 若需求描述还不够结构化，先用 `artemis-symphony/prompts/agent-requirement-intake.md` 整理成最小需求模板。
-3. 优先做最小闭环改动：代码、测试、文档、脚本一并补齐。
-4. 能复用 `scripts/` 下入口时，不要把命令散落在 issue 评论或聊天里。
-5. 修改跨模块行为时，同步检查 OpenSpec 是否需要更新。
-6. 提交前至少执行一个可解释的验证动作：
+3. 若需求涉及业务规则、数据模型、API、内部契约或跨模块协作，先建立或更新 `docs/feature-specs/`，写清验收标准和验证映射。
+4. 优先做最小闭环改动：代码、测试、文档、脚本一并补齐。
+5. 能复用 `scripts/` 下入口时，不要把命令散落在 issue 评论或聊天里。
+6. 修改跨模块行为时，同步检查 OpenSpec 是否需要更新。
+7. 提交前至少执行一个可解释的验证动作：
    `scripts/harness/verify-changed.sh`
    或
    `scripts/harness/full-verify.sh`
@@ -47,6 +50,8 @@ Review Cadence: 90 days
   先读 `openspec/specs/contract-doc-guardrails/spec.md`、`openspec/specs/service-readiness-automation/spec.md`、`openspec/specs/harness-governance/spec.md`
 - 项目进度、阶段汇报或演进路线：
   先读 `QUALITY_SCORE.md`、`docs/reports/ROADMAP.md`、`docs/reports/PROJECT_PROGRESS_REPORT.md`、相关 `docs/exec-plans/`
+- 业务需求、验收标准或 Spec 驱动交付：
+  先读 `docs/feature-specs/README.md`、`docs/patterns/spec-to-validation-mapping.md`、`openspec/specs/spec-driven-delivery/spec.md`
 - 编码代理编排与自动化：
   先读 `artemis-symphony/README.md`、`docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`、`docs/reports/ROADMAP.md`、`openspec/specs/agent-task-assets/spec.md`
 - 复杂任务或多步迁移：
@@ -93,12 +98,15 @@ Review Cadence: 90 days
 - 健康检查：`scripts/dev/health.sh`
 - 查看服务日志：`scripts/dev/tail-log.sh <gateway|auth|system|<domain>>`
 - 检查 OpenSpec 同步：`scripts/harness/check-openspec-sync.sh`
+- 检查 Feature Spec 结构：`scripts/harness/check-feature-specs.sh`
+- 检查 Spec 驱动交付链路：`scripts/harness/check-spec-driven-delivery-chain.sh`
 - 检查 API 文档同步：`scripts/harness/check-api-doc-sync.sh`
 - 检查 Dubbo client 契约：`scripts/harness/check-client-contracts.sh`
 - 检查业务能力包结构：`scripts/harness/check-capability-package-structure.sh`
 - 检查领域服务脚手架：`scripts/harness/check-domain-service-scaffold.sh`
 - 检查领域服务运行资产：`scripts/harness/check-service-catalog.sh`
 - 检查 Symphony 任务资产：`scripts/harness/check-symphony-assets.sh`
+- 检查部署演练报告：`scripts/harness/check-deploy-drill-reports.sh`
 - 检查关键路径测试基线：`scripts/harness/check-critical-path-tests.sh`
 - 扫描重复模式：`scripts/harness/check-duplicate-patterns.sh`
 - 执行治理检查：`scripts/harness/run-governance-checks.sh`
@@ -122,5 +130,6 @@ Review Cadence: 90 days
 ## 产出要求
 
 - 复杂工作优先落到 `docs/exec-plans/active/`，完成后迁移到 `docs/exec-plans/completed/`
+- 业务需求优先落到 `docs/feature-specs/active/`，交付完成后迁移到 `docs/feature-specs/completed/`
 - 新增工程能力时，至少补一个“入口文档 + 执行脚本 + 验证方式”
 - 改动完成后，说明做了什么、如何验证、还剩什么风险

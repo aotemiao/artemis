@@ -14,7 +14,13 @@ docs=(
   "QUALITY_SCORE.md"
   "docs/README.md"
   "docs/api/README.md"
+  "docs/feature-specs/README.md"
+  "docs/feature-specs/examples/menu-permission-feature-spec.md"
+  "docs/feature-specs/completed/2026-06-01-tenant-creation-initialization.md"
   "docs/exec-plans/README.md"
+  "docs/patterns/README.md"
+  "docs/patterns/spec-to-validation-mapping.md"
+  "docs/patterns/agent-delivery-handoff.md"
   "docs/governance/CHECKLIST.md"
   "docs/reports/ROADMAP.md"
   "docs/reports/PROJECT_PROGRESS_REPORT.md"
@@ -31,6 +37,7 @@ docs=(
   "docs/governance/quality-issues/README.md"
   "docs/governance/quality-issues/archive/2026-03-23-credential-request-duplication.md"
   "docs/reports/deploy-drills/README.md"
+  "docs/reports/deploy-drills/2026-06-01-sample-report-template.md"
 )
 
 max_cadence_days=90

@@ -1,7 +1,7 @@
 # Harness Engineering Checklist
 
 Status: maintained
-Last Reviewed: 2026-03-25
+Last Reviewed: 2026-06-01
 Review Cadence: 90 days
 
 本清单强调“可直接落地”。每一项都应尽量对应仓库中的文档、脚本、测试或自动化入口，而不是抽象口号。
@@ -27,6 +27,8 @@ Review Cadence: 90 days
 - `[x]` 提供项目进度汇报 `docs/reports/PROJECT_PROGRESS_REPORT.md`
 - `[x]` 提供执行计划目录 `docs/exec-plans/`
 - `[x]` 提供执行计划模板 `docs/exec-plans/templates/execution-plan-template.md`
+- `[x]` 提供业务需求级 Feature Spec 目录 `docs/feature-specs/`
+- `[x]` 提供可复用模式资产目录 `docs/patterns/`
 - `[x]` OpenSpec 已补更多具体场景（治理、agent 资产、契约文档、readiness）
 - `[x]` 建立 docs 索引与交叉链接检查
 - `[x]` 建立文档过期扫描与定期整理机制
@@ -44,6 +46,9 @@ Review Cadence: 90 days
 - `[x]` 提供增量验证脚本 `scripts/harness/verify-changed.sh`
 - `[x]` 提供全量验证脚本 `scripts/harness/full-verify.sh`
 - `[x]` 提供 OpenSpec 同步检查脚本 `scripts/harness/check-openspec-sync.sh`
+- `[x]` 提供 Feature Spec 结构检查脚本 `scripts/harness/check-feature-specs.sh`
+- `[x]` 提供 Spec 驱动交付链路检查脚本 `scripts/harness/check-spec-driven-delivery-chain.sh`
+- `[x]` 提供部署演练报告结构检查脚本 `scripts/harness/check-deploy-drill-reports.sh`
 - `[x]` 提供最小 smoke 脚本 `scripts/smoke/system-lookup.sh`
 - `[x]` Symphony 已具备编排器，workflow 模板已细化到 runbook / skills / self-review
 - `[x]` 为更多服务补 smoke 脚本
@@ -59,6 +64,8 @@ Review Cadence: 90 days
 - `[x]` 将 OpenSpec 同步规则接入 CI 差异比较逻辑
 - `[x]` 增加契约变更检查与 API 文档同步检查
 - `[x]` 增加覆盖率与关键路径测试基线
+- `[x]` 增加 Feature Spec 验收映射结构检查
+- `[x]` 增加部署 / 回滚演练报告结构检查
 
 ## D. 让 agent 按仓库结构工作，而不是按聊天记忆工作
 
@@ -67,6 +74,7 @@ Review Cadence: 90 days
 - `[x]` 规定代码、规范、脚本、文档尽量成组交付
 - `[x]` 为常见任务补专用 runbook，例如“新增领域服务”“新增 Dubbo client”“补 ArchUnit 约束”
 - `[x]` 为 agent 建立更细粒度的 skills / prompts
+- `[x]` 为 Spec 驱动交付建立 skill / prompt 与 handoff 模式
 - `[x]` 建立 agent 自评与 reviewer 回路
 
 ## E. 控制熵增，避免 AI slop 扩散

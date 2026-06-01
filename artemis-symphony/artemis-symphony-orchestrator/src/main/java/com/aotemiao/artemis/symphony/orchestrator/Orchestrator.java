@@ -631,6 +631,15 @@ public class Orchestrator {
         return codexRateLimits;
     }
 
+    public Map<String, Object> getDeliverySnapshot() {
+        ServiceConfig cfg = config();
+        return Map.of(
+                "spec_driven_enabled",
+                cfg.isSpecDrivenDeliveryEnabled(),
+                "required_assets",
+                cfg.getSpecDrivenDeliveryRequiredAssets());
+    }
+
     void reportAttemptOutcome(RunningEntry entry, boolean normal, RetryEntry retryEntry, String failureReason) {
         if (entry == null || entry.issue == null) {
             return;

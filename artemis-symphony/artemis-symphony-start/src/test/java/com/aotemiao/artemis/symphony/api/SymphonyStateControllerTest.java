@@ -40,13 +40,18 @@ class SymphonyStateControllerTest {
         when(orchestrator.getRetryAttempts()).thenReturn(Map.of());
         when(orchestrator.getCodexTotals()).thenReturn(CodexTotals.zero());
         when(orchestrator.getCodexRateLimits()).thenReturn(Map.of("primary", Map.of("usedPercent", 1)));
+        when(orchestrator.getDeliverySnapshot())
+                .thenReturn(Map.of(
+                        "spec_driven_enabled", true, "required_assets", List.of("docs/feature-specs/README.md")));
 
         mockMvc.perform(get("/api/v1/state"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.counts.running", is(0)))
                 .andExpect(jsonPath("$.counts.retrying", is(0)))
                 .andExpect(jsonPath("$.codex_totals.total_tokens", is(0)))
-                .andExpect(jsonPath("$.rate_limits.primary.usedPercent", is(1)));
+                .andExpect(jsonPath("$.rate_limits.primary.usedPercent", is(1)))
+                .andExpect(jsonPath("$.delivery.spec_driven_enabled", is(true)))
+                .andExpect(jsonPath("$.delivery.required_assets[0]", is("docs/feature-specs/README.md")));
     }
 
     @Test

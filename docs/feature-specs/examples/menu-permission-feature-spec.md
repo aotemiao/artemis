@@ -1,0 +1,74 @@
+# 菜单权限 MVP Feature Spec 示例
+
+Status: example
+Last Reviewed: 2026-06-01
+Review Cadence: 90 days
+
+## 背景
+
+系统管理后台需要通过菜单和权限点控制前端可见功能。当前示例仅用于说明 Feature Spec 的写法，不代表对应能力已经完整实现。
+
+## 目标
+
+- 定义菜单权限 MVP 的用户故事、业务规则和验收标准。
+- 展示验收标准如何映射到测试、API 文档和 smoke。
+
+## 非目标
+
+- 不定义完整前端交互。
+- 不替代 OpenSpec 中的长期模块边界和契约规则。
+
+## 用户故事
+
+| 编号 | 作为 | 我希望 | 以便 |
+|------|------|--------|------|
+| US-001 | 系统管理员 | 创建菜单并配置权限标识 | 控制不同角色可访问的后台能力 |
+| US-002 | 登录用户 | 只看到自己角色允许的菜单 | 避免越权访问 |
+
+## 业务规则
+
+| 编号 | 规则 | 说明 |
+|------|------|------|
+| BR-001 | 菜单权限标识在系统内唯一 | 避免角色授权出现歧义 |
+| BR-002 | 禁用菜单不出现在用户菜单树中 | 保持前端展示与权限状态一致 |
+
+## 数据与接口影响
+
+| 类型 | 是否影响 | 说明 |
+|------|----------|------|
+| 数据模型 | 是 | 菜单聚合、权限标识、父子关系 |
+| REST API | 是 | 菜单 CRUD、菜单树查询 |
+| 内部 RPC / client | 可能 | 授权快照如包含菜单权限，需要同步 client 契约 |
+| 权限 / 审计 | 是 | 创建、修改、删除菜单应记录操作来源 |
+| 配置 / 部署 | 否 | 不新增环境配置 |
+
+## 验收标准
+
+| 编号 | 验收标准 | 验证方式 |
+|------|----------|----------|
+| AC-001 | 创建菜单后，按 ID 查询能返回相同的名称、权限标识和父级信息 | 集成测试或 Controller 测试 |
+| AC-002 | 禁用菜单不会出现在当前用户菜单树中 | App 层测试或 smoke |
+| AC-003 | API 文档列出新增或变更的菜单接口 | `scripts/harness/check-api-doc-sync.sh` |
+
+## 验证映射
+
+| 验收编号 | 验证入口 | 通过标准 |
+|----------|----------|----------|
+| AC-001 | `mvn test -pl artemis-modules/artemis-system/artemis-system-start -am` | 菜单创建和查询测试通过 |
+| AC-002 | `scripts/smoke/gateway-system-admin.sh` | 登录后菜单权限行为符合预期 |
+| AC-003 | `scripts/harness/check-api-doc-sync.sh` | 无缺失接口文档 |
+
+## 关联资产
+
+- OpenSpec：`openspec/specs/ddd-cola-layering/spec.md`
+- 执行计划：`docs/exec-plans/completed/2026-04-28-phase9-menu-permission-mvp.md`
+- API 文档：`artemis-modules/artemis-system/MENU_API.md`
+- Runbook：无
+
+## 决策记录
+
+- `2026-06-01`：本文件作为 Feature Spec 示例，不作为真实功能完成度证据。
+
+## 遗留问题
+
+- 真实菜单权限能力应以实际代码、测试、API 文档和执行计划为准。
