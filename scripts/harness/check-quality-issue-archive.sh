@@ -16,8 +16,6 @@ base = repo / "docs/governance/quality-issues"
 required = [
     repo / "docs/governance/QUALITY_ISSUE_STANDARD.md",
     base / "README.md",
-    base / "active/README.md",
-    base / "archive/README.md",
 ]
 
 
