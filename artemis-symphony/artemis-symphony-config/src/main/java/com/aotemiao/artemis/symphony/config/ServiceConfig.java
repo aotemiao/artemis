@@ -32,6 +32,16 @@ public final class ServiceConfig {
     private static final int DEFAULT_TURN_TIMEOUT_MS = 3_600_000;
     private static final int DEFAULT_READ_TIMEOUT_MS = 5_000;
     private static final int DEFAULT_STALL_TIMEOUT_MS = 300_000;
+    private static final List<String> DEFAULT_SPEC_DRIVEN_DELIVERY_REQUIRED_ASSETS = List.of(
+            "docs/feature-specs/README.md",
+            "docs/feature-specs/templates/feature-spec-template.md",
+            "docs/patterns/spec-to-validation-mapping.md",
+            "docs/patterns/agent-delivery-handoff.md",
+            "docs/exec-plans/templates/execution-plan-template.md",
+            "artemis-symphony/prompts/spec-driven-delivery.md",
+            "artemis-symphony/skills/spec-driven-delivery.md",
+            "scripts/harness/check-feature-specs.sh",
+            "scripts/harness/check-spec-driven-delivery-chain.sh");
     private static final Map<String, Object> DEFAULT_APPROVAL_POLICY = Map.of(
             "reject",
             Map.of(
@@ -331,6 +341,49 @@ public final class ServiceConfig {
     public Integer getWorkerMaxConcurrentAgentsPerHost() {
         int parsed = intFromConfig("worker.max_concurrent_agents_per_host", 0);
         return parsed > 0 ? parsed : null;
+    }
+
+    // --- delivery ---
+    public boolean isSpecDrivenDeliveryEnabled() {
+        return booleanFromConfig("delivery.spec_driven.enabled", false);
+    }
+
+    public List<String> getSpecDrivenDeliveryRequiredAssets() {
+        Object raw = getNested(definition.config(), "delivery.spec_driven.required_assets");
+        if (raw instanceof List<?> list) {
+            List<String> configured = list.stream()
+                    .map(item -> item == null ? "" : item.toString().trim())
+                    .filter(item -> !item.isEmpty())
+                    .distinct()
+                    .toList();
+            if (!configured.isEmpty()) {
+                return configured;
+            }
+        }
+        return List.copyOf(DEFAULT_SPEC_DRIVEN_DELIVERY_REQUIRED_ASSETS);
+    }
+
+    public String getSpecDrivenDeliveryPromptAddon() {
+        if (!isSpecDrivenDeliveryEnabled()) {
+            return "";
+        }
+        String assets = getSpecDrivenDeliveryRequiredAssets().stream()
+                .map(asset -> "- `" + asset + "`")
+                .collect(Collectors.joining("\n"));
+        return """
+                Spec-driven delivery guidance:
+
+                This repository uses Harness Engineering assets to make business intent, implementation steps, and validation evidence traceable. Before implementation:
+
+                1. Decide whether this issue requires a Feature Spec. Use one when the task includes business rules, data model impact, API impact, internal RPC impact, permissions, or cross-module behavior.
+                2. If a Feature Spec is required, create or update it under `docs/feature-specs/active/` before code changes.
+                3. Map every key acceptance criterion to an automated test, smoke, harness script, or explicit manual validation item.
+                4. For complex or staged work, create or update an execution plan under `docs/exec-plans/active/`.
+                5. In the final handoff, include actual validation commands, outcomes, and acceptance-criterion mapping.
+
+                Required local assets:
+                %s
+                """.formatted(assets).trim();
     }
 
     // --- reporting ---

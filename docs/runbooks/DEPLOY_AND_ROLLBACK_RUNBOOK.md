@@ -1,7 +1,7 @@
 # Deploy And Rollback Runbook
 
 Status: maintained
-Last Reviewed: 2026-03-24
+Last Reviewed: 2026-06-01
 Review Cadence: 90 days
 
 本 runbook 用于固定 Artemis 在本地或 CI 中的“打包 -> 构建镜像 -> 部署前检查 -> 回滚”最小操作模型。
@@ -13,6 +13,7 @@ Review Cadence: 90 days
 - 服务状态：`scripts/dev/service-status.sh [all|<service>]`
 - 部署演练：`scripts/dev/deploy-drill.sh <all|service> [tag_suffix] [--skip-smoke]`
 - 回滚演练：`scripts/dev/rollback-drill.sh <service> <image-tag|jar-path>`
+- 演练报告检查：`scripts/harness/check-deploy-drill-reports.sh`
 - 全量验证：`scripts/harness/full-verify.sh`
 
 ## 推荐顺序
@@ -23,6 +24,7 @@ Review Cadence: 90 days
 4. 部署前确认配置、端口、依赖服务和 smoke 入口
 5. 部署后执行对应 smoke
 6. 将演练结果沉淀到 `docs/reports/deploy-drills/`
+7. 执行 `scripts/harness/check-deploy-drill-reports.sh` 确认报告结构完整
 
 ## 打包示例
 
@@ -59,6 +61,8 @@ scripts/dev/build-image.sh resource
   `scripts/dev/deploy-drill.sh <service>`
 - 回滚目标若是镜像标签或历史 jar，可使用：
   `scripts/dev/rollback-drill.sh <service> <target>`
+- 演练报告至少包含“演练范围、执行命令、验证结果、结论”，模板见：
+  `docs/reports/deploy-drills/2026-06-01-sample-report-template.md`
 
 ## 回滚原则
 

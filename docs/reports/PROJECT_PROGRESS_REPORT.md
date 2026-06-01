@@ -1,7 +1,7 @@
 # Artemis 项目进度汇报
 
 Status: maintained
-Last Reviewed: 2026-05-29
+Last Reviewed: 2026-06-01
 Review Cadence: 30 days
 
 ## 汇总结论
@@ -73,6 +73,7 @@ Review Cadence: 30 days
 ### 1. Harness Engineering 已完成本轮封板
 
 - 根入口文档、架构地图、质量看板、runbook、执行计划目录均已建立。
+- Feature Spec、验收映射模式与可复用 patterns 目录已建立，并已把租户创建与初始化能力沉淀为真实业务 Feature Spec。
 - `scripts/dev/`、`scripts/harness/`、`scripts/smoke/` 已形成统一执行入口。
 - `mvn verify`、`scripts/harness/verify-changed.sh`、`scripts/harness/full-verify.sh`、CI 与治理工作流已构成默认验证回路。
 - 文档 freshness、重复模式扫描、质量问题归档、agent 自评与 reviewer 回路都已沉淀为仓库事实。
@@ -102,8 +103,9 @@ Review Cadence: 30 days
 1. `artemis-system` 还没有补齐菜单、部门、租户、配置、审计、权限点等更完整的平台主数据能力。
 2. `artemis-resource` 目前更像模板验证服务，还不是承载真实业务的第二领域样板。
 3. `*-client` 已形成结构，但兼容性、版本化和回归策略仍需继续增强。
-4. 部署 / 回滚 runbook 已有统一入口，但真实环境演练频次和故障回放能力还不足。
-5. `artemis-symphony` 已完成当前一轮核心加固，下一步重点更偏向持续演练、真实业务接入与默认交付流程沉淀。
+4. Feature Spec 层已建立，并已有租户创建与初始化 Spec；历史业务需求仍需继续系统补齐 Spec 与验收映射。
+5. 部署 / 回滚 runbook 已有统一入口，但真实环境演练频次和故障回放能力还不足。
+6. `artemis-symphony` 已完成当前一轮核心加固，下一步重点更偏向持续演练、真实业务接入与默认交付流程沉淀。
 
 ## 演进优先级判断
 

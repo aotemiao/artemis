@@ -1,7 +1,7 @@
 # Agent 开发工作流
 
 Status: maintained
-Last Reviewed: 2026-04-28
+Last Reviewed: 2026-06-01
 Review Cadence: 90 days
 
 本文件用于把“提需求 -> 判定落点 -> 实施 -> 验证 -> 回写”的默认 agent 开发方式固定下来，减少在 `artemis-symphony`、Harness Engineering 与 OpenSpec 之间反复猜测。
@@ -14,6 +14,8 @@ Review Cadence: 90 days
   负责“任务如何在仓库里落地”，包括入口文档、脚本、runbook、验证回路与交付编排。
 - OpenSpec
   负责“哪些规则是仓库的稳定事实”，包括模块边界、契约要求、质量门、默认 workflow 规则与长期约束。
+- `docs/feature-specs/`
+  负责“业务需求这次要交付什么、怎么验收”，包括用户故事、业务规则、验收标准和验证映射。
 - `docs/exec-plans/`
   负责“复杂任务这次准备怎么做完”，记录分步实施、风险、验证与阶段性决策。
 
@@ -24,15 +26,17 @@ Review Cadence: 90 days
 | 变化类型 | 典型信号 | 默认落点 |
 |----------|----------|----------|
 | 既有规则内的功能 / 缺陷修复 | 规则没变，只是在现有边界内实现或修复 | 代码、测试、文档；复杂任务再补执行计划 |
+| 业务需求需要澄清 | 有 PRD、issue 或口头需求，但验收标准、业务规则或接口影响不清 | Feature Spec；复杂任务再补执行计划 |
 | 稳定规则变化 | 模块边界、契约、质量门、默认 workflow 规则要改 | OpenSpec 必改；复杂任务再补执行计划 |
 | 工程入口或验证能力缺失 | agent 不知道怎么启动、怎么验证、怎么排障 | Harness 文档、脚本、runbook、守门脚本 |
 | 编排资产缺失 | 需要让 Symphony 更好地接单、分类、回写或复盘 | Symphony workflow、prompt、skill 等资产 |
 
 默认顺序是：
 
-1. 先问“是不是改规则”
-2. 再问“是不是缺入口或验证回路”
-3. 最后才问“需不需要改 Symphony 编排资产”
+1. 先问“是不是业务需求需要 Spec”
+2. 再问“是不是改规则”
+3. 再问“是不是缺入口或验证回路”
+4. 最后才问“需不需要改 Symphony 编排资产”
 
 ## 默认分流规则
 
@@ -40,6 +44,7 @@ Review Cadence: 90 days
 
 当需求只是实现功能、修复 bug、补测试或补文档，且不改变稳定约束时：
 
+- 涉及业务规则、数据模型、API、内部 RPC 或跨模块协作时，先补 Feature Spec
 - 小任务直接改代码、测试、文档并验证
 - 跨模块或多步骤任务，增加 `docs/exec-plans/active/`
 - 通常**不需要**改 OpenSpec
@@ -125,9 +130,10 @@ Review Cadence: 90 days
 4. 判断是否需要 OpenSpec 更新
 5. 判断是否需要 Harness 资产补强
 6. 判断是否需要 Symphony prompt / skill / workflow 资产补强
-7. 成组交付代码、测试、文档、脚本与规范
-8. 优先执行 `scripts/harness/verify-changed.sh`
-9. 交付前按 `docs/agent-workflow/AGENT_REVIEW_LOOP.md` 做自评
+7. 若有 Feature Spec，将验收标准映射到测试、smoke、harness 脚本或人工验收
+8. 成组交付代码、测试、文档、脚本与规范
+9. 优先执行 `scripts/harness/verify-changed.sh`
+10. 交付前按 `docs/agent-workflow/AGENT_REVIEW_LOOP.md` 做自评
 
 ## 常见例子
 

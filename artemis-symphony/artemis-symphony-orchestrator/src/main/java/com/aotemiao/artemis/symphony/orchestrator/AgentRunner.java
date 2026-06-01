@@ -76,10 +76,11 @@ public class AgentRunner {
         try {
             String promptTemplate = config().getPromptTemplate();
             Integer attemptForPrompt = attempt != null ? attempt : null;
-            String prompt = PromptRenderer.render(promptTemplate, issue, attemptForPrompt);
+            ServiceConfig cfg = config();
+            String prompt = appendSpecDrivenDeliveryGuidance(
+                    PromptRenderer.render(promptTemplate, issue, attemptForPrompt), cfg);
             String title = issue.identifier() + ": " + (issue.title() != null ? issue.title() : "");
 
-            ServiceConfig cfg = config();
             CodexAppServerClient.DynamicToolExecutor dynamicToolExecutor =
                     "linear".equals(cfg.getTrackerKind()) ? new LinearGraphqlDynamicToolExecutor(this::tracker) : null;
             client = new CodexAppServerClient(
@@ -159,6 +160,18 @@ public class AgentRunner {
 
     private static String blankToDefault(String value, String defaultValue) {
         return value == null || value.isBlank() ? defaultValue : value;
+    }
+
+    static String appendSpecDrivenDeliveryGuidance(String prompt, ServiceConfig cfg) {
+        String addon = cfg != null ? cfg.getSpecDrivenDeliveryPromptAddon() : "";
+        if (addon == null || addon.isBlank()) {
+            return prompt;
+        }
+        String base = prompt != null ? prompt.trim() : "";
+        if (base.isEmpty()) {
+            return addon;
+        }
+        return base + "\n\n---\n\n" + addon;
     }
 
     public record RuntimeInfo(String workerHost, String workspacePath) {}

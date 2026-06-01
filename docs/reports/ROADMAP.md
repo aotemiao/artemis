@@ -1,7 +1,7 @@
 # Harness Engineering Roadmap
 
 Status: maintained
-Last Reviewed: 2026-05-29
+Last Reviewed: 2026-06-01
 Review Cadence: 90 days
 
 ## 目标
@@ -91,5 +91,6 @@ Review Cadence: 90 days
 ## 封板后的演进原则
 
 1. 继续让 `scripts/harness/full-verify.sh` 与 `scripts/harness/verify-changed.sh` 作为团队默认入口
-2. 继续把复杂任务落到 `docs/exec-plans/active/`，减少上下文散失
-3. 新增工程能力时，同步补文档、脚本、守门和 runbook，避免知识重新退回聊天上下文
+2. 对业务需求先收敛到 `docs/feature-specs/`，把验收标准和验证映射写清楚
+3. 继续把复杂任务落到 `docs/exec-plans/active/`，减少上下文散失
+4. 新增工程能力时，同步补文档、脚本、守门和 runbook，避免知识重新退回聊天上下文

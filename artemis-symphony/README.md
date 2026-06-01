@@ -24,6 +24,10 @@
   自评与 reviewer handoff 等 prompt 模版
 - `prompts/agent-requirement-intake.md`
   需求受理与分流模板
+- `skills/spec-driven-delivery.md`
+  业务需求 Spec、验收映射与执行计划联动的交付 skill
+- `prompts/spec-driven-delivery.md`
+  Spec 驱动交付 prompt 模板
 
 当前重点资产：
 
@@ -31,11 +35,13 @@
 - `skills/expand-existing-service.md`
 - `skills/contract-change.md`
 - `skills/deploy-drill.md`
+- `skills/spec-driven-delivery.md`
 - `prompts/self-review-and-handoff.md`
 - `prompts/contract-change-review.md`
 - `prompts/deploy-drill-report.md`
 - `prompts/phase-delivery-plan.md`
 - `prompts/agent-requirement-intake.md`
+- `prompts/spec-driven-delivery.md`
 
 ## 运行
 
@@ -113,6 +119,20 @@ scripts/e2e/run-symphony-live-e2e.sh
 
 ## 运维与可观测性
 
+### Spec 驱动交付配置
+
+`WORKFLOW.md.example` 默认开启：
+
+```yaml
+delivery:
+  spec_driven:
+    enabled: true
+```
+
+开启后，Symphony 会在首轮 agent prompt 末尾自动追加 Spec-driven Delivery 上下文，要求 agent 判断是否需要 Feature Spec、补齐验收映射、在复杂任务中使用执行计划，并在最终 handoff 中说明验证证据。`delivery.spec_driven.required_assets` 是这段上下文引用的本地资产清单，默认覆盖 `docs/feature-specs/`、`docs/patterns/`、执行计划模板、Symphony prompt / skill 和对应 harness 检查脚本。
+
+该能力不是新的规范事实来源：长期规则仍沉淀在 `openspec/specs/`，业务需求沉淀在 `docs/feature-specs/`，Symphony 只负责把这些资产注入执行现场并在状态接口暴露当前开关。
+
 ### WORKFLOW 热重载
 
 - 默认监听 `WORKFLOW.md` 所在目录的文件变更（`symphony.workflow-watch.enabled=true`）。
@@ -124,7 +144,7 @@ scripts/e2e/run-symphony-live-e2e.sh
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | `/` | 极简说明页，链向下方 JSON API |
-| GET | `/api/v1/state` | 运行中议题、重试队列、Codex 累计等快照 |
+| GET | `/api/v1/state` | 运行中议题、重试队列、Codex 累计、delivery 配置等快照 |
 | POST | `/api/v1/refresh` | `202 Accepted`，触发与 poll 等价的 reconcile/dispatch 路径；`coalesced=true` 表示与已在排队的立即 tick 合并 |
 | GET | `/api/v1/issues/{identifier}` | 按人类可读编号（如 `MT-649`）查询 running/retry 与推导的 `workspace_path`；未知返回 `404` + JSON `error.code` / `error.message` |
 

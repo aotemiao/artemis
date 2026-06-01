@@ -10,3 +10,4 @@
 - `contract-change.md`
 - `deploy-drill.md`
 - `expand-existing-service.md`
+- `spec-driven-delivery.md`

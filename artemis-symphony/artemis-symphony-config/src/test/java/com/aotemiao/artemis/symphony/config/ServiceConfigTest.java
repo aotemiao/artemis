@@ -1,11 +1,13 @@
 package com.aotemiao.artemis.symphony.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.aotemiao.artemis.symphony.core.model.WorkflowDefinition;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
@@ -26,5 +28,30 @@ class ServiceConfigTest {
         assertTrue(Boolean.TRUE.equals(rejectPolicy.get("sandbox_approval")));
         assertTrue(Boolean.TRUE.equals(rejectPolicy.get("rules")));
         assertTrue(Boolean.TRUE.equals(rejectPolicy.get("mcp_elicitations")));
+        assertFalse(config.isSpecDrivenDeliveryEnabled());
+    }
+
+    @Test
+    void specDrivenDelivery_readsEnabledAssetsAndPromptAddon() {
+        ServiceConfig config = new ServiceConfig(new WorkflowDefinition(
+                Map.of(
+                        "delivery",
+                        Map.of(
+                                "spec_driven",
+                                Map.of(
+                                        "enabled",
+                                        true,
+                                        "required_assets",
+                                        List.of(
+                                                "docs/feature-specs/README.md",
+                                                "scripts/harness/check-feature-specs.sh")))),
+                "prompt"));
+
+        assertTrue(config.isSpecDrivenDeliveryEnabled());
+        assertEquals(
+                List.of("docs/feature-specs/README.md", "scripts/harness/check-feature-specs.sh"),
+                config.getSpecDrivenDeliveryRequiredAssets());
+        assertTrue(config.getSpecDrivenDeliveryPromptAddon().contains("Spec-driven delivery guidance"));
+        assertTrue(config.getSpecDrivenDeliveryPromptAddon().contains("docs/feature-specs/README.md"));
     }
 }

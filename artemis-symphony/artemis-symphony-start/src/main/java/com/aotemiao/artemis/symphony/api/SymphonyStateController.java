@@ -95,6 +95,7 @@ public class SymphonyStateController {
         body.put("retrying", retryingList);
         body.put("codex_totals", codexTotals);
         body.put("rate_limits", orchestrator.getCodexRateLimits());
+        body.put("delivery", orchestrator.getDeliverySnapshot());
         return ResponseEntity.ok(body);
     }
 

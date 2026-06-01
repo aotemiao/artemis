@@ -25,8 +25,10 @@ Review Cadence: 90 days
 |------|------------|------------|----------|
 | `api/` | 对外 REST API 入口、通用联调约定、模块级 API 文档链接 | 前端联调、接口排障、补 API 文档 | 长期工程规则；这些应放 `openspec/` |
 | `agent-workflow/` | agent 需求受理、默认分流、自评和 reviewer 回路 | 让 agent 或人按统一流程处理任务 | 具体任务执行计划；这些放 `exec-plans/` |
+| `feature-specs/` | 业务需求级 Spec、模板、示例、验收标准和验证映射 | PRD、issue 或口头需求需要先澄清业务规则与验收标准 | 长期工程规则；这些放 `openspec/` |
 | `exec-plans/` | 复杂任务的背景、范围、步骤、风险、验证和完成归档 | 跨模块、多阶段、迁移、重构、基础设施任务 | 长期规范本身；这些放 `openspec/` |
 | `governance/` | Harness checklist、文档 freshness、质量问题标准和质量问题记录 | 做治理检查、关闭质量问题、维护文档新鲜度 | 一次性任务过程；这些放 `exec-plans/` |
+| `patterns/` | 可复用工程模式、验收映射和 handoff 模板 | 多个需求会重复使用同一模式时 | 单次任务记录 |
 | `reports/` | 项目进度、路线图、部署/回滚演练报告 | 看当前完成度、阶段路线、演练结果 | 操作步骤；这些放 `runbooks/` |
 | `runbooks/` | 可重复执行的操作步骤和排障路径 | 启动、smoke、部署、回滚、新增服务、新增契约、排查 Symphony | 抽象规则和路线图 |
 
@@ -51,6 +53,21 @@ Review Cadence: 90 days
 - `AGENT_REVIEW_LOOP.md`
   agent 完成后如何自评，reviewer 如何复核风险、验证和遗漏。
 
+### `feature-specs/`
+
+- `README.md`
+  Feature Spec 的职责、目录约定和最低结构要求。
+- `templates/feature-spec-template.md`
+  业务需求 Spec 模板。
+- `examples/menu-permission-feature-spec.md`
+  菜单权限 MVP 的示例 Spec，用于展示验收标准和验证映射写法。
+- `completed/2026-06-01-tenant-creation-initialization.md`
+  租户创建与初始化能力的真实业务 Feature Spec 归档。
+- `active/`
+  进行中业务需求 Spec。
+- `completed/`
+  已交付业务需求 Spec 归档。
+
 ### `exec-plans/`
 
 - `README.md`
@@ -63,6 +80,15 @@ Review Cadence: 90 days
   新计划模板。
 
 `exec-plans/` 回答“这次复杂工作怎么交付”。如果任务改变长期规则，同时更新 `openspec/changes/` 或 `openspec/specs/`。
+
+### `patterns/`
+
+- `README.md`
+  可复用工程模式目录说明。
+- `spec-to-validation-mapping.md`
+  如何把 Feature Spec 的验收标准映射到测试、smoke、harness 脚本或人工验收。
+- `agent-delivery-handoff.md`
+  agent 交付时如何说明需求来源、验证证据、验收映射和剩余风险。
 
 ### `governance/`
 
@@ -117,7 +143,9 @@ Review Cadence: 90 days
 ## 放置规则
 
 - 长期规则、模块边界、契约约束、质量门：放 `../openspec/specs/`，变更中规则放 `../openspec/changes/`。
+- 业务需求、用户故事、验收标准、验证映射：放 `feature-specs/`。
 - 一次复杂任务的实施计划：放 `exec-plans/active/`，完成后迁到 `exec-plans/completed/`。
+- 可复用模式、模板和示例：放 `patterns/`。
 - 可重复操作步骤：放 `runbooks/`，并优先链接 `../scripts/` 下的入口。
 - 项目阶段状态和对外汇报：放 `reports/`。
 - 质量问题记录：放 `governance/quality-issues/`。

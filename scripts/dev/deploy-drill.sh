@@ -37,6 +37,7 @@ else
 fi
 
 timestamp="$(date '+%Y-%m-%d-%H%M%S')"
+review_date="${timestamp:0:10}"
 report_dir="docs/reports/deploy-drills"
 mkdir -p "$report_dir"
 report_path="${report_dir}/${timestamp}-${target}.md"
@@ -44,12 +45,31 @@ report_path="${report_dir}/${timestamp}-${target}.md"
 {
   echo "# Deploy Drill Report"
   echo
+  echo "Status: completed"
+  echo "Last Reviewed: ${review_date}"
+  echo "Review Cadence: 90 days"
+  echo
+  echo "## 演练范围"
+  echo
   echo "- 时间：${timestamp}"
   echo "- 目标：${target}"
   echo "- 镜像标签后缀：${tag_suffix}"
   echo "- smoke：$([[ "$skip_smoke" == "1" ]] && echo "跳过" || echo "若本地服务在线则执行")"
   echo
-  echo "## 结果"
+  echo "## 执行命令"
+  echo
+  echo '```bash'
+  printf 'scripts/dev/deploy-drill.sh %q %q' "$target" "$tag_suffix"
+  if [[ "$skip_smoke" == "1" ]]; then
+    printf ' --skip-smoke'
+  fi
+  echo
+  echo '```'
+  echo
+  echo "## 验证结果"
+  echo
+  echo "| 服务 | 配置检查 | 打包 | 镜像 | smoke | 日志 |"
+  echo "|------|----------|------|------|-------|------|"
 } >"$report_path"
 
 for service in "${services[@]}"; do
@@ -79,16 +99,20 @@ for service in "${services[@]}"; do
   fi
 
   {
-    echo "### ${service}"
-    echo
-    echo "- start 模块：$(service_catalog_field "$service" start_module)"
-    echo "- 配置检查：通过"
-    echo "- 镜像：${image_result}"
-    echo "- smoke：${smoke_result}"
-    echo "- 日志：$(service_catalog_field "$service" log_file 2>/dev/null || true)"
-    echo
+    echo "| ${service} | 通过 | 通过：$(service_catalog_field "$service" start_module) | ${image_result} | ${smoke_result} | $(service_catalog_field "$service" log_file 2>/dev/null || true) |"
   } >>"$report_path"
 done
+
+{
+  echo
+  echo "## 问题与处理"
+  echo
+  echo "- 配置检查提示：如报告中出现明文凭证 warning，应优先改为环境变量引用。"
+  echo
+  echo "## 结论"
+  echo
+  echo "- 部署演练链路已执行完成；若 smoke 被跳过，结论仅覆盖配置检查与打包 / 镜像构建链路。"
+} >>"$report_path"
 
 print_step "Deploy drill completed"
 echo "Report written to ${report_path}"
