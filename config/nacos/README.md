@@ -18,6 +18,7 @@ artemis-xxx.yml          ← 各服务专属（端口、路由、数据源引用
 | artemis-auth      | application-common → artemis-auth |
 | artemis-system    | application-common → datasource → artemis-system |
 | artemis-resource  | application-common → datasource → artemis-resource |
+| artemis-workflow  | application-common → datasource → artemis-workflow |
 
 ## 文件与 Data ID 对应关系
 
@@ -27,6 +28,7 @@ artemis-xxx.yml          ← 各服务专属（端口、路由、数据源引用
 | `datasource.yml`          | `datasource.yml`          | 数据源定义，仅 system 等需库的服务引用 |
 | `artemis-system.yml`      | `artemis-system.yml`      | 系统服务专属（引用 datasource 中的 system-master） |
 | `artemis-resource.yml`    | `artemis-resource.yml`    | 资源服务专属（样板服务，默认也引用 datasource） |
+| `artemis-workflow.yml`    | `artemis-workflow.yml`    | 工作流服务专属（样板服务，默认也引用 datasource） |
 | `artemis-gateway.yml`     | `artemis-gateway.yml`     | 网关专属（路由等），不引用 datasource |
 | `artemis-auth.yml`        | `artemis-auth.yml`        | 认证服务专属，不引用 datasource |
 
@@ -37,20 +39,34 @@ artemis-xxx.yml          ← 各服务专属（端口、路由、数据源引用
 
 1. **application-common.yml**（先传，被后续引用）
 2. **datasource.yml**（数据源为 PostgreSQL，与本地 docker-compose 一致）
-3. **artemis-system.yml**、**artemis-resource.yml**、**artemis-gateway.yml**、**artemis-auth.yml**
+3. **artemis-system.yml**、**artemis-resource.yml**、**artemis-workflow.yml**、**artemis-gateway.yml**、**artemis-auth.yml**
 
 与 RuoYi 一致：将此目录下所有配置文件按上表 Data ID 复制到 Nacos 配置列表中即可。
 
 ### 通过脚本自动上传（Nacos Open API）
 
-已提供脚本通过 Nacos 的 HTTP 接口批量发布配置（需先启动 Nacos，如 `docker-compose up -d`）：
+已提供 Bash 脚本通过 Nacos 的 HTTP 接口批量发布配置（需先启动 Nacos，如 `scripts/dev/up.sh`）：
+
+```bash
+scripts/dev/upload-nacos-configs.sh
+```
+
+可选参数：
+
+- `--nacos-server`：Nacos 地址，默认 `http://127.0.0.1:8848`
+- `--namespace-id`：命名空间 ID，默认空（public）
+- `--redis-host`：渲染到 `application-common.yml` 的 Redis 主机，默认 `127.0.0.1`
+- `--postgres-host`：渲染到 `datasource.yml` 的 PostgreSQL 主机，默认 `localhost`
+- `--postgres-port`：渲染到 `datasource.yml` 的 PostgreSQL 端口，默认 `5432`
+
+Windows PowerShell 也保留同等入口：
 
 ```powershell
 cd config/nacos
 .\upload-configs.ps1
 ```
 
-可选参数：
+PowerShell 可选参数：
 
 - `-NacosServer`：Nacos 地址，默认 `http://127.0.0.1:8848`
 - `-NamespaceId`：命名空间 ID，默认空（public）
@@ -66,6 +82,7 @@ cd config/nacos
 - **构建时注入**：各服务仅保留**一个** `application.yml`，其中 Nacos 地址等使用 Maven 占位符（`@nacos.server@`、`@nacos.username@`、`@nacos.password@`、`@nacos.discovery.group@`、`@nacos.config.group@`、`@profiles.active@`）。根目录 `pom.xml` 的 **Maven profile**（dev/test/prod）中定义上述变量，打包时替换。
 - **默认**：profile `dev` 默认启用，`nacos.server=127.0.0.1:8848`。生产打包可指定 `-Pprod` 或在 pom 的 prod profile 中修改 `nacos.server`；也可构建时覆盖：`mvn package -Dnacos.server=192.168.1.10:8848`。
 - **namespace**：与 RuoYi 一致，使用 `${spring.profiles.active}` 作为 Nacos 命名空间（dev/test/prod 各建一个 namespace 时，需在 Nacos 控制台创建并与 profile 对应）。
+- **一键启动**：`scripts/dev/start-all.sh` 通过 Docker Compose 中的 `nacos-config-loader` 上传并读取 public namespace；如需使用 dev/test/prod namespace，可手动执行上传脚本并通过服务启动参数覆盖 namespace。
 
 ## 模板化说明
 

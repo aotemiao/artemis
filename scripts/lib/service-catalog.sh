@@ -5,8 +5,8 @@
 # name|kind|start_module|port|config_files|readiness_mode|readiness_url|readiness_expected|readiness_method|smoke_script|log_file|dockerfile|client_module
 
 SERVICE_RECORDS=(
-  "gateway|platform|artemis-gateway|8080|config/nacos/application-common.yml,config/nacos/artemis-gateway.yml|http|http://127.0.0.1:8080/auth/refresh|200,401,403|POST|scripts/smoke/gateway-auth-refresh.sh|logs/artemis-gateway.log|docker/Dockerfile.gateway|"
-  "auth|platform|artemis-auth|9200|config/nacos/application-common.yml,config/nacos/artemis-auth.yml|http|http://127.0.0.1:9200/auth/refresh|200,401,403|POST|scripts/smoke/auth-refresh.sh|logs/artemis-auth.log|docker/Dockerfile.auth|"
+  "gateway|platform|artemis-gateway|8080|config/nacos/application-common.yml,config/nacos/artemis-gateway.yml|http|http://127.0.0.1:8080/auth/online-users|200|GET|scripts/smoke/gateway-auth-refresh.sh|logs/artemis-gateway.log|docker/Dockerfile.gateway|"
+  "auth|platform|artemis-auth|9200|config/nacos/application-common.yml,config/nacos/artemis-auth.yml|http|http://127.0.0.1:9200/actuator/health|200|GET|scripts/smoke/auth-refresh.sh|logs/artemis-auth.log|docker/Dockerfile.auth|"
   "system|domain|artemis-modules/artemis-system/artemis-system-start|9300|config/nacos/application-common.yml,config/nacos/datasource.yml,config/nacos/artemis-system.yml|http|http://127.0.0.1:9300/api/lookup-types?page=0&size=1|200|GET|scripts/smoke/system-lookup.sh|logs/artemis-system.log|docker/Dockerfile.system|artemis-system-client"
   "symphony|platform|artemis-symphony/artemis-symphony-start|9500|WORKFLOW.md|http|http://127.0.0.1:9500/api/v1/state|200|GET|scripts/smoke/symphony-state.sh|||"
   # -- generated service records --

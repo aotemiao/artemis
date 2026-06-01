@@ -1,8 +1,16 @@
-ARG JAVA_VERSION=21
-FROM eclipse-temurin:${JAVA_VERSION}-jre-alpine AS runtime
+# syntax=docker/dockerfile:1.7
 
-ARG JAR_PATH=artemis-modules/artemis-workflow/artemis-workflow-start/target/*.jar
-COPY ${JAR_PATH} app.jar
+FROM maven:3.9.11-eclipse-temurin-21 AS build
+WORKDIR /workspace
+
+COPY . .
+
+RUN mvn -B -pl artemis-modules/artemis-workflow/artemis-workflow-start -am package -DskipTests
+
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+
+COPY --from=build /workspace/artemis-modules/artemis-workflow/artemis-workflow-start/target/artemis-workflow-start-*.jar /app/app.jar
 
 EXPOSE 9410
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

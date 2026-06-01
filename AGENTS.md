@@ -72,6 +72,9 @@ Review Cadence: 90 days
 ## 优先使用的脚本
 
 - 启动基础设施：`scripts/dev/up.sh`
+- 一键启动核心链路：`scripts/dev/start-all.sh`
+- 停止一键启动服务：`scripts/dev/stop-all.sh`
+- 上传 Nacos 配置模板：`scripts/dev/upload-nacos-configs.sh`
 - 关闭基础设施：`scripts/dev/down.sh`
 - 启动系统服务：`scripts/dev/run-system.sh`
 - 启动认证服务：`scripts/dev/run-auth.sh`

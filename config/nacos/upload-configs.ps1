@@ -18,6 +18,8 @@ $order = @(
     "application-common.yml",
     "datasource.yml",
     "artemis-system.yml",
+    "artemis-resource.yml",
+    "artemis-workflow.yml",
     "artemis-gateway.yml",
     "artemis-auth.yml"
 )

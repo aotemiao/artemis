@@ -55,34 +55,58 @@ artemis/
 
 ## 快速开始
 
+### 一键启动核心链路
+
+本地开发可直接通过 Docker Compose 启动基础设施、加载 Nacos 模板、构建镜像、拉起 system/auth/gateway 并执行 readiness：
+
+```bash
+scripts/dev/start-all.sh
+```
+
+停止 Compose 服务：
+
+```bash
+scripts/dev/stop-all.sh
+```
+
+说明：一键脚本是 `docker/docker-compose.yml` 的薄封装，默认启动核心链路 `system auth gateway`。如需同时启动 resource/workflow，可执行 `scripts/dev/start-all.sh --full`。
+
+### 手动启动
+
 1. **启动基础设施**
 
-   本地默认使用 **PostgreSQL**、Redis、Nacos（与 `config/nacos/datasource.yml` 一致）。首次从旧版 MySQL 编排切换时，可先执行 `docker-compose down -v` 再启动。
+   本地默认使用 **PostgreSQL**、Redis、Nacos（与 `config/nacos/datasource.yml` 一致）。首次从旧版 MySQL 编排切换时，可先执行 `scripts/dev/stop-all.sh --volumes` 再启动。
 
    ```bash
-   cd docker && docker-compose up -d
+   scripts/dev/up.sh
    ```
 
-2. **编译**
+2. **上传 Nacos 配置模板**
+
+   ```bash
+   scripts/dev/upload-nacos-configs.sh
+   ```
+
+3. **编译**
 
    ```bash
    mvn clean install -DskipTests
    ```
 
-3. **运行系统服务**
+4. **运行系统服务**
 
    ```bash
    scripts/dev/run-system.sh
    ```
 
-4. **运行认证服务与网关**
+5. **运行认证服务与网关**
 
    ```bash
    scripts/dev/run-auth.sh
    scripts/dev/run-gateway.sh
    ```
 
-5. **（可选）运行 Symphony**
+6. **（可选）运行 Symphony**
 
    先复制 `artemis-symphony/WORKFLOW.md.example` 为仓库根 `WORKFLOW.md`，并按需设置 `LINEAR_API_KEY`。若希望 Symphony 在处理 issue 后把进度摘要评论回写到 Linear，可在 workflow 中开启 `reporting.linear_comments.enabled: true`。脚本默认会打开本地 `9500` 端口用于观测；如需自定义，可直接追加 `--server.port=...`，也兼容旧写法 `-Dspring-boot.run.arguments=...`。
 
@@ -98,7 +122,7 @@ artemis/
 
    若未提供真实 SSH worker，脚本会自动使用 `artemis-symphony/test-support/live-e2e-docker/` 中的 docker fallback worker；该 fallback 会保留官方默认 `workspace-write` sandbox 语义，并可通过 `SYMPHONY_LIVE_E2E_KEEP_ARTIFACTS=1` 保留失败现场。
 
-6. **（可选）编译 Symphony 子工程**
+7. **（可选）编译 Symphony 子工程**
 
    须在**仓库根目录**执行，以便继承根 BOM 与 `dependencyManagement`（勿仅在 `artemis-symphony` 目录单独 `mvn compile`）。详见 [`artemis-symphony/README.md`](artemis-symphony/README.md)。
 
@@ -166,7 +190,7 @@ Artemis 将 Harness Engineering 作为仓库级工程结构落地，而不是将
 
 1. 阅读 `README.md`、`AGENTS.md`、`ARCHITECTURE.md` 与相关 OpenSpec
 2. 对跨模块或多步骤任务，在 `docs/exec-plans/active/` 建立执行计划
-3. 通过 `scripts/dev/` 启动依赖、服务并完成健康检查
+3. 通过 `scripts/dev/start-all.sh` 一键启动核心链路，或通过 `scripts/dev/` 手动启动依赖、服务并完成健康检查
 4. 通过 `scripts/smoke/` 或 `SERVICE_SMOKE_RUNBOOK.md` 完成最小行为验证
 5. 实施代码、测试、脚本和文档的成组变更
 6. 优先执行 `scripts/harness/verify-changed.sh`

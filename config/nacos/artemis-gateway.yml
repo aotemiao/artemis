@@ -10,16 +10,18 @@ spring:
     name: artemis-gateway
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lowerCaseServiceId: true
-      routes:
-        - id: artemis-auth
-          uri: lb://artemis-auth
-          predicates:
-            - Path=/auth/**
-        - id: artemis-system
-          uri: lb://artemis-system
-          predicates:
-            - Path=/api/system/**
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            - id: artemis-auth
+              uri: lb://artemis-auth
+              predicates:
+                - Path=/auth/**
+            - id: artemis-system
+              uri: lb://artemis-system
+              predicates:
+                - Path=/api/system/**

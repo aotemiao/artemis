@@ -1,21 +1,53 @@
-# 本地开发：PostgreSQL、Redis、Nacos
-# 使用：docker-compose up -d
-# 首次从 MySQL 切换过来可先执行 docker-compose down -v 清空旧卷
+# 本地开发一键编排：PostgreSQL、Redis、Nacos、配置加载器与核心服务
+# 使用：docker compose -f docker/docker-compose.yml up -d --build
+# 可选全量服务：docker compose -f docker/docker-compose.yml --profile full up -d --build
+# 首次从旧版 MySQL 编排切换过来可先执行 docker compose -f docker/docker-compose.yml down -v
 
-version: "3.8"
+x-artemis-app-environment: &artemis-app-environment
+  TZ: Asia/Shanghai
+  SPRING_CLOUD_NACOS_SERVER_ADDR: nacos:8848
+  SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ""
+  SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ""
+  SPRING_DATA_REDIS_HOST: redis
+  SPRING_DATA_REDIS_PORT: "6379"
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/artemis_system
+  SPRING_DATASOURCE_USERNAME: postgres
+  SPRING_DATASOURCE_PASSWORD: postgres
+  SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+  DUBBO_REGISTRY_ADDRESS: nacos://nacos:8848
+
+x-artemis-app-command: &artemis-app-command
+  - --spring.cloud.nacos.server-addr=nacos:8848
+  - --spring.cloud.nacos.config.namespace=
+  - --spring.cloud.nacos.discovery.namespace=
+  - --dubbo.registry.address=nacos://nacos:8848
+
+x-artemis-app-depends-on: &artemis-app-depends-on
+  postgres:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+  nacos:
+    condition: service_healthy
+  nacos-config-loader:
+    condition: service_completed_successfully
 
 services:
   postgres:
     image: postgres:16-alpine
     container_name: artemis-postgres
+    restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: artemis_system
+      TZ: Asia/Shanghai
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - artemis
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -26,8 +58,11 @@ services:
   redis:
     image: redis:7-alpine
     container_name: artemis-redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
+    networks:
+      - artemis
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -36,7 +71,9 @@ services:
 
   nacos:
     image: nacos/nacos-server:v2.3.2
+    platform: linux/amd64
     container_name: artemis-nacos
+    restart: unless-stopped
     ports:
       - "8848:8848"
       - "9848:9848"
@@ -46,17 +83,140 @@ services:
       NACOS_AUTH_ENABLE: "false"
       JVM_XMS: 256m
       JVM_XMX: 256m
+      TZ: Asia/Shanghai
     volumes:
       - nacos_data:/home/nacos/data
+    networks:
+      - artemis
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8848/nacos/v1/console/health/readiness || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8848/nacos/v1/console/health/readiness >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
+
+  nacos-config-loader:
+    image: curlimages/curl:8.8.0
+    container_name: artemis-nacos-config-loader
+    depends_on:
+      nacos:
+        condition: service_healthy
+    environment:
+      NACOS_SERVER: http://nacos:8848
+      NACOS_GROUP: DEFAULT_GROUP
+      REDIS_HOST: redis
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+    volumes:
+      - ../config/nacos:/config/nacos:ro
+      - ./nacos-config-loader.sh:/nacos-config-loader.sh:ro
+    networks:
+      - artemis
+    entrypoint: ["/bin/sh", "/nacos-config-loader.sh"]
+
+  artemis-system:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.system
+    image: artemis-system:local
+    container_name: artemis-system
+    restart: unless-stopped
+    ports:
+      - "9300:9300"
+    environment:
+      <<: *artemis-app-environment
+    command: *artemis-app-command
+    depends_on:
+      <<: *artemis-app-depends-on
+    networks:
+      - artemis
+
+  artemis-auth:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.auth
+    image: artemis-auth:local
+    container_name: artemis-auth
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+    environment:
+      <<: *artemis-app-environment
+    command: *artemis-app-command
+    depends_on:
+      <<: *artemis-app-depends-on
+      artemis-system:
+        condition: service_started
+    networks:
+      - artemis
+
+  artemis-gateway:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.gateway
+    image: artemis-gateway:local
+    container_name: artemis-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      <<: *artemis-app-environment
+    command: *artemis-app-command
+    depends_on:
+      <<: *artemis-app-depends-on
+      artemis-system:
+        condition: service_started
+      artemis-auth:
+        condition: service_started
+    networks:
+      - artemis
+
+  artemis-resource:
+    profiles:
+      - full
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.resource
+    image: artemis-resource:local
+    container_name: artemis-resource
+    restart: unless-stopped
+    ports:
+      - "9400:9400"
+    environment:
+      <<: *artemis-app-environment
+      SPRING_FLYWAY_TABLE: resource_flyway_schema_history
+    command: *artemis-app-command
+    depends_on:
+      <<: *artemis-app-depends-on
+    networks:
+      - artemis
+
+  artemis-workflow:
+    profiles:
+      - full
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.workflow
+    image: artemis-workflow:local
+    container_name: artemis-workflow
+    restart: unless-stopped
+    ports:
+      - "9410:9410"
+    environment:
+      <<: *artemis-app-environment
+      SPRING_FLYWAY_TABLE: workflow_flyway_schema_history
+    command: *artemis-app-command
+    depends_on:
+      <<: *artemis-app-depends-on
+    networks:
+      - artemis
+
+networks:
+  artemis:
+    name: artemis
 
 volumes:
   postgres_data:
