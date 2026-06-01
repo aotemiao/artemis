@@ -110,6 +110,6 @@ Artemis 已具备仓库级 Harness Engineering 骨架，但与完整 SDD + Harne
 
 ## 遗留问题
 
-- 历史业务能力仍需按优先级补 Feature Spec。
-- 租户创建与初始化已完成首个真实业务 Feature Spec 迁移，但系统域其它 P0 能力仍需继续补齐。
+- 已完成系统主链路 Feature Spec 回填：用户目录、角色绑定、内部授权快照、网关 RBAC、菜单权限 MVP 与租户创建初始化均已归档到 `docs/feature-specs/completed/`。
+- 后续新增业务能力仍需按 Feature Spec 标准补齐验收映射，尤其是部门、岗位、配置、审计、租户同步、数据权限、前端动态路由和租户套餐菜单同步。
 - 部署演练还需要覆盖启动后的 smoke 和回滚演练。
