@@ -1,7 +1,7 @@
 # Feature Specs
 
 Status: maintained
-Last Reviewed: 2026-06-01
+Last Reviewed: 2026-06-02
 Review Cadence: 90 days
 
 本目录存放业务需求级 Spec，用于把模糊需求收敛成可评审、可拆解、可验证的交付输入。
@@ -24,6 +24,15 @@ Feature Spec 回答“这次需求要交付什么”。它不同于 OpenSpec：
   进行中需求的 Spec。文件名建议为 `YYYY-MM-DD-<topic>.md`。
 - `completed/`
   已交付需求的 Spec 归档。
+
+当前已归档的核心业务 Spec：
+
+- `completed/2026-06-02-user-directory-authentication.md`
+- `completed/2026-06-02-role-directory-user-bindings.md`
+- `completed/2026-06-02-internal-authorization-snapshot.md`
+- `completed/2026-06-02-gateway-minimal-rbac.md`
+- `completed/2026-06-02-menu-permission-mvp.md`
+- `completed/2026-06-01-tenant-creation-initialization.md`
 
 ## 使用规则
 

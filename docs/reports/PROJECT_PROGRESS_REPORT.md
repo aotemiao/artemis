@@ -64,7 +64,7 @@ Review Cadence: 30 days
 | 仓库治理与验证 | 高完成度 | 文档、脚本、`mvn verify`、`full-verify`、治理工作流已形成闭环 |
 | 领域服务复制能力 | 已具备可复制骨架 | colocated `*-client`、`new-domain-service.sh`、`artemis-resource` 样板与服务目录守门已落仓 |
 | 平台主链路 | 已形成 MVP 闭环 | `system -> auth -> gateway` 已贯通用户、角色、授权快照与最小 RBAC |
-| 业务能力深度 | 基础完成，仍需扩展 | 当前重点完成了 lookup、用户目录、角色目录、用户角色绑定与内部授权快照，菜单、部门、租户、配置、审计等仍待继续补齐 |
+| 业务能力深度 | 基础完成，仍需扩展 | 当前重点完成了 lookup、用户目录、角色目录、用户角色绑定、内部授权快照、菜单权限 MVP 与租户创建初始化；部门、岗位、配置、审计、租户同步等仍待继续补齐 |
 | 运行可靠性 | 入口已齐，真实演练仍需加强 | readiness、smoke、部署 / 回滚 runbook 已有，但真实环境持续演练还不足 |
 | Symphony 编排能力 | 高完成度 | 已能拉取 Linear、创建工作区、驱动 Codex，且启用链路、评论回写、参考实现核心对齐与 live e2e 已完成 |
 
@@ -73,7 +73,7 @@ Review Cadence: 30 days
 ### 1. Harness Engineering 已完成本轮封板
 
 - 根入口文档、架构地图、质量看板、runbook、执行计划目录均已建立。
-- Feature Spec、验收映射模式与可复用 patterns 目录已建立，并已把租户创建与初始化能力沉淀为真实业务 Feature Spec。
+- Feature Spec、验收映射模式与可复用 patterns 目录已建立，并已把用户目录、角色绑定、内部授权快照、网关 RBAC、菜单权限 MVP 与租户创建初始化沉淀为真实业务 Feature Spec。
 - `scripts/dev/`、`scripts/harness/`、`scripts/smoke/` 已形成统一执行入口。
 - `mvn verify`、`scripts/harness/verify-changed.sh`、`scripts/harness/full-verify.sh`、CI 与治理工作流已构成默认验证回路。
 - 文档 freshness、重复模式扫描、质量问题归档、agent 自评与 reviewer 回路都已沉淀为仓库事实。
@@ -100,10 +100,10 @@ Review Cadence: 30 days
 
 ## 当前仍需重点补强的缺口
 
-1. `artemis-system` 还没有补齐菜单、部门、租户、配置、审计、权限点等更完整的平台主数据能力。
+1. `artemis-system` 还没有补齐部门、岗位、配置、审计、租户同步、数据权限等更完整的平台主数据能力。
 2. `artemis-resource` 目前更像模板验证服务，还不是承载真实业务的第二领域样板。
 3. `*-client` 已形成结构，但兼容性、版本化和回归策略仍需继续增强。
-4. Feature Spec 层已建立，并已有租户创建与初始化 Spec；历史业务需求仍需继续系统补齐 Spec 与验收映射。
+4. Feature Spec 层已建立，并已覆盖当前系统主链路的用户、角色、授权快照、网关 RBAC、菜单权限和租户初始化；后续新增业务能力仍需按同一标准补齐 Spec 与验收映射。
 5. 部署 / 回滚 runbook 已有统一入口，但真实环境演练频次和故障回放能力还不足。
 6. `artemis-symphony` 已完成当前一轮核心加固，下一步重点更偏向持续演练、真实业务接入与默认交付流程沉淀。
 

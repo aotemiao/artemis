@@ -47,10 +47,11 @@ print_step "Checking doc freshness metadata"
 for doc in "${docs[@]}"; do
   require_repo_path_exact "$doc"
   python3 - "$doc" "$max_cadence_days" <<'PY'
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 import re
 import sys
+from zoneinfo import ZoneInfo
 
 path = Path(sys.argv[1])
 max_cadence_days = int(sys.argv[2])
@@ -78,7 +79,7 @@ cadence_days = int(cadence_match.group(1))
 if cadence_days > max_cadence_days:
     fail(f"review cadence exceeds maximum allowed {max_cadence_days} days")
 
-today = date.today()
+today = datetime.now(ZoneInfo("Asia/Shanghai")).date()
 age_days = (today - reviewed).days
 
 if age_days < 0:
