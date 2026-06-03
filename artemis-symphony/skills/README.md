@@ -11,3 +11,4 @@
 - `deploy-drill.md`
 - `expand-existing-service.md`
 - `spec-driven-delivery.md`
+- `adversarial-review.md`

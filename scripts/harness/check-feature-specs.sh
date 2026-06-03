@@ -40,6 +40,10 @@ required_sections = [
     "## 验证映射",
     "## 关联资产",
 ]
+modern_required_sections = [
+    "## 异常与风险场景",
+    "## 工程风险评估",
+]
 
 missing = []
 ac_pattern = re.compile(r"\|\s*(AC-\d+)\s*\|")
@@ -68,6 +72,11 @@ for path in sorted(base.rglob("*.md")):
     for section in required_sections:
         if section not in text:
             missing.append(f"{rel}: missing section {section}")
+    is_completed = "completed/" in rel.as_posix()
+    if not is_completed:
+        for section in modern_required_sections:
+            if section not in text:
+                missing.append(f"{rel}: missing section {section}")
     if "| 验收编号 | 验证入口 |" not in text:
         missing.append(f"{rel}: missing validation mapping table")
     acceptance = text.split("## 验收标准", 1)[1].split("## 验证映射", 1)[0]

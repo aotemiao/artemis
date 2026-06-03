@@ -55,8 +55,12 @@ Feature Spec 回答“这次需求要交付什么”。它不同于 OpenSpec：
 - `## 用户故事`
 - `## 业务规则`
 - `## 数据与接口影响`
+- `## 异常与风险场景`
+- `## 工程风险评估`
 - `## 验收标准`
 - `## 验证映射`
 - `## 关联资产`
 
 `## 验证映射` 至少要列出一条可执行验证入口，例如单元测试、集成测试、smoke、harness 脚本或人工验收检查。
+
+`## 工程风险评估` 用于提前暴露权限、幂等、并发、事务、异常码、SQL 性能、日志、可观测性和数据迁移风险。涉及高风险项时，应同步参考 `docs/patterns/security-review-checklist.md` 与 `docs/runbooks/RISK_BASED_VERIFICATION_RUNBOOK.md`。

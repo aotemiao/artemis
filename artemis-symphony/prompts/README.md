@@ -4,6 +4,8 @@
 
 当前默认提供：
 
+- `agent-requirement-intake.md`
+- `adversarial-review.md`
 - `self-review-and-handoff.md`
 - `contract-change-review.md`
 - `deploy-drill-report.md`

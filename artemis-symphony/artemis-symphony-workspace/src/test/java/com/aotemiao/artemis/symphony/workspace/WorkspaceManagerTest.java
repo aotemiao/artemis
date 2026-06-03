@@ -97,6 +97,8 @@ class WorkspaceManagerTest {
     @Test
     void createForIssue_expandsRemoteTildeWorkspaceRoot() throws Exception {
         Path fakeSsh = tempDir.resolve("fake-ssh-home.sh");
+        Path remoteHome = tempDir.resolve("remote-home");
+        Files.createDirectories(remoteHome);
         Files.writeString(fakeSsh, """
                 #!/usr/bin/env bash
                 set -euo pipefail
@@ -118,8 +120,10 @@ class WorkspaceManagerTest {
                       ;;
                   esac
                 done
+                export HOME="%s"
                 exec bash -lc "$1"
-                """);
+                """.formatted(
+                        remoteHome.toString().replace("\\", "\\\\").replace("\"", "\\\"")));
         fakeSsh.toFile().setExecutable(true);
 
         String oldExecutable = System.getProperty("symphony.ssh.executable");
@@ -134,7 +138,8 @@ class WorkspaceManagerTest {
                     manager.createForIssue("AOT-home", "fake-worker");
 
             assertTrue(result.isSuccess(), () -> "expected success but was " + result.errorCode());
-            Path expected = Path.of(System.getProperty("user.home"), ".symphony_remote_workspace_test", "AOT-home");
+            Path expected =
+                    remoteHome.resolve(".symphony_remote_workspace_test").resolve("AOT-home");
             assertTrue(Files.isSameFile(expected, result.value().path()));
             assertTrue(Files.isDirectory(expected));
 

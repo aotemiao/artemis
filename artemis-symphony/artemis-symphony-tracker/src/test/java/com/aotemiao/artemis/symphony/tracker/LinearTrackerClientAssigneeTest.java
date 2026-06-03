@@ -5,27 +5,21 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.aotemiao.artemis.symphony.core.model.Issue;
-import com.sun.net.httpserver.HttpServer;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class LinearTrackerClientAssigneeTest {
 
     @Test
-    void fetchCandidateIssues_marksIssuesOutsideConfiguredAssigneeAsUnrouted() throws Exception {
-        HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
-        server.createContext("/graphql", exchange -> {
-            String requestBody = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            byte[] response;
-            if (requestBody.contains("SymphonyLinearViewer")) {
-                response = """
+    void fetchCandidateIssues_marksIssuesOutsideConfiguredAssigneeAsUnrouted() {
+        LinearTrackerClient client =
+                new LinearTrackerClient("http://linear.test/graphql", "k", "me", (endpoint, apiKey, body) -> {
+                    if (body.contains("SymphonyLinearViewer")) {
+                        return new LinearTrackerClient.GraphqlHttpResponse(200, """
                         { "data": { "viewer": { "id": "viewer-1" } } }
-                        """.getBytes(StandardCharsets.UTF_8);
-            } else {
-                response = """
+                        """);
+                    }
+                    return new LinearTrackerClient.GraphqlHttpResponse(200, """
                         {
                           "data": {
                             "issues": {
@@ -68,29 +62,16 @@ class LinearTrackerClientAssigneeTest {
                             }
                           }
                         }
-                        """.getBytes(StandardCharsets.UTF_8);
-            }
-            exchange.getResponseHeaders().add("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, response.length);
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(response);
-            }
-        });
-        server.start();
-        try {
-            LinearTrackerClient client = new LinearTrackerClient(
-                    "http://127.0.0.1:" + server.getAddress().getPort() + "/graphql", "k", "me");
+                        """);
+                });
 
-            TrackerResult<List<Issue>> result = client.fetchCandidateIssues("artemis", List.of("Todo"));
+        TrackerResult<List<Issue>> result = client.fetchCandidateIssues("artemis", List.of("Todo"));
 
-            assertTrue(result.isSuccess());
-            assertEquals(2, result.value().size());
-            assertTrue(result.value().get(0).assignedToWorker());
-            assertEquals("viewer-1", result.value().get(0).assigneeId());
-            assertFalse(result.value().get(1).assignedToWorker());
-            assertEquals("viewer-2", result.value().get(1).assigneeId());
-        } finally {
-            server.stop(0);
-        }
+        assertTrue(result.isSuccess());
+        assertEquals(2, result.value().size());
+        assertTrue(result.value().get(0).assignedToWorker());
+        assertEquals("viewer-1", result.value().get(0).assigneeId());
+        assertFalse(result.value().get(1).assignedToWorker());
+        assertEquals("viewer-2", result.value().get(1).assigneeId());
     }
 }

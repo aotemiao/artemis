@@ -74,6 +74,24 @@
 - **WHEN** 提交的代码违反 Checkstyle 规则
 - **THEN** `mvn verify` SHALL 失败并报告具体违规位置
 
+### Requirement: 测试 JVM 参数可重复
+
+根 POM SHALL 统一管理 Surefire 与 Failsafe 的测试 JVM 参数。使用 Mockito inline mock maker 的测试 MUST 通过显式 `-javaagent` 加载 `mockito-core`，MUST NOT 依赖 JDK 运行时的 self-attach 能力。若模块启用 JaCoCo，测试 JVM 参数 MUST 保留 `@{argLine}`，确保 JaCoCo agent 与 Mockito agent 可以共同生效。
+
+#### Scenario: JDK 21 环境执行 Mockito 测试
+
+- **WHEN** 开发者或 CI 在 JDK 21 上执行 `mvn verify`
+- **THEN** Mockito 测试 SHALL 通过根 POM 声明的 javaagent 初始化 mock maker，不因当前 JDK 发行版禁用 self-attach 而失败
+
+### Requirement: 测试环境隔离
+
+单元测试和治理测试 SHOULD 使用内存 fake、临时目录、内嵌数据库或可注入 transport 隔离外部依赖。默认测试 MUST NOT 绑定本地端口、MUST NOT 依赖真实用户 HOME 目录下的固定路径、MUST NOT 要求外部网络或真实 SSH 连接。确需覆盖网络、SSH、容器或真实服务的场景 SHALL 放入显式 e2e/smoke 入口，并在 runbook 中说明依赖和跳过条件。
+
+#### Scenario: 受限沙箱执行测试
+
+- **WHEN** 在禁止端口绑定、禁止外部网络或限制用户 HOME 写入的执行环境中运行 `mvn verify`
+- **THEN** 默认单元测试 SHALL 仍可通过 fake transport、`@TempDir` 或内嵌依赖完成验证，不因环境权限差异失败
+
 ### Requirement: 仓库行尾规则固定
 
 项目 SHALL 在根目录提供 `.gitattributes` 固定文本文件行尾，避免本地 `core.autocrlf` 等 Git 配置影响 Spotless、脚本执行与跨平台差异。默认文本文件 SHALL 使用 LF；跨平台 shell 脚本 MUST 使用 LF；Windows 原生批处理脚本 MAY 使用 CRLF。已有历史目录如需暂时保留不同规则，MUST 在 `.gitattributes` 中显式声明，并在注释中说明后续统一迁移方式。

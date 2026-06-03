@@ -1,7 +1,7 @@
 # Harness Engineering Checklist
 
 Status: maintained
-Last Reviewed: 2026-06-01
+Last Reviewed: 2026-06-02
 Review Cadence: 90 days
 
 本清单强调“可直接落地”。每一项都应尽量对应仓库中的文档、脚本、测试或自动化入口，而不是抽象口号。
@@ -29,6 +29,8 @@ Review Cadence: 90 days
 - `[x]` 提供执行计划模板 `docs/exec-plans/templates/execution-plan-template.md`
 - `[x]` 提供业务需求级 Feature Spec 目录 `docs/feature-specs/`
 - `[x]` 提供可复用模式资产目录 `docs/patterns/`
+- `[x]` 提供 agent workflow eval 目录 `docs/agent-evals/`
+- `[x]` 提供 agent run 摘要规则 `docs/reports/agent-runs/README.md`
 - `[x]` OpenSpec 已补更多具体场景（治理、agent 资产、契约文档、readiness）
 - `[x]` 建立 docs 索引与交叉链接检查
 - `[x]` 建立文档过期扫描与定期整理机制
@@ -48,6 +50,8 @@ Review Cadence: 90 days
 - `[x]` 提供 OpenSpec 同步检查脚本 `scripts/harness/check-openspec-sync.sh`
 - `[x]` 提供 Feature Spec 结构检查脚本 `scripts/harness/check-feature-specs.sh`
 - `[x]` 提供 Spec 驱动交付链路检查脚本 `scripts/harness/check-spec-driven-delivery-chain.sh`
+- `[x]` 提供 Agentic Harness 资产检查脚本 `scripts/harness/check-agentic-harness-assets.sh`
+- `[x]` 提供 agent workflow eval 脚本 `scripts/harness/run-agent-evals.sh`
 - `[x]` 提供部署演练报告结构检查脚本 `scripts/harness/check-deploy-drill-reports.sh`
 - `[x]` 提供最小 smoke 脚本 `scripts/smoke/system-lookup.sh`
 - `[x]` Symphony 已具备编排器，workflow 模板已细化到 runbook / skills / self-review
@@ -65,6 +69,8 @@ Review Cadence: 90 days
 - `[x]` 增加契约变更检查与 API 文档同步检查
 - `[x]` 增加覆盖率与关键路径测试基线
 - `[x]` 增加 Feature Spec 验收映射结构检查
+- `[x]` 增加 Feature Spec 异常场景与工程风险字段
+- `[x]` 增加风险分级验证 runbook 与 agentic harness 资产守门
 - `[x]` 增加部署 / 回滚演练报告结构检查
 
 ## D. 让 agent 按仓库结构工作，而不是按聊天记忆工作
@@ -76,6 +82,8 @@ Review Cadence: 90 days
 - `[x]` 为 agent 建立更细粒度的 skills / prompts
 - `[x]` 为 Spec 驱动交付建立 skill / prompt 与 handoff 模式
 - `[x]` 建立 agent 自评与 reviewer 回路
+- `[x]` 建立 adversarial review skill / prompt 和安全审查清单
+- `[x]` 建立 agent 权限、sandbox 和审批策略 runbook
 
 ## E. 控制熵增，避免 AI slop 扩散
 
@@ -85,6 +93,7 @@ Review Cadence: 90 days
 - `[x]` 建立重复模式扫描，例如重复 DTO、重复异常映射、重复脚本
 - `[x]` 建立周期性“文档整理 / 工程整理”任务
 - `[x]` 建立质量问题的归档与关闭标准
+- `[x]` 将已完成的历史执行计划和 OpenSpec change 从 active 区归档，降低治理提醒噪声
 
 ## F. 提升环境与可观测性 legibility
 

@@ -37,9 +37,13 @@ public final class ServiceConfig {
             "docs/feature-specs/templates/feature-spec-template.md",
             "docs/patterns/spec-to-validation-mapping.md",
             "docs/patterns/agent-delivery-handoff.md",
+            "docs/patterns/security-review-checklist.md",
+            "docs/runbooks/AGENT_PERMISSION_RUNBOOK.md",
             "docs/exec-plans/templates/execution-plan-template.md",
             "artemis-symphony/prompts/spec-driven-delivery.md",
             "artemis-symphony/skills/spec-driven-delivery.md",
+            "artemis-symphony/prompts/adversarial-review.md",
+            "artemis-symphony/skills/adversarial-review.md",
             "scripts/harness/check-feature-specs.sh",
             "scripts/harness/check-spec-driven-delivery-chain.sh");
     private static final Map<String, Object> DEFAULT_APPROVAL_POLICY = Map.of(

@@ -9,6 +9,12 @@
 - **WHEN** GitHub Actions 的定时任务触发
 - **THEN** SHALL 调用仓库内治理脚本，完成文档与工程治理检查，并输出可定位失败原因的日志
 
+#### Scenario: CI 与本地治理入口保持一致
+
+- **WHEN** GitHub Actions 执行治理检查
+- **THEN** SHALL 复用 `scripts/harness/run-governance-checks.sh`
+- **AND** SHOULD NOT 在 workflow 中复制一份容易漂移的治理脚本清单
+
 ### Requirement: 重复模式扫描
 
 仓库 SHALL 提供重复模式扫描脚本，至少覆盖以下高频熵增点：
@@ -38,3 +44,32 @@
 
 - **WHEN** 某质量问题对应的脚本、测试、文档与验证入口均已落仓，并在标准验证中通过
 - **THEN** 该问题 SHALL 可按文档约定迁移到 archive，并记录关闭日期与验证方式
+
+### Requirement: Agentic Harness 资产必须可验证
+
+仓库 SHALL 为 agentic 开发优化资产提供专项守门，至少覆盖：
+
+- agent eval fixture
+- agent 运行轨迹摘要规则
+- agent 权限策略 runbook
+- threat model
+- 风险分级验证 runbook
+- 安全审查清单
+- adversarial review prompt / skill
+- 跨 agent 工具的薄指针文件
+
+#### Scenario: 新增 agentic 开发资产
+
+- **WHEN** 仓库新增或修改 agentic 开发资产
+- **THEN** `scripts/harness/check-agentic-harness-assets.sh` SHALL 能检查关键文件存在和核心索引可发现
+- **AND** `scripts/harness/run-agent-evals.sh` SHALL 能验证 eval fixture 的基础结构和路径引用
+
+### Requirement: 跨 Agent 工具入口必须指向同一事实源
+
+当仓库为 Copilot、Claude、Gemini 等工具提供专用指令文件时，这些文件 SHALL 作为薄指针引用 `AGENTS.md`，MUST NOT 复制完整规则，避免多套 agent 指令漂移。
+
+#### Scenario: 新增外部 agent 指令文件
+
+- **WHEN** 仓库新增 `.github/copilot-instructions.md`、`CLAUDE.md` 或 `GEMINI.md`
+- **THEN** 文件内容 SHALL 指向 `AGENTS.md`
+- **AND** 具体 workflow、验证和 handoff 规则 SHALL 仍以 `AGENTS.md` 为准

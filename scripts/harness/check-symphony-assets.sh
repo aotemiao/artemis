@@ -14,7 +14,9 @@ required_files=(
   "artemis-symphony/skills/deploy-drill.md"
   "artemis-symphony/skills/expand-existing-service.md"
   "artemis-symphony/skills/spec-driven-delivery.md"
+  "artemis-symphony/skills/adversarial-review.md"
   "artemis-symphony/prompts/self-review-and-handoff.md"
+  "artemis-symphony/prompts/adversarial-review.md"
   "artemis-symphony/prompts/contract-change-review.md"
   "artemis-symphony/prompts/deploy-drill-report.md"
   "artemis-symphony/prompts/phase-delivery-plan.md"
@@ -36,5 +38,7 @@ grep -Fq "deploy-drill.md" artemis-symphony/WORKFLOW.md.example
 grep -Fq "phase-delivery-plan.md" artemis-symphony/README.md
 grep -Fq "spec-driven-delivery.md" artemis-symphony/README.md
 grep -Fq "spec-driven-delivery.md" artemis-symphony/WORKFLOW.md.example
+grep -Fq "adversarial-review.md" artemis-symphony/README.md
+grep -Fq "adversarial-review.md" artemis-symphony/WORKFLOW.md.example
 
 print_step "Symphony asset check passed"

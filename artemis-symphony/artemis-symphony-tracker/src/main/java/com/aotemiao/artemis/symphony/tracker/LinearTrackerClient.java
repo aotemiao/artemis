@@ -5,6 +5,7 @@ import com.aotemiao.artemis.symphony.core.model.Issue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -27,7 +28,7 @@ public class LinearTrackerClient implements TrackerClient {
     private final String endpoint;
     private final String apiKey;
     private final String assignee;
-    private final HttpClient httpClient;
+    private final GraphqlTransport graphqlTransport;
     private final ObjectMapper objectMapper;
 
     public LinearTrackerClient(String endpoint, String apiKey) {
@@ -35,12 +36,14 @@ public class LinearTrackerClient implements TrackerClient {
     }
 
     public LinearTrackerClient(String endpoint, String apiKey, String assignee) {
+        this(endpoint, apiKey, assignee, new JavaHttpGraphqlTransport());
+    }
+
+    LinearTrackerClient(String endpoint, String apiKey, String assignee, GraphqlTransport graphqlTransport) {
         this.endpoint = endpoint != null && !endpoint.isBlank() ? endpoint : "https://api.linear.app/graphql";
         this.apiKey = apiKey;
         this.assignee = assignee;
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofMillis(REQUEST_TIMEOUT_MS))
-                .build();
+        this.graphqlTransport = graphqlTransport != null ? graphqlTransport : new JavaHttpGraphqlTransport();
         this.objectMapper = new ObjectMapper();
     }
 
@@ -332,14 +335,8 @@ public class LinearTrackerClient implements TrackerClient {
             ObjectNode body = objectMapper.createObjectNode();
             body.put("query", query);
             body.set("variables", objectMapper.valueToTree(variables));
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(endpoint))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", apiKey != null ? apiKey : "")
-                    .timeout(Duration.ofMillis(REQUEST_TIMEOUT_MS))
-                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
-                    .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            GraphqlHttpResponse response =
+                    graphqlTransport.post(endpoint, apiKey, objectMapper.writeValueAsString(body));
             JsonNode root = objectMapper.readTree(response.body());
 
             if (response.statusCode() != 200) {
@@ -459,5 +456,32 @@ public class LinearTrackerClient implements TrackerClient {
         List<JsonNode> issues;
         boolean hasNextPage;
         String endCursor;
+    }
+
+    @FunctionalInterface
+    interface GraphqlTransport {
+        GraphqlHttpResponse post(String endpoint, String apiKey, String body) throws IOException, InterruptedException;
+    }
+
+    record GraphqlHttpResponse(int statusCode, String body) {}
+
+    private static class JavaHttpGraphqlTransport implements GraphqlTransport {
+        private final HttpClient httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofMillis(REQUEST_TIMEOUT_MS))
+                .build();
+
+        @Override
+        public GraphqlHttpResponse post(String endpoint, String apiKey, String body)
+                throws IOException, InterruptedException {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(endpoint))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", apiKey != null ? apiKey : "")
+                    .timeout(Duration.ofMillis(REQUEST_TIMEOUT_MS))
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            return new GraphqlHttpResponse(response.statusCode(), response.body());
+        }
     }
 }

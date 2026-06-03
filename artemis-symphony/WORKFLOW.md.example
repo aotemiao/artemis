@@ -28,9 +28,13 @@ delivery:
       - docs/feature-specs/templates/feature-spec-template.md
       - docs/patterns/spec-to-validation-mapping.md
       - docs/patterns/agent-delivery-handoff.md
+      - docs/patterns/security-review-checklist.md
+      - docs/runbooks/AGENT_PERMISSION_RUNBOOK.md
       - docs/exec-plans/templates/execution-plan-template.md
       - artemis-symphony/prompts/spec-driven-delivery.md
       - artemis-symphony/skills/spec-driven-delivery.md
+      - artemis-symphony/prompts/adversarial-review.md
+      - artemis-symphony/skills/adversarial-review.md
       - scripts/harness/check-feature-specs.sh
       - scripts/harness/check-spec-driven-delivery-chain.sh
 reporting:
@@ -59,18 +63,20 @@ codex:
 
 You are working on a Linear issue inside the Artemis repository.
 
-Before changing code, read these repository-local sources of truth:
+Before changing code, read these minimal repository-local sources of truth:
 
 1. `AGENTS.md`
 2. `ARCHITECTURE.md`
-3. `QUALITY_SCORE.md`
-4. `docs/governance/CHECKLIST.md`
-5. Relevant files under `openspec/specs/`
-6. `docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`
-7. Relevant active plan under `docs/exec-plans/active/`, if one exists
-8. `artemis-symphony/prompts/agent-requirement-intake.md`
-9. `docs/feature-specs/README.md`
-10. `docs/patterns/spec-to-validation-mapping.md`
+3. `docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`
+
+Then route by task type and read only the relevant additional assets:
+
+- Quality / progress context: `QUALITY_SCORE.md`, `docs/governance/CHECKLIST.md`, `docs/reports/ROADMAP.md`
+- Stable rules: relevant files under `openspec/specs/`
+- Existing staged work: relevant active plan under `docs/exec-plans/active/`, if one exists
+- Vague request: `artemis-symphony/prompts/agent-requirement-intake.md`
+- Business feature: `docs/feature-specs/README.md`, `docs/patterns/spec-to-validation-mapping.md`
+- Security-sensitive work: `docs/security/THREAT_MODEL.md`, `docs/patterns/security-review-checklist.md`, `docs/runbooks/AGENT_PERMISSION_RUNBOOK.md`
 
 When the task matches a common engineering pattern, also read the corresponding asset:
 
@@ -81,6 +87,7 @@ When the task matches a common engineering pattern, also read the corresponding 
 - Deploy or rollback drill: `artemis-symphony/skills/deploy-drill.md`
 - Expand existing service: `artemis-symphony/skills/expand-existing-service.md`
 - Business feature or PRD-style request: `artemis-symphony/skills/spec-driven-delivery.md`
+- High-risk permission, transaction, concurrency, SQL, logging, or observability change: `artemis-symphony/skills/adversarial-review.md`
 
 Execution rules:
 
@@ -91,6 +98,7 @@ Execution rules:
 - If the request is still vague after reading the sources above, use `artemis-symphony/prompts/agent-requirement-intake.md` to normalize the需求 before implementation.
 - If the request has business rules, data model impact, API impact, internal RPC impact, permissions, or cross-module behavior, use `artemis-symphony/prompts/spec-driven-delivery.md` and create or update a Feature Spec under `docs/feature-specs/active/` before implementation.
 - Map every key acceptance criterion to a test, smoke, harness script, or explicit manual validation item before final handoff.
+- For permission, idempotency, locking, transaction, exception, SQL performance, logging, or observability risk, use `docs/patterns/security-review-checklist.md` and `docs/runbooks/AGENT_PERMISSION_RUNBOOK.md`.
 - Use `scripts/harness/verify-changed.sh` for scoped validation.
 - Use `scripts/harness/full-verify.sh` for cross-module or high-risk changes.
 - Use `scripts/harness/check-api-doc-sync.sh` and `scripts/harness/check-client-contracts.sh` when touching contracts or API docs.
@@ -100,6 +108,7 @@ Execution rules:
 - For complex implementation work, create or update an execution plan under `docs/exec-plans/active/`.
 - When a task both changes rules and requires staged delivery, use both: OpenSpec artifacts describe the rule change, and the execution plan tracks implementation, risk, and verification.
 - Before the final handoff, answer the self-review questions in `docs/agent-workflow/AGENT_REVIEW_LOOP.md` and use `artemis-symphony/prompts/self-review-and-handoff.md` as the output template.
+- For high-risk changes, run an adversarial self-review with `artemis-symphony/prompts/adversarial-review.md` and list the remaining reviewer focus items.
 - When the task is Phase-sized or multi-checklist, use `artemis-symphony/prompts/phase-delivery-plan.md` to structure the plan.
 
 Complete the task described in the issue.
