@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.aotemiao.artemis.system.client.api.SystemClientValidateService;
-import com.aotemiao.artemis.system.client.dto.ValidateClientRequest;
+import com.aotemiao.artemis.system.client.api.client.SystemClientValidateService;
+import com.aotemiao.artemis.system.client.dto.client.ValidateClientRequest;
 import java.lang.reflect.Field;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

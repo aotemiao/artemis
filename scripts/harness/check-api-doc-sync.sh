@@ -19,47 +19,47 @@ TARGETS = [
         Path("artemis-auth/AUTH_API.md"),
     ),
     (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/LookupTypeController.java"),
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/lookup/LookupTypeController.java"),
         Path("artemis-modules/artemis-system/LOOKUP_API.md"),
     ),
     (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/InternalAuthController.java"),
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/auth/InternalAuthController.java"),
         Path("artemis-modules/artemis-system/INTERNAL_AUTH_API.md"),
     ),
     (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemUserController.java"),
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/user/SystemUserController.java"),
         Path("artemis-modules/artemis-system/USER_API.md"),
     ),
     (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemRoleController.java"),
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/role/SystemRoleController.java"),
         Path("artemis-modules/artemis-system/ROLE_API.md"),
     ),
     (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemMenuController.java"),
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/menu/SystemMenuController.java"),
         Path("artemis-modules/artemis-system/MENU_API.md"),
     ),
     (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemConfigController.java"),
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/config/SystemConfigController.java"),
         Path("artemis-modules/artemis-system/CONFIG_API.md"),
     ),
     (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemNoticeController.java"),
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/notice/SystemNoticeController.java"),
         Path("artemis-modules/artemis-system/NOTICE_API.md"),
     ),
     (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemDepartmentController.java"),
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/department/SystemDepartmentController.java"),
         Path("artemis-modules/artemis-system/DEPARTMENT_API.md"),
     ),
     (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemPostController.java"),
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/post/SystemPostController.java"),
         Path("artemis-modules/artemis-system/POST_API.md"),
     ),
     (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/SystemClientController.java"),
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/client/SystemClientController.java"),
         Path("artemis-modules/artemis-system/CLIENT_API.md"),
     ),
     (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/LoginInfoController.java"),
+        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/audit/LoginInfoController.java"),
         Path("artemis-modules/artemis-system/LOGIN_INFO_API.md"),
     ),
 ]
@@ -84,7 +84,7 @@ def exact_exists(path: Path) -> bool:
 
 for service_doc in sorted(REPO.glob("artemis-modules/artemis-*/SERVICE_API.md")):
     service_root = service_doc.parent
-    controller_candidates = sorted(service_root.glob("artemis-*-adapter/src/main/java/**/adapter/web/*Controller.java"))
+    controller_candidates = sorted(service_root.glob("artemis-*-adapter/src/main/java/**/adapter/web/**/*Controller.java"))
     if not controller_candidates:
         continue
     for controller_candidate in controller_candidates:

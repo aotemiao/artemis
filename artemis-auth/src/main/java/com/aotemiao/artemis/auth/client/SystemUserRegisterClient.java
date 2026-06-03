@@ -1,7 +1,7 @@
 package com.aotemiao.artemis.auth.client;
 
-import com.aotemiao.artemis.system.client.api.UserRegisterService;
-import com.aotemiao.artemis.system.client.dto.RegisterUserRequest;
+import com.aotemiao.artemis.system.client.api.auth.UserRegisterService;
+import com.aotemiao.artemis.system.client.dto.auth.RegisterUserRequest;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 

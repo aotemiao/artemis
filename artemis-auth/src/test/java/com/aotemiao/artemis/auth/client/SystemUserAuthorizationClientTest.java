@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.aotemiao.artemis.system.client.api.UserAuthorizationService;
-import com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO;
+import com.aotemiao.artemis.system.client.api.auth.UserAuthorizationService;
+import com.aotemiao.artemis.system.client.dto.auth.UserAuthorizationSnapshotDTO;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;

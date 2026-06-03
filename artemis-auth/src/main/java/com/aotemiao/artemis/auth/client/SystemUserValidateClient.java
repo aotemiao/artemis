@@ -1,7 +1,7 @@
 package com.aotemiao.artemis.auth.client;
 
-import com.aotemiao.artemis.system.client.api.UserValidateService;
-import com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest;
+import com.aotemiao.artemis.system.client.api.auth.UserValidateService;
+import com.aotemiao.artemis.system.client.dto.auth.ValidateCredentialsRequest;
 import java.util.Optional;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;

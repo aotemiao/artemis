@@ -145,8 +145,8 @@ Infra 层 MUST NOT：
 
 | 层 | 包路径 |
 |----|--------|
-| client | `com.aotemiao.artemis.system.client.api` / `.client.dto` |
-| adapter | `com.aotemiao.artemis.system.adapter.web` |
+| client | `com.aotemiao.artemis.system.client.api.<capability>` / `.client.dto.<capability>` |
+| adapter | `com.aotemiao.artemis.system.adapter.web.<capability>` / `.adapter.web.dto.<capability>` / `.adapter.dubbo.<capability>` |
 | app | `com.aotemiao.artemis.system.app.service` / `.app.command.<use-case>` / `.app.query.<use-case>` |
 | domain | `com.aotemiao.artemis.system.domain.model.<capability>` / `.domain.service.<capability>` / `.domain.gateway.<capability>` / `.domain.event.<capability>` |
 | infra | `com.aotemiao.artemis.system.infra.gateway.<capability>` / `.infra.repository.<capability>` / `.infra.mapper.<capability>` / `.infra.dataobject.<capability>` / `.infra.converter.<capability>` |
@@ -155,6 +155,23 @@ Infra 层 MUST NOT：
 
 - **WHEN** 开发者需要查找用户领域的 Gateway 接口
 - **THEN** SHALL 在 `com.aotemiao.artemis.system.domain.gateway.user` 包下找到 `SystemUserGateway` 接口
+
+### Requirement: Adapter 与 Client 层按业务能力子包组织
+
+`-adapter` 模块中的 REST Controller、REST DTO 与 Dubbo adapter 具体类型 SHALL 以业务能力为维度放入 `adapter.web.<capability>`、`adapter.web.dto.<capability>` 与 `adapter.dubbo.<capability>` 子包。`-client` 模块中的内部 Dubbo 接口与跨服务 DTO/Result SHALL 以业务能力为维度放入 `client.api.<capability>` 与 `client.dto.<capability>` 子包。`adapter.web`、`adapter.web.dto`、`adapter.dubbo`、`client.api` 与 `client.dto` 根包 MAY 仅保留 `package-info.java` 等包说明文件，MUST NOT 平铺放置具体 Controller、DTO、Dubbo adapter、内部接口或内部契约 DTO 类型。测试代码 SHALL 与 main 代码保持同构能力子包。
+
+#### Scenario: 系统 Adapter 与 Client 按能力定位
+
+- **WHEN** 开发者需要查找系统用户 REST Controller
+- **THEN** SHALL 在 `com.aotemiao.artemis.system.adapter.web.user` 包下找到 `SystemUserController`
+- **AND** 相关 REST DTO SHALL 位于 `com.aotemiao.artemis.system.adapter.web.dto.user`
+- **AND** 系统认证内部契约 SHALL 位于 `com.aotemiao.artemis.system.client.api.auth` 与 `com.aotemiao.artemis.system.client.dto.auth`
+
+#### Scenario: Adapter 与 Client 根包不承载具体业务类
+
+- **WHEN** 检查任一业务微服务的 Adapter 或 Client 根分类包
+- **THEN** `adapter.web`、`adapter.web.dto`、`adapter.dubbo`、`client.api` 与 `client.dto` 根包 MUST NOT 直接包含具体业务类
+- **AND** 具体业务类 SHALL 位于至少一级能力子包中
 
 ### Requirement: App 层用例按子包组织
 

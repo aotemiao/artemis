@@ -1,7 +1,7 @@
 package com.aotemiao.artemis.auth.client;
 
-import com.aotemiao.artemis.system.client.api.LoginInfoRecordService;
-import com.aotemiao.artemis.system.client.dto.RecordLoginInfoRequest;
+import com.aotemiao.artemis.system.client.api.audit.LoginInfoRecordService;
+import com.aotemiao.artemis.system.client.dto.audit.RecordLoginInfoRequest;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 
