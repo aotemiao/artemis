@@ -1,7 +1,7 @@
 package com.aotemiao.artemis.auth.client;
 
-import com.aotemiao.artemis.system.client.api.UserAuthorizationService;
-import com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO;
+import com.aotemiao.artemis.system.client.api.auth.UserAuthorizationService;
+import com.aotemiao.artemis.system.client.dto.auth.UserAuthorizationSnapshotDTO;
 import java.util.Optional;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;

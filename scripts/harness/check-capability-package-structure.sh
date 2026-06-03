@@ -26,6 +26,10 @@ while IFS= read -r file; do
   [[ "$name" == "package-info.java" ]] && continue
   [[ "$path" =~ ^artemis-modules/.+/src/(main|test)/java/ ]] || continue
 
+  if [[ "$path" =~ /(adapter/(web|dubbo)|adapter/web/dto|client/(api|dto))/([^/]+\.java)$ ]]; then
+    report_violation "$path" "adapter/client 分类根包不得平铺具体业务类"
+  fi
+
   if [[ "$path" =~ /app/(command|query)/([^/]+\.java)$ ]]; then
     report_violation "$path" "app command/query 具体类必须进入业务能力子包"
   fi

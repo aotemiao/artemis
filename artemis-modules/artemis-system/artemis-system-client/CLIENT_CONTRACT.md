@@ -4,24 +4,24 @@
 
 ## 接口清单
 
-- `INTERFACE: com.aotemiao.artemis.system.client.api.UserValidateService`
+- `INTERFACE: com.aotemiao.artemis.system.client.api.auth.UserValidateService`
 - `METHOD: Optional<Long> validate(ValidateCredentialsRequest request)`
-- `INTERFACE: com.aotemiao.artemis.system.client.api.UserRegisterService`
+- `INTERFACE: com.aotemiao.artemis.system.client.api.auth.UserRegisterService`
 - `METHOD: Long register(RegisterUserRequest request)`
-- `INTERFACE: com.aotemiao.artemis.system.client.api.SystemClientValidateService`
+- `INTERFACE: com.aotemiao.artemis.system.client.api.client.SystemClientValidateService`
 - `METHOD: boolean validate(ValidateClientRequest request)`
-- `INTERFACE: com.aotemiao.artemis.system.client.api.LoginInfoRecordService`
+- `INTERFACE: com.aotemiao.artemis.system.client.api.audit.LoginInfoRecordService`
 - `METHOD: void record(RecordLoginInfoRequest request)`
-- `INTERFACE: com.aotemiao.artemis.system.client.api.UserAuthorizationService`
+- `INTERFACE: com.aotemiao.artemis.system.client.api.auth.UserAuthorizationService`
 - `METHOD: Optional<UserAuthorizationSnapshotDTO> getByUserId(Long userId)`
 
 ## DTO 清单
 
-- `DTO: com.aotemiao.artemis.system.client.dto.ValidateCredentialsRequest(String tenantId, String clientId, String grantType, String username, String password)`
-- `DTO: com.aotemiao.artemis.system.client.dto.RegisterUserRequest(String tenantId, String clientId, String grantType, String username, String password, String userType)`
-- `DTO: com.aotemiao.artemis.system.client.dto.ValidateClientRequest(String clientId, String grantType)`
-- `DTO: com.aotemiao.artemis.system.client.dto.RecordLoginInfoRequest(String tenantId, String username, String clientId, String deviceType, String ipaddr, String loginLocation, String browser, String os, String status, String msg)`
-- `DTO: com.aotemiao.artemis.system.client.dto.UserAuthorizationSnapshotDTO(Long userId, String username, String displayName, List<String> roleKeys, List<String> permissionCodes)`
+- `DTO: com.aotemiao.artemis.system.client.dto.auth.ValidateCredentialsRequest(String tenantId, String clientId, String grantType, String username, String password)`
+- `DTO: com.aotemiao.artemis.system.client.dto.auth.RegisterUserRequest(String tenantId, String clientId, String grantType, String username, String password, String userType)`
+- `DTO: com.aotemiao.artemis.system.client.dto.client.ValidateClientRequest(String clientId, String grantType)`
+- `DTO: com.aotemiao.artemis.system.client.dto.audit.RecordLoginInfoRequest(String tenantId, String username, String clientId, String deviceType, String ipaddr, String loginLocation, String browser, String os, String status, String msg)`
+- `DTO: com.aotemiao.artemis.system.client.dto.auth.UserAuthorizationSnapshotDTO(Long userId, String username, String displayName, List<String> roleKeys, List<String> permissionCodes)`
 
 ## 契约说明
 

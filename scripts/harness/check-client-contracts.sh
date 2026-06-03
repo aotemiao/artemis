@@ -95,8 +95,8 @@ for module_dir in client_modules:
         errors.append(f"missing client contract doc: {doc_path.relative_to(REPO)}")
         continue
 
-    interfaces = sorted((module_dir / "src/main/java").glob("**/client/api/*.java"))
-    dtos = sorted((module_dir / "src/main/java").glob("**/client/dto/*.java"))
+    interfaces = sorted((module_dir / "src/main/java").glob("**/client/api/**/*.java"))
+    dtos = sorted((module_dir / "src/main/java").glob("**/client/dto/**/*.java"))
     doc_interfaces, doc_methods, doc_dtos = parse_doc_entries(doc_path)
 
     expected_interfaces: set[str] = set()
