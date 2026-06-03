@@ -28,6 +28,10 @@
   业务需求 Spec、验收映射与执行计划联动的交付 skill
 - `prompts/spec-driven-delivery.md`
   Spec 驱动交付 prompt 模板
+- `skills/adversarial-review.md`
+  独立 reviewer 复核模板，重点检查权限、幂等、事务、SQL、日志和可观测性
+- `prompts/adversarial-review.md`
+  adversarial review 输出格式和审查顺序
 
 当前重点资产：
 
@@ -42,6 +46,8 @@
 - `prompts/phase-delivery-plan.md`
 - `prompts/agent-requirement-intake.md`
 - `prompts/spec-driven-delivery.md`
+- `skills/adversarial-review.md`
+- `prompts/adversarial-review.md`
 
 ## 运行
 

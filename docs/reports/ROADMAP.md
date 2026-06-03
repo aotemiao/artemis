@@ -1,7 +1,7 @@
 # Harness Engineering Roadmap
 
 Status: maintained
-Last Reviewed: 2026-06-01
+Last Reviewed: 2026-06-02
 Review Cadence: 90 days
 
 ## 目标
@@ -88,9 +88,29 @@ Review Cadence: 90 days
 
 状态：已完成当前阶段闭环，周期性治理工作流、重复模式扫描、质量问题归档标准与 agent review loop 已建立
 
+## Phase 5: Agentic Engineering 评测与风险审查
+
+目标：让 agent 不只“按规则写代码”，还要能被评测、被复盘、被安全审查，并按变更风险选择验证集。
+
+交付物：
+
+- agent workflow eval 与运行摘要资产
+- 权限策略、安全审查和风险分级验证 runbook
+- adversarial review skill / prompt
+- agentic harness 资产守门脚本
+
+完成标准：
+
+- agent workflow fixture 可被脚本检查。
+- 高风险改动有安全审查清单、权限策略和 adversarial review 入口。
+- CI 与本地治理复用同一批 harness 脚本，避免重复清单漂移。
+
+状态：已完成当前基础闭环，后续可扩展真实 Symphony memory / Linear e2e eval
+
 ## 封板后的演进原则
 
 1. 继续让 `scripts/harness/full-verify.sh` 与 `scripts/harness/verify-changed.sh` 作为团队默认入口
 2. 对业务需求先收敛到 `docs/feature-specs/`，把验收标准和验证映射写清楚
 3. 继续把复杂任务落到 `docs/exec-plans/active/`，减少上下文散失
-4. 新增工程能力时，同步补文档、脚本、守门和 runbook，避免知识重新退回聊天上下文
+4. 对高风险 agentic 交付同步使用安全审查、权限策略、风险分级验证和 agent eval
+5. 新增工程能力时，同步补文档、脚本、守门和 runbook，避免知识重新退回聊天上下文

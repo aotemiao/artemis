@@ -1,0 +1,59 @@
+status: maintained
+last_reviewed: 2026-06-02
+review_cadence_days: 90
+
+assets:
+  - path: AGENTS.md
+    type: agent-entry
+    owner: repository
+  - path: README.md
+    type: project-entry
+    owner: repository
+  - path: ARCHITECTURE.md
+    type: architecture
+    owner: repository
+  - path: QUALITY_SCORE.md
+    type: quality
+    owner: governance
+  - path: docs/feature-specs/README.md
+    type: feature-spec-entry
+    owner: harness
+  - path: docs/patterns/security-review-checklist.md
+    type: review-pattern
+    owner: harness
+  - path: docs/security/THREAT_MODEL.md
+    type: security
+    owner: governance
+  - path: docs/runbooks/AGENT_PERMISSION_RUNBOOK.md
+    type: runbook
+    owner: harness
+  - path: docs/runbooks/RISK_BASED_VERIFICATION_RUNBOOK.md
+    type: runbook
+    owner: harness
+  - path: docs/agent-evals/README.md
+    type: eval-entry
+    owner: harness
+  - path: docs/reports/agent-runs/README.md
+    type: trace-policy
+    owner: harness
+  - path: artemis-symphony/skills/adversarial-review.md
+    type: symphony-skill
+    owner: symphony
+  - path: artemis-symphony/prompts/adversarial-review.md
+    type: symphony-prompt
+    owner: symphony
+  - path: scripts/harness/check-agentic-harness-assets.sh
+    type: harness-script
+    owner: harness
+  - path: scripts/harness/run-agent-evals.sh
+    type: harness-script
+    owner: harness
+  - path: .github/copilot-instructions.md
+    type: external-agent-pointer
+    owner: repository
+  - path: CLAUDE.md
+    type: external-agent-pointer
+    owner: repository
+  - path: GEMINI.md
+    type: external-agent-pointer
+    owner: repository

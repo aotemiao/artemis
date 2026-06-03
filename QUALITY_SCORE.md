@@ -1,7 +1,7 @@
 # Quality Score
 
 Status: maintained
-Last Reviewed: 2026-03-23
+Last Reviewed: 2026-06-02
 Review Cadence: 90 days
 
 本文件用于把“仓库当前质量”表达成 agent 和开发者都能快速理解的信号，而不是只靠感觉。
@@ -30,7 +30,8 @@ Review Cadence: 90 days
 | 工程验证闭环 | `5/5` | `mvn verify`、治理脚本、OpenSpec 校验、本地 full-verify 与 CI 已形成统一入口 | 继续收敛误报并扩展到新增业务模块 |
 | 本地环境确定性 | `5/5` | Docker Compose、固定端口、wait-http、config/readiness 断言、聚合 smoke、服务打包与镜像入口已齐备 | 后续按新增服务持续补同样的 readiness 模式 |
 | 架构约束可执行性 | `4/5` | 已有 OpenSpec、认证依赖约束与 `artemis-system` 分层 ArchUnit 测试 | 继续把同类规则扩展到更多微服务 |
-| Agent 工作流成熟度 | `5/5` | 已有 `artemis-symphony`、exec-plans、runbook、skills、prompts 与 agent review loop | 后续继续扩展更多任务型 assets |
+| Agent 工作流成熟度 | `5/5` | 已有 `artemis-symphony`、exec-plans、runbook、skills、prompts、agent review loop、权限策略和 adversarial review 入口 | 后续继续基于真实业务补更多任务型 assets |
+| Agent 运行质量可评测性 | `4/5` | 已有 agent eval fixture、agent run 摘要规则、manifest 守门和静态 eval 脚本 | 后续把静态 eval 扩展为真实 Symphony memory / Linear e2e eval，并沉淀更多失败样例 |
 | 文档新鲜度控制 | `5/5` | 核心文档审阅元信息、freshness 守门、周期性治理工作流与质量问题归档标准已建立 | 继续保持 cadence 回写并清理历史冗余 |
 | Smoke / 可观测性 | `5/5` | 已有 system/auth/gateway/symphony smoke、聚合 smoke、健康检查、readiness 断言、日志与状态入口 | 后续扩展到新增业务服务和更多故障场景 |
 | 部署骨架完整度 | `4/5` | 已有 Dockerfile、统一镜像构建脚本、部署回滚 runbook 与 CI 镜像构建 | 在真实环境持续演练部署与回滚 |
@@ -43,46 +44,14 @@ Review Cadence: 90 days
 2. 在真实环境持续演练镜像、部署与回滚
 3. 为更多服务补同等强度的 smoke / readiness / troubleshooting
 4. 持续清理历史重复模式与遗留技术债
-5. 继续让复杂任务先落 `docs/exec-plans/active/`
+5. 继续把复杂任务先落 `docs/exec-plans/active/`，并定期归档已完成计划，避免 active 区噪声扩大
 
-## 2026-03-23 验证快照
+## 验证与变更快照
 
-- 本地已实际通过 `scripts/harness/full-verify.sh`
-- 本地已实际通过 `artemis-symphony` 子工程 `mvn verify`
-- CI 工作流已补 OpenSpec diff 检查与统一 `full-verify` 入口
-- 本地已补 `auth / gateway / symphony` smoke 与 HTTP 等待入口
-- docs 索引、docs consistency、markdown link check 已补齐
-- 文档 freshness policy、审阅元信息与周期性 CI 巡检已补齐
-- 服务打包、镜像构建、部署 / 回滚、Symphony 故障处理入口已补齐
-- 已补契约 / API 文档同步检查、关键路径测试基线、重复模式扫描与质量问题归档标准
-- 已补服务配置检查、启动就绪断言与聚合 smoke
-- 已补常见任务 runbook、skills / prompts 与 agent review loop
+详细完成清单以 `docs/governance/CHECKLIST.md` 和 `docs/reports/ROADMAP.md` 为准，本文件只保留质量信号，避免和治理文档重复。
 
-## 本轮已完成
-
-- 新增 `AGENTS.md`
-- 新增 `ARCHITECTURE.md`
-- 新增 `docs/harness-engineering/` 清单与路线图
-- 新增 `docs/exec-plans/` 目录与模板
-- 新增 `scripts/dev/`、`scripts/harness/`、`scripts/smoke/` 基础入口
-- 强化 `artemis-symphony/WORKFLOW.md.example` 以贴合仓库结构
-- 将 Spotless、Checkstyle、SpotBugs 接入 `mvn verify`
-- 新增 CI 工作流与关键服务 Dockerfile 模板
-- 新增健康检查与日志查看脚本
-- 在本地实际跑通 `scripts/harness/full-verify.sh`
-- 将 OpenSpec diff 检查接入 CI 工作流
-- 新增服务 smoke runbook 与 `wait-http` 断言入口
-- 新增 `auth / gateway / symphony` smoke 脚本
-- 新增 docs 总索引与文档一致性守门
-- 新增文档 freshness policy、审阅元信息与 freshness 守门
-- 新增统一服务打包与镜像构建脚本
-- 新增部署 / 回滚 runbook 与 Symphony troubleshooting runbook
-- 将 docs 守门与镜像构建接入 CI
-- 新增契约 / API 文档同步检查脚本
-- 新增关键路径测试基线与 JaCoCo 覆盖率基线
-- 新增重复模式扫描、质量问题归档目录与治理工作流
-- 新增常见任务 runbook、skills / prompts 与 agent review loop
-- 新增服务配置检查、readiness 断言与聚合 smoke
+- `2026-03-23`：本地通过 `scripts/harness/full-verify.sh`，CI、smoke、docs consistency、freshness、OpenSpec diff、契约 / API 文档同步、关键路径测试基线和部署 / 回滚 runbook 完成封板闭环。
+- `2026-06-02`：完成 agentic harness 优化，新增资产见 `docs/exec-plans/completed/2026-06-02-agentic-harness-optimization.md`，守门入口为 `scripts/harness/check-agentic-harness-assets.sh`。
 
 ## 封板范围外的扩展方向
 

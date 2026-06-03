@@ -23,6 +23,7 @@ run_governance_check "Docs Consistency" scripts/harness/check-doc-consistency.sh
 run_governance_check "Docs Freshness" scripts/harness/check-doc-freshness.sh
 run_governance_check "Feature Specs" scripts/harness/check-feature-specs.sh
 run_governance_check "Spec Driven Delivery Chain" scripts/harness/check-spec-driven-delivery-chain.sh
+run_governance_check "Agentic Harness Assets" scripts/harness/check-agentic-harness-assets.sh
 run_governance_check "API Doc Sync" scripts/harness/check-api-doc-sync.sh
 run_governance_check "Client Contracts" scripts/harness/check-client-contracts.sh
 run_governance_check "Capability Package Structure" scripts/harness/check-capability-package-structure.sh

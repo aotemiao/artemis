@@ -1,12 +1,12 @@
 # Artemis 项目进度汇报
 
 Status: maintained
-Last Reviewed: 2026-06-01
+Last Reviewed: 2026-06-02
 Review Cadence: 30 days
 
 ## 汇总结论
 
-截至 `2026-04-28`，Artemis 已完成当前一轮 Harness Engineering 封板，并完成 `docs/exec-plans/completed/` 中已规划的 `Phase 1` 到 `Phase 8`。项目已经越过“只有工程骨架”的阶段，形成了“系统域 + 认证 + 网关最小 RBAC + Symphony 编排”的最小闭环。
+截至 `2026-06-02`，Artemis 已完成当前一轮 Harness Engineering 封板，并进一步补齐 agentic engineering 的评测、审查和权限治理基础。项目已经越过“只有工程骨架”的阶段，形成了“系统域 + 认证 + 网关最小 RBAC + Symphony 编排 + agentic 评测 / 审查”的最小闭环；具体资产清单以 `docs/governance/CHECKLIST.md` 和 `docs/exec-plans/completed/2026-06-02-agentic-harness-optimization.md` 为准。
 
 但这不等于“平台建设已经结束”。更准确的判断是：**工程底座已基本成形，核心主链路已经可用，项目正处于从 MVP 骨架走向规模化业务与真实交付的过渡阶段。**
 
@@ -42,6 +42,7 @@ Review Cadence: 30 days
 | 平台 MVP 主链路 | `80%` | 用户目录、角色目录、内部授权快照与网关最小 RBAC 已打通，但菜单、部门、租户、配置、审计等主数据能力未补齐 |
 | 运行可靠性与发布演练 | `60%` | readiness、smoke、部署 / 回滚 runbook 已有统一入口，但真实环境持续演练不足 |
 | Symphony 标准交付能力 | `90%` | 启用链路、Linear 评论回写、参考实现核心语义对齐与真实 live e2e 已收口，剩余主要是持续演练与更多真实业务沉淀 |
+| Agentic Engineering 评测与审查 | `85%` | 已有 agent eval fixture、agent run 摘要规则、安全审查清单、权限策略、风险分级验证和 adversarial review 入口；真实模型 e2e eval 仍待深化 |
 | 项目整体 | `75%-80%` | 综合以上维度推断：底座与 MVP 已完成，Symphony 交付链路已显著成熟，业务深化与真实交付能力仍在中段 |
 
 ## 阶段状态看板
@@ -67,6 +68,7 @@ Review Cadence: 30 days
 | 业务能力深度 | 基础完成，仍需扩展 | 当前重点完成了 lookup、用户目录、角色目录、用户角色绑定、内部授权快照、菜单权限 MVP 与租户创建初始化；部门、岗位、配置、审计、租户同步等仍待继续补齐 |
 | 运行可靠性 | 入口已齐，真实演练仍需加强 | readiness、smoke、部署 / 回滚 runbook 已有，但真实环境持续演练还不足 |
 | Symphony 编排能力 | 高完成度 | 已能拉取 Linear、创建工作区、驱动 Codex，且启用链路、评论回写、参考实现核心对齐与 live e2e 已完成 |
+| Agentic 评测与风险审查 | 已建立基础闭环 | agent eval fixture、agent run 摘要、权限 runbook、安全审查清单和 adversarial review 已落仓并接入治理 |
 
 ## 已完成的关键里程碑
 
@@ -77,6 +79,7 @@ Review Cadence: 30 days
 - `scripts/dev/`、`scripts/harness/`、`scripts/smoke/` 已形成统一执行入口。
 - `mvn verify`、`scripts/harness/verify-changed.sh`、`scripts/harness/full-verify.sh`、CI 与治理工作流已构成默认验证回路。
 - 文档 freshness、重复模式扫描、质量问题归档、agent 自评与 reviewer 回路都已沉淀为仓库事实。
+- agentic harness 优化已完成基础闭环，相关资产已接入 `scripts/harness/check-agentic-harness-assets.sh`，避免只停留在说明文档。
 
 ### 2. 服务模板与复制能力已落地
 
@@ -105,7 +108,7 @@ Review Cadence: 30 days
 3. `*-client` 已形成结构，但兼容性、版本化和回归策略仍需继续增强。
 4. Feature Spec 层已建立，并已覆盖当前系统主链路的用户、角色、授权快照、网关 RBAC、菜单权限和租户初始化；后续新增业务能力仍需按同一标准补齐 Spec 与验收映射。
 5. 部署 / 回滚 runbook 已有统一入口，但真实环境演练频次和故障回放能力还不足。
-6. `artemis-symphony` 已完成当前一轮核心加固，下一步重点更偏向持续演练、真实业务接入与默认交付流程沉淀。
+6. `artemis-symphony` 已完成当前一轮核心加固，并已补 adversarial review 与 agent eval 基础资产；下一步重点更偏向真实 agent e2e eval、持续演练和真实业务接入。
 
 ## 演进优先级判断
 

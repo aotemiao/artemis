@@ -51,6 +51,3 @@ package-lock.json
 
 ### Maven flatten ###
 .flattened-pom.xml
-
-### OpenSpec ###
-openspec/changes/archive/

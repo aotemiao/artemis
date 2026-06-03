@@ -25,7 +25,18 @@ build_one() {
   local dockerfile="$2"
   local image="artemis-${service}:${tag_suffix}"
   print_step "Building image: ${image}"
-  docker build -f "$dockerfile" -t "$image" .
+  local attempt
+  for attempt in 1 2 3; do
+    if docker build -f "$dockerfile" -t "$image" .; then
+      return 0
+    fi
+    if [[ "$attempt" == "3" ]]; then
+      echo "Failed to build image after ${attempt} attempts: ${image}" >&2
+      return 1
+    fi
+    echo "Docker build failed for ${image}; retrying (${attempt}/3)..." >&2
+    sleep 10
+  done
 }
 
 case "$normalized_target" in

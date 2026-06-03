@@ -1,7 +1,7 @@
 # Execution Plans
 
 Status: maintained
-Last Reviewed: 2026-06-01
+Last Reviewed: 2026-06-02
 Review Cadence: 90 days
 
 这里用于存放复杂任务的执行计划，让计划、决策、风险和进度都成为仓库的一部分。
@@ -29,9 +29,11 @@ Review Cadence: 90 days
 - 目标与非目标
 - 范围
 - 风险
+- 风险分类
 - 任务拆解
 - 验收映射
 - 验证计划
+- 验证分类
 - 回滚策略
 - 决策记录
 - 遗留问题

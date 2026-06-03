@@ -205,6 +205,8 @@ class CodexAppServerClientTest {
     @Test
     void startSession_expandsRemoteTildeWorkspaceBeforeLaunch() throws Exception {
         Path fakeSsh = tempDir.resolve("fake-ssh.sh");
+        Path remoteHome = tempDir.resolve("remote-home");
+        Files.createDirectories(remoteHome);
         Files.writeString(fakeSsh, """
                 #!/usr/bin/env bash
                 set -euo pipefail
@@ -226,8 +228,10 @@ class CodexAppServerClientTest {
                       ;;
                   esac
                 done
+                export HOME="%s"
                 exec bash -lc "$1"
-                """);
+                """.formatted(
+                        remoteHome.toString().replace("\\", "\\\\").replace("\"", "\\\"")));
         fakeSsh.toFile().setExecutable(true);
 
         Path observedCwd = tempDir.resolve("observed-cwd.txt");
@@ -243,7 +247,7 @@ class CodexAppServerClientTest {
                 sleep 5
                 """.formatted(observedCwd));
 
-        Path expectedWorkspace = Path.of(System.getProperty("user.home"), ".codex-remote-cwd-test");
+        Path expectedWorkspace = remoteHome.resolve(".codex-remote-cwd-test");
         Files.createDirectories(expectedWorkspace);
 
         String oldExecutable = System.getProperty("symphony.ssh.executable");
@@ -261,8 +265,8 @@ class CodexAppServerClientTest {
 
         try {
             assertEquals("thread-remote", client.startSession());
-            assertEquals(
-                    expectedWorkspace.toString(), Files.readString(observedCwd).trim());
+            assertTrue(Files.isSameFile(
+                    expectedWorkspace, Path.of(Files.readString(observedCwd).trim())));
         } finally {
             client.stopSession();
             if (oldExecutable == null) {

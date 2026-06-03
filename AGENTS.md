@@ -1,7 +1,7 @@
 # Artemis Agent Guide
 
 Status: maintained
-Last Reviewed: 2026-06-01
+Last Reviewed: 2026-06-02
 Review Cadence: 90 days
 
 本文件是仓库内 agent 的稳定入口，目标是让任何自动化执行都先找到地图，再开始改代码。
@@ -31,7 +31,8 @@ Review Cadence: 90 days
 4. 优先做最小闭环改动：代码、测试、文档、脚本一并补齐。
 5. 能复用 `scripts/` 下入口时，不要把命令散落在 issue 评论或聊天里。
 6. 修改跨模块行为时，同步检查 OpenSpec 是否需要更新。
-7. 提交前至少执行一个可解释的验证动作：
+7. 若需求涉及权限、幂等、锁、事务、异常处理、SQL 性能、日志或可观测性，使用 `docs/patterns/security-review-checklist.md` 和 `docs/runbooks/AGENT_PERMISSION_RUNBOOK.md` 做风险审查。
+8. 提交前至少执行一个可解释的验证动作：
    `scripts/harness/verify-changed.sh`
    或
    `scripts/harness/full-verify.sh`
@@ -51,9 +52,9 @@ Review Cadence: 90 days
 - 项目进度、阶段汇报或演进路线：
   先读 `QUALITY_SCORE.md`、`docs/reports/ROADMAP.md`、`docs/reports/PROJECT_PROGRESS_REPORT.md`、相关 `docs/exec-plans/`
 - 业务需求、验收标准或 Spec 驱动交付：
-  先读 `docs/feature-specs/README.md`、`docs/patterns/spec-to-validation-mapping.md`、`openspec/specs/spec-driven-delivery/spec.md`
+  先读 `docs/feature-specs/README.md`、`docs/patterns/spec-to-validation-mapping.md`、`docs/patterns/security-review-checklist.md`、`docs/security/THREAT_MODEL.md`、`openspec/specs/spec-driven-delivery/spec.md`
 - 编码代理编排与自动化：
-  先读 `artemis-symphony/README.md`、`docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`、`docs/reports/ROADMAP.md`、`openspec/specs/agent-task-assets/spec.md`
+  先读 `artemis-symphony/README.md`、`docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`、`docs/agent-evals/README.md`、`docs/reports/ROADMAP.md`、`openspec/specs/agent-task-assets/spec.md`
 - 复杂任务或多步迁移：
   先在 `docs/exec-plans/active/` 建立或更新执行计划
 
@@ -100,6 +101,8 @@ Review Cadence: 90 days
 - 检查 OpenSpec 同步：`scripts/harness/check-openspec-sync.sh`
 - 检查 Feature Spec 结构：`scripts/harness/check-feature-specs.sh`
 - 检查 Spec 驱动交付链路：`scripts/harness/check-spec-driven-delivery-chain.sh`
+- 检查 Agentic Harness 资产：`scripts/harness/check-agentic-harness-assets.sh`
+- 运行 agent workflow eval：`scripts/harness/run-agent-evals.sh`
 - 检查 API 文档同步：`scripts/harness/check-api-doc-sync.sh`
 - 检查 Dubbo client 契约：`scripts/harness/check-client-contracts.sh`
 - 检查业务能力包结构：`scripts/harness/check-capability-package-structure.sh`
@@ -123,6 +126,10 @@ Review Cadence: 90 days
 - 新增 Dubbo client runbook：`docs/runbooks/ADD_DUBBO_CLIENT_RUNBOOK.md`
 - ArchUnit 约束 runbook：`docs/runbooks/ADD_ARCHUNIT_RULE_RUNBOOK.md`
 - Agent review loop：`docs/agent-workflow/AGENT_REVIEW_LOOP.md`
+- Agent 权限 runbook：`docs/runbooks/AGENT_PERMISSION_RUNBOOK.md`
+- 风险分级验证 runbook：`docs/runbooks/RISK_BASED_VERIFICATION_RUNBOOK.md`
+- 安全审查清单：`docs/patterns/security-review-checklist.md`
+- 威胁模型：`docs/security/THREAT_MODEL.md`
 - 质量问题标准：`docs/governance/QUALITY_ISSUE_STANDARD.md`
 - 部署 / 回滚 runbook：`docs/runbooks/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
 - Symphony 故障 runbook：`docs/runbooks/SYMPHONY_TROUBLESHOOTING.md`

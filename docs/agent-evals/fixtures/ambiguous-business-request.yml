@@ -1,0 +1,17 @@
+id: ambiguous-business-request
+title: 模糊业务需求必须先结构化
+risk_level: medium
+issue: |
+  给系统服务补一个客户管理功能，支持增删改查和权限控制。
+expected_assets:
+  - artemis-symphony/prompts/agent-requirement-intake.md
+  - artemis-symphony/prompts/spec-driven-delivery.md
+  - docs/feature-specs/templates/feature-spec-template.md
+  - docs/patterns/spec-to-validation-mapping.md
+expected_validations:
+  - scripts/harness/check-feature-specs.sh
+  - scripts/harness/verify-changed.sh
+review_focus:
+  - 需求是否先补目标、范围、非目标和验收标准
+  - 数据模型、权限、异常和审计影响是否明确
+  - 是否把验收标准映射到测试、smoke 或 harness 脚本
