@@ -25,6 +25,22 @@ scripts/dev/rollback-drill.sh <service> <image-tag|jar-path>
 | smoke | `scripts/smoke/<name>.sh` | 待填写 |
 | 回滚后状态 | `scripts/dev/service-status.sh <service>` | 待填写 |
 
+## 指标摘要
+
+```json
+{
+  "schema_version": 1,
+  "summary_type": "deploy_drill_report",
+  "kind": "deploy",
+  "service": "<service>",
+  "services": ["<service>"],
+  "status": "completed",
+  "smoke": "pending",
+  "rollback": false,
+  "failure_stage": ""
+}
+```
+
 ## 问题与处理
 
 - 待填写

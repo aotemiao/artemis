@@ -256,5 +256,6 @@ Authorization: Bearer <token>
 ## 与现有守门的关系
 
 - 路由级同步检查仍以各模块现有 `*_API.md` / `SERVICE_API.md` 为准。
+- `artemis-system` 的路由级同步检查会自动发现 adapter web 下的 Controller，并按 Controller 名称映射到模块级 `*_API.md`；新增 Controller 时必须同步补对应 API 文档或在脚本中声明显式映射。
 - `docs/api/README.md` 负责提供统一入口和通用联调约定，不替代模块级路由事实来源。
 - 当模块文档补充请求示例、字段类型和错误说明时，必须保留 `ROUTE: METHOD /path` 行，确保 `scripts/harness/check-api-doc-sync.sh` 继续可用。

@@ -98,4 +98,78 @@ print(f"{path}: OK ({age_days} days old)")
 PY
 done
 
+print_step "Checking doc evidence freshness"
+
+python3 - <<'PY'
+from pathlib import Path
+import sys
+
+repo = Path.cwd()
+checks = {
+    "QUALITY_SCORE.md": [
+        "## 验证与变更快照",
+        "scripts/harness/verify-changed.sh working-tree",
+        "scripts/e2e/run-symphony-agent-eval.sh",
+        "Harness metrics 快照",
+    ],
+    "docs/governance/CHECKLIST.md": [
+        "scripts/harness/check-agentic-harness-assets.sh",
+        "scripts/e2e/run-symphony-agent-eval.sh",
+        "run environment 快照",
+        "CI artifact 快照",
+    ],
+    "docs/reports/ROADMAP.md": [
+        "memory agent eval 可真实启动 Symphony",
+        "Harness metrics report generator",
+        "run environment",
+        "deploy drill",
+    ],
+    "docs/reports/agent-runs/README.md": [
+        "## 验证证据",
+        "summary_type=symphony_agent_run",
+        "codex.event_counts",
+        "environment",
+        "不应包含事件 payload",
+    ],
+    "docs/reports/harness-metrics/README.md": [
+        "scripts/harness/generate-harness-metrics-report.sh",
+        "artifacts/agent-evals/",
+        "summary_type=harness_delivery_signal",
+        "summary_type=deploy_drill_report",
+        "不会读取完整 prompt",
+    ],
+    "docs/reports/deploy-drills/README.md": [
+        "## 指标摘要",
+        "summary_type",
+        "deploy_drill_report",
+        "scripts/harness/check-deploy-drill-reports.sh",
+    ],
+    "docs/governance/DOC_FRESHNESS_POLICY.md": [
+        "## 证据 freshness",
+        "验证入口",
+        "低敏",
+        "artifacts",
+    ],
+}
+
+errors: list[str] = []
+for rel, markers in checks.items():
+    path = repo / rel
+    if not path.exists():
+        errors.append(f"{rel}: missing file")
+        continue
+    text = path.read_text(encoding="utf-8")
+    for marker in markers:
+        if marker not in text:
+            errors.append(f"{rel}: missing evidence freshness marker: {marker}")
+
+if errors:
+    print("Doc evidence freshness check failed:", file=sys.stderr)
+    for error in errors:
+        print(f"  - {error}", file=sys.stderr)
+    raise SystemExit(1)
+
+print("Doc evidence freshness check passed.")
+PY
+
 print_step "Docs freshness check passed"

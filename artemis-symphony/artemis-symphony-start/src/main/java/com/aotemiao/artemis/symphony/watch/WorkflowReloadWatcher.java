@@ -2,6 +2,7 @@ package com.aotemiao.artemis.symphony.watch;
 
 import com.aotemiao.artemis.symphony.orchestrator.Orchestrator;
 import com.aotemiao.artemis.symphony.orchestrator.SymphonyRuntimeHolder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
@@ -28,7 +29,12 @@ public class WorkflowReloadWatcher implements SmartLifecycle {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowReloadWatcher.class);
 
     private final SymphonyRuntimeHolder holder;
+
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "Orchestrator is a Spring-managed shared collaborator and is not exposed by this watcher.")
     private final Orchestrator orchestrator;
+
     private final boolean enabled;
     private final long debounceMs;
 

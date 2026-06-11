@@ -1,6 +1,7 @@
 package com.aotemiao.artemis.symphony.orchestrator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -57,6 +58,46 @@ class OrchestratorLinearCommentTest {
         assertTrue(tracker.body.contains("ART-1"));
         assertTrue(tracker.body.contains("已完成本轮处理"));
         assertTrue(tracker.body.contains("turn_completed"));
+        assertEquals(1, entry.externalEffects().size());
+        RunningEntry.ExternalEffect effect = entry.externalEffects().get(0);
+        assertEquals("linear_comment", effect.type());
+        assertEquals("linear", effect.provider());
+        assertEquals("issue-1", effect.target());
+        assertEquals("succeeded", effect.status());
+    }
+
+    @Test
+    void reportAttemptOutcome_recordsFailedCommentEffectWithoutRawResponse() {
+        RecordingTrackerClient tracker = new RecordingTrackerClient();
+        tracker.commentErrorMessage = "Linear rejected comment with token=abcdef1234567890 and repeated details";
+        Orchestrator orchestrator = createOrchestrator(true, null, tracker);
+
+        Issue issue = new Issue(
+                "issue-5",
+                "ART-5",
+                "进度汇报失败",
+                null,
+                1,
+                "Todo",
+                null,
+                "https://linear.app/example/ART-5",
+                List.of(),
+                List.of(),
+                Instant.now(),
+                Instant.now());
+        RunningEntry entry = new RunningEntry("issue-5", "ART-5", issue, 0, Instant.now());
+
+        orchestrator.reportAttemptOutcome(entry, true, null, null);
+
+        assertEquals(1, entry.externalEffects().size());
+        RunningEntry.ExternalEffect effect = entry.externalEffects().get(0);
+        assertEquals("linear_comment", effect.type());
+        assertEquals("failed", effect.status());
+        assertEquals("linear_failure", effect.errorCode());
+        assertTrue(effect.errorMessage().contains("Linear rejected comment"));
+        assertFalse(effect.errorMessage().contains("abcdef1234567890"));
+        assertTrue(effect.errorMessage().contains("token=[redacted]"));
+        assertFalse(effect.errorMessage().contains("\n"));
     }
 
     @Test
@@ -170,6 +211,7 @@ class OrchestratorLinearCommentTest {
         private String body;
         private String updatedIssueId;
         private String updatedStateName;
+        private String commentErrorMessage;
         private final Map<String, Issue> issuesById = new ConcurrentHashMap<>();
 
         private RecordingTrackerClient() {
@@ -184,6 +226,9 @@ class OrchestratorLinearCommentTest {
         public TrackerResult<String> createIssueComment(String issueId, String body) {
             this.issueId = issueId;
             this.body = body;
+            if (commentErrorMessage != null) {
+                return TrackerResult.failure("linear_failure", commentErrorMessage);
+            }
             return TrackerResult.success("comment-1");
         }
 

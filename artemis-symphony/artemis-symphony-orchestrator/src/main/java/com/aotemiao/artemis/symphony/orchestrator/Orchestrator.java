@@ -9,6 +9,7 @@ import com.aotemiao.artemis.symphony.core.model.CodexUpdateEvent;
 import com.aotemiao.artemis.symphony.core.model.Issue;
 import com.aotemiao.artemis.symphony.core.model.RetryEntry;
 import com.aotemiao.artemis.symphony.core.validation.DispatchValidation;
+import com.aotemiao.artemis.symphony.persistence.RunHistoryRepository;
 import com.aotemiao.artemis.symphony.tracker.TrackerClient;
 import com.aotemiao.artemis.symphony.tracker.TrackerResult;
 import com.aotemiao.artemis.symphony.workspace.WorkspaceManager;
@@ -21,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,6 +40,10 @@ import org.slf4j.MDC;
 public class Orchestrator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Orchestrator.class);
+    private static final String DISPATCH_KIND_IMPLEMENTATION = "implementation";
+    private static final String DISPATCH_KIND_RETRY = "retry";
+    private static final String DISPATCH_KIND_CONTINUATION = "continuation";
+    private static final String DISPATCH_KIND_ADVERSARIAL_REVIEW = "adversarial_review";
 
     private final SymphonyRuntimeHolder runtimeHolder;
 
@@ -47,11 +53,14 @@ public class Orchestrator {
     private final WorkspaceManager workspaceManager;
 
     private final AgentRunner agentRunner;
+    private final RunHistoryRepository runHistoryRepository;
 
     private final Map<String, RunningEntry> running = new ConcurrentHashMap<>();
     private final Set<String> claimed = ConcurrentHashMap.newKeySet();
     private final Map<String, RetryEntry> retryAttempts = new ConcurrentHashMap<>();
     private final Set<String> completed = ConcurrentHashMap.newKeySet();
+    private final Set<String> adversarialReviewCompleted = ConcurrentHashMap.newKeySet();
+    private final Object dispatchStateLock = new Object();
 
     @SuppressWarnings("unused")
     private Object codexRateLimits = null;
@@ -70,9 +79,18 @@ public class Orchestrator {
 
     public Orchestrator(
             SymphonyRuntimeHolder runtimeHolder, WorkspaceManager workspaceManager, AgentRunner agentRunner) {
+        this(runtimeHolder, workspaceManager, agentRunner, RunHistoryRepository.NOOP);
+    }
+
+    public Orchestrator(
+            SymphonyRuntimeHolder runtimeHolder,
+            WorkspaceManager workspaceManager,
+            AgentRunner agentRunner,
+            RunHistoryRepository runHistoryRepository) {
         this.runtimeHolder = runtimeHolder;
         this.workspaceManager = workspaceManager;
         this.agentRunner = agentRunner;
+        this.runHistoryRepository = runHistoryRepository != null ? runHistoryRepository : RunHistoryRepository.NOOP;
     }
 
     private ServiceConfig config() {
@@ -166,8 +184,7 @@ public class Orchestrator {
         int slots = config().getMaxConcurrentAgents() - running.size();
         for (Issue issue : candidates) {
             if (slots <= 0) break;
-            if (shouldDispatch(issue)) {
-                dispatchIssue(issue, null);
+            if (shouldDispatch(issue) && dispatchIssue(issue, null)) {
                 slots--;
             }
         }
@@ -202,7 +219,7 @@ public class Orchestrator {
                                 e.issueId,
                                 e.identifier,
                                 e.sessionId != null ? e.sessionId : "");
-                        terminateRunning(e.issueId, true);
+                        terminateRunning(e.issueId, true, "stall timeout exceeded");
                     } finally {
                         clearIssueMdc();
                     }
@@ -230,7 +247,7 @@ public class Orchestrator {
                             issue.id(),
                             issue.identifier(),
                             entry.sessionId != null ? entry.sessionId : "");
-                    terminateRunning(issue.id(), true);
+                    terminateRunning(issue.id(), true, "tracker state is terminal: " + issue.state());
                 } finally {
                     clearIssueMdc();
                 }
@@ -243,7 +260,7 @@ public class Orchestrator {
                             issue.identifier(),
                             entry.sessionId != null ? entry.sessionId : "",
                             issue.assigneeId() != null ? issue.assigneeId() : "");
-                    terminateRunning(issue.id(), false);
+                    terminateRunning(issue.id(), false, "issue is no longer assigned to this worker");
                 } finally {
                     clearIssueMdc();
                 }
@@ -257,7 +274,7 @@ public class Orchestrator {
                             issue.id(),
                             issue.identifier(),
                             entry.sessionId != null ? entry.sessionId : "");
-                    terminateRunning(issue.id(), false);
+                    terminateRunning(issue.id(), false, "tracker state is not active: " + issue.state());
                 } finally {
                     clearIssueMdc();
                 }
@@ -265,15 +282,19 @@ public class Orchestrator {
         }
         for (String runningIssueId : new ArrayList<>(running.keySet())) {
             if (!visibleIssueIds.contains(runningIssueId)) {
-                terminateRunning(runningIssueId, false);
+                terminateRunning(runningIssueId, false, "issue is no longer visible from tracker");
             }
         }
     }
 
-    private void terminateRunning(String issueId, boolean cleanupWorkspace) {
+    private void terminateRunning(String issueId, boolean cleanupWorkspace, String reason) {
         RunningEntry entry = running.remove(issueId);
         if (entry == null) return;
         claimed.remove(issueId);
+        Instant finishedAt = Instant.now();
+        runHistoryRepository.recordRunFinished(entry.runId, "terminated", reason, finishedAt);
+        AgentRunSummaryWriter.write(
+                config(), entry, "terminated", reason, finishedAt, null, resolveWorkspacePath(entry));
         if (cleanupWorkspace) {
             workspaceManager.removeWorkspace(resolveWorkspacePath(entry), entry.workerHost);
         }
@@ -290,7 +311,8 @@ public class Orchestrator {
                         && i.assignedToWorker()
                         && activeLower.contains(i.stateNormalized())
                         && !terminalLower.contains(i.stateNormalized()))
-                .filter(i -> !running.containsKey(i.id()) && !claimed.contains(i.id()))
+                .filter(i ->
+                        !running.containsKey(i.id()) && !claimed.contains(i.id()) && !retryAttempts.containsKey(i.id()))
                 .sorted(Comparator.comparing(Issue::priority, Comparator.nullsLast(Comparator.naturalOrder()))
                         .thenComparing(Issue::createdAt, Comparator.nullsLast(Comparator.naturalOrder()))
                         .thenComparing(Issue::identifier, Comparator.nullsLast(Comparator.naturalOrder())))
@@ -309,6 +331,7 @@ public class Orchestrator {
     private boolean shouldDispatch(Issue issue) {
         ServiceConfig cfg = config();
         if (running.containsKey(issue.id()) || claimed.contains(issue.id())) return false;
+        if (retryAttempts.containsKey(issue.id())) return false;
         if (!issue.assignedToWorker()) return false;
         int globalSlots = cfg.getMaxConcurrentAgents() - running.size();
         if (globalSlots <= 0) return false;
@@ -336,20 +359,45 @@ public class Orchestrator {
         return true;
     }
 
-    private void dispatchIssue(Issue issue, Integer attempt) {
-        dispatchIssue(issue, attempt, null);
+    private boolean dispatchIssue(Issue issue, Integer attempt) {
+        return dispatchIssue(issue, attempt, null);
     }
 
-    private void dispatchIssue(Issue issue, Integer attempt, String preferredWorkerHost) {
-        if (running.containsKey(issue.id()) || claimed.contains(issue.id())) return;
-        WorkerSelection workerSelection = selectWorkerHost(preferredWorkerHost);
-        if (!workerSelection.hasCapacity()) return;
-        claimed.add(issue.id());
-        retryAttempts.remove(issue.id());
+    private boolean dispatchIssue(Issue issue, Integer attempt, String preferredWorkerHost) {
+        return dispatchIssue(issue, attempt, preferredWorkerHost, null);
+    }
+
+    private boolean dispatchIssue(Issue issue, Integer attempt, String preferredWorkerHost, RetryEntry expectedRetry) {
+        RunningEntry entry;
+        WorkerSelection workerSelection;
         int retryAttempt = attempt != null ? attempt : 0;
-        RunningEntry entry = new RunningEntry(issue.id(), issue.identifier(), issue, retryAttempt, Instant.now());
-        entry.workerHost = workerSelection.workerHost();
-        running.put(issue.id(), entry);
+        Instant startedAt;
+        String runId;
+        synchronized (dispatchStateLock) {
+            if (running.containsKey(issue.id()) || claimed.contains(issue.id())) return false;
+            RetryEntry pendingRetry = retryAttempts.get(issue.id());
+            if (expectedRetry == null) {
+                if (pendingRetry != null) return false;
+            } else if (!expectedRetry.equals(pendingRetry)) {
+                return false;
+            }
+            workerSelection = selectWorkerHost(preferredWorkerHost);
+            if (!workerSelection.hasCapacity()) return false;
+            claimed.add(issue.id());
+            if (expectedRetry != null) {
+                retryAttempts.remove(issue.id());
+            }
+            startedAt = Instant.now();
+            String dispatchKind = expectedRetry != null ? expectedRetry.kind() : DISPATCH_KIND_IMPLEMENTATION;
+            runId = newRunId(issue, retryAttempt, dispatchKind);
+            entry = new RunningEntry(issue.id(), issue.identifier(), runId, issue, retryAttempt, startedAt);
+            entry.dispatchKind = dispatchKind;
+            entry.parentRunId = expectedRetry != null ? expectedRetry.parentRunId() : "";
+            entry.workerHost = workerSelection.workerHost();
+            running.put(issue.id(), entry);
+        }
+        runHistoryRepository.recordRunStarted(RunHistoryRepository.started(runId, issue, retryAttempt, startedAt));
+        runHistoryRepository.recordRuntimeInfo(runId, entry.workerHost, entry.workspacePath);
 
         final Map<String, String> parentMdc = MDC.getCopyOfContextMap();
         workerPool.submit(() -> {
@@ -358,24 +406,36 @@ public class Orchestrator {
             }
             putIssueMdc(issue.id(), issue.identifier(), null);
             try {
-                Issue executionIssue = claimTodoIssueIfNeeded(issue);
+                Issue executionIssue = claimTodoIssueIfNeeded(entry, issue);
                 entry.issue = executionIssue;
+                entry.trackerStateClaimed = executionIssue != issue;
+                runHistoryRepository.recordRunStarted(
+                        RunHistoryRepository.started(runId, executionIssue, retryAttempt, startedAt));
                 LOGGER.info(
                         "action=worker_start issue_id={} issue_identifier={} tracker_state={}",
                         executionIssue.id(),
                         executionIssue.identifier(),
                         executionIssue.state());
-                agentRunner.runAttempt(
-                        executionIssue,
-                        attempt,
-                        workerSelection.workerHost(),
-                        evt -> onCodexUpdate(issue.id(), evt),
-                        runtimeInfo -> {
-                            entry.workerHost = runtimeInfo.workerHost();
-                            entry.workspacePath = runtimeInfo.workspacePath();
-                        },
-                        () -> onWorkerExit(issue.id(), true, null),
-                        reason -> onWorkerExit(issue.id(), false, reason));
+                if (DISPATCH_KIND_ADVERSARIAL_REVIEW.equals(entry.dispatchKind)) {
+                    agentRunner.runAdversarialReviewAttempt(
+                            executionIssue,
+                            attempt,
+                            workerSelection.workerHost(),
+                            entry.parentRunId,
+                            evt -> onCodexUpdate(issue.id(), evt),
+                            runtimeInfo -> recordRuntimeInfo(entry, runtimeInfo),
+                            () -> onWorkerExit(issue.id(), true, null),
+                            reason -> onWorkerExit(issue.id(), false, reason));
+                } else {
+                    agentRunner.runAttempt(
+                            executionIssue,
+                            attempt,
+                            workerSelection.workerHost(),
+                            evt -> onCodexUpdate(issue.id(), evt),
+                            runtimeInfo -> recordRuntimeInfo(entry, runtimeInfo),
+                            () -> onWorkerExit(issue.id(), true, null),
+                            reason -> onWorkerExit(issue.id(), false, reason));
+                }
             } catch (Exception e) {
                 LOGGER.warn(
                         "action=worker_exception issue_id={} issue_identifier={} reason={}",
@@ -390,14 +450,33 @@ public class Orchestrator {
                 }
             }
         });
+        return true;
+    }
+
+    private void recordRuntimeInfo(RunningEntry entry, AgentRunner.RuntimeInfo runtimeInfo) {
+        entry.workerHost = runtimeInfo.workerHost();
+        entry.workspacePath = runtimeInfo.workspacePath();
+        runHistoryRepository.recordRuntimeInfo(entry.runId, runtimeInfo.workerHost(), runtimeInfo.workspacePath());
     }
 
     Issue claimTodoIssueIfNeeded(Issue issue) {
+        return claimTodoIssueIfNeeded(null, issue);
+    }
+
+    Issue claimTodoIssueIfNeeded(RunningEntry entry, Issue issue) {
         if (issue == null || !"todo".equals(issue.stateNormalized())) {
             return issue;
         }
         TrackerResult<Void> update = tracker().updateIssueState(issue.id(), "In Progress");
         if (!update.isSuccess()) {
+            recordExternalEffect(
+                    entry,
+                    "tracker_state_update",
+                    "linear",
+                    issue.id(),
+                    "failed",
+                    update.errorCode(),
+                    update.errorMessage());
             LOGGER.warn(
                     "action=issue_claim outcome=failed issue_id={} issue_identifier={} reason={}",
                     issue.id(),
@@ -410,6 +489,7 @@ public class Orchestrator {
                 && refreshed.value() != null
                 && !refreshed.value().isEmpty()) {
             Issue refreshedIssue = refreshed.value().get(0);
+            recordExternalEffect(entry, "tracker_state_update", "linear", refreshedIssue.id(), "succeeded", "", "");
             LOGGER.info(
                     "action=issue_claim outcome=claimed issue_id={} issue_identifier={} tracker_state={}",
                     refreshedIssue.id(),
@@ -418,6 +498,7 @@ public class Orchestrator {
             return refreshedIssue;
         }
         Issue claimedIssue = withState(issue, "In Progress");
+        recordExternalEffect(entry, "tracker_state_update", "linear", claimedIssue.id(), "succeeded", "", "");
         LOGGER.info(
                 "action=issue_claim outcome=claimed issue_id={} issue_identifier={} tracker_state={}",
                 claimedIssue.id(),
@@ -457,10 +538,43 @@ public class Orchestrator {
                 Instant.now());
     }
 
+    private static void recordExternalEffect(
+            RunningEntry entry,
+            String type,
+            String provider,
+            String target,
+            String status,
+            String errorCode,
+            String errorMessage) {
+        if (entry == null) {
+            return;
+        }
+        entry.recordExternalEffect(
+                type, provider, target, status, errorCode, sanitizeEffectMessage(errorMessage), Instant.now());
+    }
+
+    private static String sanitizeEffectMessage(String errorMessage) {
+        if (errorMessage == null || errorMessage.isBlank()) {
+            return "";
+        }
+        String normalized = errorMessage.replaceAll("\\s+", " ").trim();
+        normalized = normalized
+                .replaceAll("(?i)\\bbearer\\s+[A-Za-z0-9._~+/=-]{12,}", "Bearer [redacted]")
+                .replaceAll(
+                        "(?i)\\b(api[_-]?key|access[_-]?token|secret|password|passwd|pwd|token)\\s*[:=]\\s*['\"]?[A-Za-z0-9._~+/=-]{8,}",
+                        "$1=[redacted]")
+                .replaceAll("(?i)\\bjdbc:([^\\s`'\"]*)(password|passwd|pwd)=[^&\\s`'\"]+", "jdbc:$1$2=[redacted]")
+                .replaceAll(
+                        "(?i)\\b(mysql|postgres(?:ql)?|redis)://([^:\\s`'\"]+):([^@\\s`'\"]+)@", "$1://$2:[redacted]@");
+        int maxLength = 180;
+        return normalized.length() <= maxLength ? normalized : normalized.substring(0, maxLength) + "...";
+    }
+
     private void onCodexUpdate(String issueId, CodexUpdateEvent evt) {
         RunningEntry e = running.get(issueId);
         if (e == null) return;
         e.lastCodexEvent = evt.event();
+        e.recordCodexEvent(evt.event());
         e.lastCodexTimestamp = evt.timestamp();
         e.lastCodexMessage = evt.payload() != null ? evt.payload().toString() : null;
         if ("turn_completed".equals(evt.event())) {
@@ -485,7 +599,7 @@ public class Orchestrator {
                 e.codexAppServerPid = pid.toString();
             }
         }
-        if (evt.usage() != null) {
+        if (!evt.usage().isEmpty()) {
             e.codexInputTokens = ((Number) evt.usage().getOrDefault("input_tokens", 0)).longValue();
             e.codexOutputTokens = ((Number) evt.usage().getOrDefault("output_tokens", 0)).longValue();
             e.codexTotalTokens = ((Number) evt.usage().getOrDefault("total_tokens", 0)).longValue();
@@ -493,58 +607,138 @@ public class Orchestrator {
         if (evt.payload() != null && evt.payload().containsKey("rate_limits")) {
             codexRateLimits = evt.payload().get("rate_limits");
         }
+        runHistoryRepository.recordCodexEvent(e.runId, evt);
     }
 
     private void onWorkerExit(String issueId, boolean normal, String failureReason) {
-        RunningEntry entry = running.remove(issueId);
-        if (entry == null) return;
-        claimed.remove(issueId);
-        completed.add(issueId);
+        RunningEntry entry;
+        RetryEntry nextRetry;
+        synchronized (dispatchStateLock) {
+            entry = running.remove(issueId);
+            if (entry == null) return;
+            claimed.remove(issueId);
+            completed.add(issueId);
+            if (normal) {
+                if (DISPATCH_KIND_ADVERSARIAL_REVIEW.equals(entry.dispatchKind)) {
+                    adversarialReviewCompleted.add(issueId);
+                    nextRetry = null;
+                } else if (shouldScheduleAdversarialReview(entry)) {
+                    nextRetry = scheduleRetryLocked(
+                            issueId,
+                            entry.identifier,
+                            0,
+                            null,
+                            entry.workerHost,
+                            entry.workspacePath,
+                            DISPATCH_KIND_ADVERSARIAL_REVIEW,
+                            entry.runId);
+                } else {
+                    nextRetry = scheduleRetryLocked(
+                            issueId,
+                            entry.identifier,
+                            1,
+                            null,
+                            entry.workerHost,
+                            entry.workspacePath,
+                            DISPATCH_KIND_CONTINUATION);
+                }
+            } else {
+                if (DISPATCH_KIND_ADVERSARIAL_REVIEW.equals(entry.dispatchKind)) {
+                    adversarialReviewCompleted.add(issueId);
+                    nextRetry = null;
+                } else {
+                    int nextAttempt = entry.retryAttempt + 1;
+                    String error = failureReason != null && !failureReason.isBlank() ? failureReason : "worker exited";
+                    nextRetry = scheduleRetryLocked(
+                            issueId,
+                            entry.identifier,
+                            nextAttempt,
+                            error,
+                            entry.workerHost,
+                            entry.workspacePath,
+                            DISPATCH_KIND_RETRY);
+                }
+            }
+        }
         LOGGER.info(
                 "action=worker_exit outcome={} issue_id={} issue_identifier={} session_id={}",
                 normal ? "completed" : "failed",
                 entry.issueId,
                 entry.identifier,
                 entry.sessionId != null ? entry.sessionId : "");
-        RetryEntry nextRetry;
-        if (normal) {
-            nextRetry = scheduleRetry(issueId, entry.identifier, 1, null, entry.workerHost, entry.workspacePath);
-        } else {
-            int nextAttempt = entry.retryAttempt + 1;
-            String error = failureReason != null && !failureReason.isBlank() ? failureReason : "worker exited";
-            nextRetry =
-                    scheduleRetry(issueId, entry.identifier, nextAttempt, error, entry.workerHost, entry.workspacePath);
+        String status = normal ? "completed" : "failed";
+        Instant finishedAt = Instant.now();
+        runHistoryRepository.recordRunFinished(entry.runId, status, failureReason, finishedAt);
+        if (isFailureRetry(nextRetry)) {
+            runHistoryRepository.recordRetryScheduled(
+                    entry.runId, nextRetry.attempt() + 1, Instant.ofEpochMilli(nextRetry.dueAtMs()), nextRetry.error());
         }
         reportAttemptOutcome(entry, normal, nextRetry, failureReason);
+        AgentRunSummaryWriter.write(
+                config(), entry, status, failureReason, finishedAt, nextRetry, resolveWorkspacePath(entry));
     }
 
-    private RetryEntry scheduleRetry(
-            String issueId, String identifier, int attempt, String error, String workerHost, String workspacePath) {
+    private RetryEntry scheduleRetryLocked(
+            String issueId,
+            String identifier,
+            int attempt,
+            String error,
+            String workerHost,
+            String workspacePath,
+            String dispatchKind) {
+        return scheduleRetryLocked(issueId, identifier, attempt, error, workerHost, workspacePath, dispatchKind, "");
+    }
+
+    private RetryEntry scheduleRetryLocked(
+            String issueId,
+            String identifier,
+            int attempt,
+            String error,
+            String workerHost,
+            String workspacePath,
+            String dispatchKind,
+            String parentRunId) {
         ServiceConfig cfg = config();
-        long delayMs = attempt == 1 && error == null
+        long delayMs = (DISPATCH_KIND_ADVERSARIAL_REVIEW.equals(dispatchKind) || attempt == 1 && error == null)
                 ? 1000
-                : Math.min(10_000 * (1L << (attempt - 1)), cfg.getMaxRetryBackoffMs());
+                : Math.min(10_000 * (1L << Math.max(0, attempt - 1)), cfg.getMaxRetryBackoffMs());
         long dueAtMs = System.currentTimeMillis() + delayMs;
-        RetryEntry re = new RetryEntry(issueId, identifier, attempt, dueAtMs, null, error, workerHost, workspacePath);
+        RetryEntry re = new RetryEntry(
+                issueId,
+                identifier,
+                attempt,
+                dueAtMs,
+                null,
+                error,
+                workerHost,
+                workspacePath,
+                dispatchKind,
+                parentRunId);
         retryAttempts.put(issueId, re);
-        retryScheduler.schedule(() -> onRetryTimer(issueId), delayMs, TimeUnit.MILLISECONDS);
+        retryScheduler.schedule(() -> onRetryTimer(issueId, re), delayMs, TimeUnit.MILLISECONDS);
         return re;
     }
 
-    private void onRetryTimer(String issueId) {
-        RetryEntry re = retryAttempts.remove(issueId);
-        if (re == null) return;
+    private void onRetryTimer(String issueId, RetryEntry scheduledRetry) {
+        RetryEntry re;
+        synchronized (dispatchStateLock) {
+            re = retryAttempts.get(issueId);
+            if (!scheduledRetry.equals(re)) return;
+        }
         ServiceConfig cfg = config();
         TrackerClient tr = tracker();
         var result = tr.fetchCandidateIssues(cfg.getTrackerProjectSlug(), cfg.getTrackerActiveStates());
         if (!result.isSuccess() || result.value() == null) {
-            scheduleRetry(
+            scheduleRetryIfCurrent(
                     issueId,
+                    re,
                     re.identifier(),
                     re.attempt() + 1,
                     "retry poll failed",
                     re.workerHost(),
-                    re.workspacePath());
+                    re.workspacePath(),
+                    DISPATCH_KIND_RETRY,
+                    re.parentRunId());
             return;
         }
         Issue issue = result.value().stream()
@@ -552,30 +746,75 @@ public class Orchestrator {
                 .findFirst()
                 .orElse(null);
         if (issue == null) {
-            claimed.remove(issueId);
+            clearRetryIfCurrent(issueId, re);
             return;
         }
         if (running.size() >= cfg.getMaxConcurrentAgents()) {
-            scheduleRetry(
+            scheduleRetryIfCurrent(
                     issueId,
+                    re,
                     issue.identifier(),
                     re.attempt() + 1,
                     "no available orchestrator slots",
                     re.workerHost(),
-                    re.workspacePath());
+                    re.workspacePath(),
+                    re.kind(),
+                    re.parentRunId());
             return;
         }
         if (!selectWorkerHost(re.workerHost()).hasCapacity()) {
-            scheduleRetry(
+            scheduleRetryIfCurrent(
                     issueId,
+                    re,
                     issue.identifier(),
                     re.attempt() + 1,
                     "no available worker slots",
                     re.workerHost(),
-                    re.workspacePath());
+                    re.workspacePath(),
+                    re.kind(),
+                    re.parentRunId());
             return;
         }
-        dispatchIssue(issue, re.attempt(), re.workerHost());
+        if (!dispatchIssue(issue, re.attempt(), re.workerHost(), re)) {
+            scheduleRetryIfCurrent(
+                    issueId,
+                    re,
+                    issue.identifier(),
+                    re.attempt() + 1,
+                    "retry dispatch was not accepted",
+                    re.workerHost(),
+                    re.workspacePath(),
+                    re.kind(),
+                    re.parentRunId());
+        }
+    }
+
+    private RetryEntry scheduleRetryIfCurrent(
+            String issueId,
+            RetryEntry currentRetry,
+            String identifier,
+            int attempt,
+            String error,
+            String workerHost,
+            String workspacePath,
+            String dispatchKind,
+            String parentRunId) {
+        synchronized (dispatchStateLock) {
+            if (!currentRetry.equals(retryAttempts.get(issueId))) {
+                return null;
+            }
+            return scheduleRetryLocked(
+                    issueId, identifier, attempt, error, workerHost, workspacePath, dispatchKind, parentRunId);
+        }
+    }
+
+    private void clearRetryIfCurrent(String issueId, RetryEntry currentRetry) {
+        synchronized (dispatchStateLock) {
+            if (currentRetry.equals(retryAttempts.get(issueId))) {
+                retryAttempts.remove(issueId);
+                claimed.remove(issueId);
+            }
+        }
     }
 
     /** 按人类可读议题编号（如 MT-649）查找运行中条目。 */
@@ -636,6 +875,8 @@ public class Orchestrator {
         return Map.of(
                 "spec_driven_enabled",
                 cfg.isSpecDrivenDeliveryEnabled(),
+                "adversarial_review_enabled",
+                cfg.isAdversarialReviewEnabled(),
                 "required_assets",
                 cfg.getSpecDrivenDeliveryRequiredAssets());
     }
@@ -699,8 +940,9 @@ public class Orchestrator {
                 "total_tokens", entry.codexTotalTokens);
 
         Map<String, Object> retry = new LinkedHashMap<>();
-        boolean retryScheduled = retryEntry != null;
+        boolean retryScheduled = isFailureRetry(retryEntry);
         retry.put("scheduled", retryScheduled);
+        retry.put("dispatch_kind", retryEntry != null ? retryEntry.kind() : "");
         retry.put("next_attempt", retryScheduled ? retryEntry.attempt() + 1 : 0);
         retry.put(
                 "due_at",
@@ -724,8 +966,17 @@ public class Orchestrator {
             String body = normal
                     ? LinearCommentRenderer.renderSuccess(cfg.getLinearCommentSuccessTemplate(), entry.issue, context)
                     : LinearCommentRenderer.renderFailure(cfg.getLinearCommentFailureTemplate(), entry.issue, context);
+            entry.linearCommentAttempted = true;
             var result = tracker().createIssueComment(entry.issueId, body);
             if (!result.isSuccess()) {
+                recordExternalEffect(
+                        entry,
+                        "linear_comment",
+                        "linear",
+                        entry.issueId,
+                        "failed",
+                        result.errorCode(),
+                        result.errorMessage());
                 LOGGER.warn(
                         "action=linear_comment_writeback outcome=failed issue_id={} issue_identifier={} reason={}",
                         entry.issueId,
@@ -733,12 +984,15 @@ public class Orchestrator {
                         result.errorMessage());
                 return;
             }
+            recordExternalEffect(entry, "linear_comment", "linear", entry.issueId, "succeeded", "", "");
             LOGGER.info(
                     "action=linear_comment_writeback outcome=posted issue_id={} issue_identifier={} comment_id={}",
                     entry.issueId,
                     entry.identifier,
                     result.value() != null ? result.value() : "");
         } catch (LinearCommentRenderer.CommentRenderException e) {
+            recordExternalEffect(
+                    entry, "linear_comment", "linear", entry.issueId, "failed", e.getCode(), e.getMessage());
             LOGGER.warn(
                     "action=linear_comment_render outcome=failed code={} issue_id={} issue_identifier={} reason={}",
                     e.getCode(),
@@ -746,6 +1000,14 @@ public class Orchestrator {
                     entry.identifier,
                     e.getMessage());
         } catch (Exception e) {
+            recordExternalEffect(
+                    entry,
+                    "linear_comment",
+                    "linear",
+                    entry.issueId,
+                    "failed",
+                    e.getClass().getSimpleName(),
+                    e.toString());
             LOGGER.warn(
                     "action=linear_comment_writeback outcome=failed issue_id={} issue_identifier={} reason={}",
                     entry.issueId,
@@ -800,6 +1062,56 @@ public class Orchestrator {
                 .getWorkspaceRoot()
                 .resolve(WorkspaceKeys.sanitize(entry.identifier))
                 .normalize();
+    }
+
+    private static String newRunId(Issue issue, int retryAttempt, String dispatchKind) {
+        String identifier =
+                issue != null && issue.identifier() != null ? WorkspaceKeys.sanitize(issue.identifier()) : "issue";
+        if (DISPATCH_KIND_ADVERSARIAL_REVIEW.equals(dispatchKind)) {
+            return identifier + "-review-" + (retryAttempt + 1) + "-" + UUID.randomUUID();
+        }
+        return identifier + "-attempt-" + (retryAttempt + 1) + "-" + UUID.randomUUID();
+    }
+
+    private static boolean isFailureRetry(RetryEntry retryEntry) {
+        return retryEntry != null && DISPATCH_KIND_RETRY.equals(retryEntry.kind());
+    }
+
+    private boolean shouldScheduleAdversarialReview(RunningEntry entry) {
+        ServiceConfig cfg = config();
+        if (!cfg.isAdversarialReviewEnabled()
+                || entry == null
+                || entry.issue == null
+                || adversarialReviewCompleted.contains(entry.issueId)
+                || DISPATCH_KIND_ADVERSARIAL_REVIEW.equals(entry.dispatchKind)
+                || DISPATCH_KIND_CONTINUATION.equals(entry.dispatchKind)) {
+            return false;
+        }
+        String titleRegex = cfg.getAdversarialReviewIssueTitleRegex();
+        if (titleRegex != null && !titleRegex.isBlank()) {
+            try {
+                String title = entry.issue.title() != null ? entry.issue.title() : "";
+                if (Pattern.compile(titleRegex).matcher(title).find()) {
+                    return true;
+                }
+            } catch (PatternSyntaxException e) {
+                LOGGER.warn(
+                        "action=adversarial_review_filter outcome=invalid_regex issue_id={} issue_identifier={} regex={} reason={}",
+                        entry.issueId,
+                        entry.identifier,
+                        titleRegex,
+                        e.getMessage());
+            }
+        }
+        List<String> riskLabels = cfg.getAdversarialReviewRiskLabels();
+        if (riskLabels.isEmpty()) {
+            return true;
+        }
+        List<String> issueLabels = entry.issue.labels().stream()
+                .map(label -> label == null ? "" : label.trim().toLowerCase())
+                .filter(label -> !label.isBlank())
+                .toList();
+        return issueLabels.stream().anyMatch(riskLabels::contains);
     }
 
     private record WorkerSelection(boolean hasCapacity, String workerHost) {}

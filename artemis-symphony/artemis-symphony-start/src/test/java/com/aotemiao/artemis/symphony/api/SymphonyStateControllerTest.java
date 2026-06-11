@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.aotemiao.artemis.symphony.core.model.CodexTotals;
 import com.aotemiao.artemis.symphony.core.model.Issue;
+import com.aotemiao.artemis.symphony.core.model.RetryEntry;
 import com.aotemiao.artemis.symphony.orchestrator.Orchestrator;
 import com.aotemiao.artemis.symphony.orchestrator.RunningEntry;
 import com.aotemiao.artemis.symphony.workspace.WorkspaceManager;
@@ -42,7 +43,12 @@ class SymphonyStateControllerTest {
         when(orchestrator.getCodexRateLimits()).thenReturn(Map.of("primary", Map.of("usedPercent", 1)));
         when(orchestrator.getDeliverySnapshot())
                 .thenReturn(Map.of(
-                        "spec_driven_enabled", true, "required_assets", List.of("docs/feature-specs/README.md")));
+                        "spec_driven_enabled",
+                        true,
+                        "adversarial_review_enabled",
+                        false,
+                        "required_assets",
+                        List.of("docs/feature-specs/README.md")));
 
         mockMvc.perform(get("/api/v1/state"))
                 .andExpect(status().isOk())
@@ -51,6 +57,7 @@ class SymphonyStateControllerTest {
                 .andExpect(jsonPath("$.codex_totals.total_tokens", is(0)))
                 .andExpect(jsonPath("$.rate_limits.primary.usedPercent", is(1)))
                 .andExpect(jsonPath("$.delivery.spec_driven_enabled", is(true)))
+                .andExpect(jsonPath("$.delivery.adversarial_review_enabled", is(false)))
                 .andExpect(jsonPath("$.delivery.required_assets[0]", is("docs/feature-specs/README.md")));
     }
 
@@ -92,5 +99,49 @@ class SymphonyStateControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.phase", is("running")))
                 .andExpect(jsonPath("$.issue_identifier", is("MT-1")));
+    }
+
+    @Test
+    void getState_whenRunning_includesRunId() throws Exception {
+        Issue issue = new Issue("id-1", "MT-1", "t", null, 1, "Todo", null, null, List.of(), List.of(), null, null);
+        RunningEntry entry = new RunningEntry("id-1", "MT-1", "run-1", issue, 0, Instant.parse("2025-01-01T00:00:00Z"));
+        when(orchestrator.getRunning()).thenReturn(Map.of("id-1", entry));
+        when(orchestrator.getRetryAttempts()).thenReturn(Map.of());
+        when(orchestrator.getCodexTotals()).thenReturn(CodexTotals.zero());
+        when(orchestrator.getCodexRateLimits()).thenReturn(Map.of());
+        when(orchestrator.getDeliverySnapshot()).thenReturn(Map.of());
+        when(workspaceManager.getWorkspaceRoot())
+                .thenReturn(Path.of("/symphony").toAbsolutePath());
+
+        mockMvc.perform(get("/api/v1/state"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.running[0].run_id", is("run-1")))
+                .andExpect(jsonPath("$.running[0].issue_identifier", is("MT-1")));
+    }
+
+    @Test
+    void getState_whenRetrying_includesDispatchKind() throws Exception {
+        RetryEntry retry = new RetryEntry(
+                "id-2",
+                "MT-2",
+                1,
+                Instant.parse("2025-01-01T00:00:05Z").toEpochMilli(),
+                null,
+                null,
+                null,
+                null,
+                "continuation");
+        when(orchestrator.getRunning()).thenReturn(Map.of());
+        when(orchestrator.getRetryAttempts()).thenReturn(Map.of("id-2", retry));
+        when(orchestrator.getCodexTotals()).thenReturn(CodexTotals.zero());
+        when(orchestrator.getCodexRateLimits()).thenReturn(Map.of());
+        when(orchestrator.getDeliverySnapshot()).thenReturn(Map.of());
+        when(workspaceManager.getWorkspaceRoot())
+                .thenReturn(Path.of("/symphony").toAbsolutePath());
+
+        mockMvc.perform(get("/api/v1/state"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.retrying[0].issue_identifier", is("MT-2")))
+                .andExpect(jsonPath("$.retrying[0].dispatch_kind", is("continuation")));
     }
 }

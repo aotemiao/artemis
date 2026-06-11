@@ -1,0 +1,36 @@
+id: memory-adversarial-review-independent
+title: Memory tracker independent adversarial review attempt eval
+risk_level: high
+tracker: memory
+issue_id: eval-memory-adversarial-review-independent
+issue_identifier: EVAL-22
+issue_title: RBAC high-risk independent review memory eval
+issue_state: Todo
+issue_description: |
+  调整网关 RBAC，让部分内部接口可以被管理员角色通过网关访问。
+  主实现 attempt 完成后，Symphony 必须自动调度独立的 adversarial review attempt，
+  并在 run summary 中保留实现 run 与 review run 的 dispatch kind。
+expected_workspace_file: REVIEW_ATTEMPT.md
+expected_workspace_contains: |
+  independent adversarial review attempt observed
+  memory-adversarial-review-independent passed
+expected_summary_status: completed
+expected_summary_dispatch_kind: implementation
+expected_summary_dispatch_kinds:
+  - implementation
+  - adversarial_review
+expected_agent_run_count: 2
+expected_history_status: completed
+expected_min_total_tokens: 18
+expected_metrics_total_runs: 2
+adversarial_review_enabled: true
+adversarial_review_issue_title_regex: RBAC high-risk
+expected_events:
+  - run_started
+  - session_started
+  - thread/tokenUsage/updated
+  - turn_completed
+expected_external_effects:
+  - tracker_state_update:succeeded
+required_validations:
+  - scripts/e2e/run-symphony-agent-eval.sh

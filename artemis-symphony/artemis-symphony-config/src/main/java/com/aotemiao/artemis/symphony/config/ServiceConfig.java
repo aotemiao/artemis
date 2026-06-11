@@ -32,11 +32,14 @@ public final class ServiceConfig {
     private static final int DEFAULT_TURN_TIMEOUT_MS = 3_600_000;
     private static final int DEFAULT_READ_TIMEOUT_MS = 5_000;
     private static final int DEFAULT_STALL_TIMEOUT_MS = 300_000;
+    private static final String DEFAULT_THREAD_SANDBOX = "workspace-write";
+    private static final String LEGACY_NONE_THREAD_SANDBOX = "danger-full-access";
     private static final List<String> DEFAULT_SPEC_DRIVEN_DELIVERY_REQUIRED_ASSETS = List.of(
             "docs/feature-specs/README.md",
             "docs/feature-specs/templates/feature-spec-template.md",
             "docs/patterns/spec-to-validation-mapping.md",
             "docs/patterns/agent-delivery-handoff.md",
+            "docs/security/THREAT_MODEL.md",
             "docs/patterns/security-review-checklist.md",
             "docs/runbooks/AGENT_PERMISSION_RUNBOOK.md",
             "docs/exec-plans/templates/execution-plan-template.md",
@@ -44,6 +47,7 @@ public final class ServiceConfig {
             "artemis-symphony/skills/spec-driven-delivery.md",
             "artemis-symphony/prompts/adversarial-review.md",
             "artemis-symphony/skills/adversarial-review.md",
+            "artemis-symphony/tools/registry.json",
             "scripts/harness/check-feature-specs.sh",
             "scripts/harness/check-spec-driven-delivery-chain.sh");
     private static final Map<String, Object> DEFAULT_APPROVAL_POLICY = Map.of(
@@ -295,6 +299,17 @@ public final class ServiceConfig {
         return stringOrNull(getNested(definition.config(), "codex.thread_sandbox"));
     }
 
+    public String getEffectiveCodexThreadSandbox() {
+        String configured = getCodexThreadSandbox();
+        if (configured == null || configured.isBlank()) {
+            return DEFAULT_THREAD_SANDBOX;
+        }
+        if ("none".equalsIgnoreCase(configured)) {
+            return LEGACY_NONE_THREAD_SANDBOX;
+        }
+        return configured;
+    }
+
     public Object getCodexTurnSandboxPolicy() {
         return getNested(definition.config(), "codex.turn_sandbox_policy");
     }
@@ -327,6 +342,29 @@ public final class ServiceConfig {
                 false,
                 "excludeSlashTmp",
                 false);
+    }
+
+    // --- permissions ---
+    public boolean isDangerFullAccessAllowed() {
+        return booleanFromConfig("permissions.allow_danger_full_access", false);
+    }
+
+    public String getNetworkAccessReason() {
+        return stringOrNull(getNested(definition.config(), "permissions.network_access_reason"));
+    }
+
+    public List<String> getAllowedWritableRoots() {
+        Object raw = getNested(definition.config(), "permissions.allowed_writable_roots");
+        if (!(raw instanceof List<?> list)) {
+            return List.of();
+        }
+        return list.stream()
+                .map(item -> item == null
+                        ? ""
+                        : resolveEnv(expandHome(item.toString().trim())))
+                .filter(item -> !item.isBlank())
+                .distinct()
+                .toList();
     }
 
     @SuppressWarnings("unchecked")
@@ -390,6 +428,55 @@ public final class ServiceConfig {
                 """.formatted(assets).trim();
     }
 
+    public boolean isAdversarialReviewEnabled() {
+        return booleanFromConfig("delivery.adversarial_review.enabled", false);
+    }
+
+    public String getAdversarialReviewIssueTitleRegex() {
+        return stringOrNull(getNested(definition.config(), "delivery.adversarial_review.issue_title_regex"));
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> getAdversarialReviewRiskLabels() {
+        Object raw = getNested(definition.config(), "delivery.adversarial_review.risk_labels");
+        if (raw instanceof List<?> list) {
+            List<String> configured = list.stream()
+                    .map(item -> item == null ? "" : item.toString().trim().toLowerCase())
+                    .filter(item -> !item.isBlank())
+                    .distinct()
+                    .toList();
+            if (!configured.isEmpty()) {
+                return configured;
+            }
+        }
+        return List.of("high-risk", "security-sensitive", "adversarial-review");
+    }
+
+    public Object getAdversarialReviewTurnSandboxPolicy() {
+        return getNested(definition.config(), "delivery.adversarial_review.turn_sandbox_policy");
+    }
+
+    public Object resolveAdversarialReviewTurnSandboxPolicy(Path workspacePath, boolean remote) {
+        Object configured = getAdversarialReviewTurnSandboxPolicy();
+        if (configured instanceof Map<?, ?> map) {
+            return normalizeMap(map);
+        }
+        if (configured != null) {
+            return configured;
+        }
+        return Map.of(
+                "type",
+                "readOnly",
+                "readOnlyAccess",
+                Map.of("type", "fullAccess"),
+                "networkAccess",
+                false,
+                "excludeTmpdirEnvVar",
+                false,
+                "excludeSlashTmp",
+                false);
+    }
+
     // --- reporting ---
     public boolean isLinearCommentReportingEnabled() {
         return booleanFromConfig("reporting.linear_comments.enabled", false);
@@ -405,6 +492,19 @@ public final class ServiceConfig {
 
     public String getLinearCommentIssueTitleRegex() {
         return stringOrNull(getNested(definition.config(), "reporting.linear_comments.issue_title_regex"));
+    }
+
+    public boolean isAgentRunSummaryEnabled() {
+        return booleanFromConfig("reporting.agent_runs.enabled", true);
+    }
+
+    public Path getAgentRunSummaryDirectory() {
+        String raw = stringOrNull(getNested(definition.config(), "reporting.agent_runs.directory"));
+        if (raw == null || raw.isBlank()) {
+            raw = "artifacts/agent-runs";
+        }
+        raw = expandHome(resolveEnv(raw));
+        return Path.of(raw).normalize();
     }
 
     // --- server (extension) ---

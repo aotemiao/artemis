@@ -1,0 +1,36 @@
+id: memory-openspec-change-required
+title: Memory tracker OpenSpec change required eval
+risk_level: medium
+tracker: memory
+issue_id: eval-memory-openspec-change-required
+issue_identifier: EVAL-18
+issue_title: OpenSpec change required memory eval
+issue_state: Todo
+issue_description: |
+  调整默认 agent workflow 规则：以后所有改变质量门、契约治理或默认
+  agent 工作流的任务，都必须先建立 OpenSpec change，再按 change 关联
+  实现、脚本和验证。这个需求改变稳定规则，不能只改 prompt 或执行计划。
+expected_workspace_file: openspec/changes/require-openspec-for-workflow-rule-changes/proposal.md
+expected_workspace_contains: |
+  # Require OpenSpec For Workflow Rule Changes
+  ## 背景
+  ## 规则变化
+  ## 影响范围
+  ## 验证方式
+  memory-openspec-change-required passed
+expected_summary_status: completed
+expected_history_status: completed
+expected_min_total_tokens: 18
+prompt_must_contain:
+  - Stable rule change: create or update an OpenSpec change under `openspec/changes/`.
+  - If a task changes stable behavior rules, constraints, contracts, quality gates, or repository workflow
+  - 调整默认 agent workflow 规则
+expected_events:
+  - run_started
+  - session_started
+  - thread/tokenUsage/updated
+  - turn_completed
+expected_external_effects:
+  - tracker_state_update:succeeded
+required_validations:
+  - scripts/e2e/run-symphony-agent-eval.sh

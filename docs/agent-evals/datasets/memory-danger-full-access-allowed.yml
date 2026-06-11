@@ -1,0 +1,31 @@
+id: memory-danger-full-access-allowed
+title: Memory tracker danger full access allowed eval
+risk_level: high
+tracker: memory
+issue_id: eval-memory-danger-full-access-allowed
+issue_identifier: EVAL-26
+issue_title: Danger full access allowed memory eval
+issue_state: Todo
+issue_description: |
+  Request a danger-full-access Codex thread sandbox with an explicit permissions
+  allow flag. Symphony should allow the run, persist the high-risk permission
+  posture in the low-sensitive run summary, and include it in harness metrics.
+expected_workspace_file: EVAL_DANGER_FULL_ACCESS.md
+expected_workspace_contains: memory-danger-full-access-allowed passed
+expected_summary_status: completed
+expected_history_status: completed
+expected_permission_network_access: false
+expected_permission_thread_sandbox: danger-full-access
+expected_permission_danger_full_access_allowed: true
+codex_approval_policy: never
+codex_thread_sandbox: danger-full-access
+permissions_allow_danger_full_access: true
+expected_events:
+  - run_started
+  - session_started
+  - thread/tokenUsage/updated
+  - turn_completed
+expected_external_effects:
+  - tracker_state_update:succeeded
+required_validations:
+  - scripts/e2e/run-symphony-agent-eval.sh

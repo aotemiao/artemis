@@ -1,0 +1,41 @@
+id: memory-requirement-intake
+title: Memory tracker vague requirement intake eval
+risk_level: medium
+tracker: memory
+issue_id: eval-memory-requirement-intake
+issue_identifier: EVAL-15
+issue_title: Vague requirement intake memory eval
+issue_state: Todo
+issue_description: |
+  用户只说“根据市场差距报告继续完善 Symphony”，没有给出明确范围、
+  验收标准或验证方式。先按仓库的需求受理流程整理最小需求模板，
+  不要直接扩大实现范围。
+expected_workspace_file: INTAKE.md
+expected_workspace_contains: |
+  标题：
+  背景 / 问题：
+  目标：
+  范围：
+  非目标：
+  验收标准：
+  影响模块：
+  规则是否变化：
+  需要更新的仓库资产：
+  验证方式：
+  memory-requirement-intake passed
+expected_summary_status: completed
+expected_history_status: completed
+expected_min_total_tokens: 18
+prompt_must_contain:
+  - artemis-symphony/prompts/agent-requirement-intake.md
+  - If the request is still vague after reading the sources above
+  - 根据市场差距报告继续完善 Symphony
+expected_events:
+  - run_started
+  - session_started
+  - thread/tokenUsage/updated
+  - turn_completed
+expected_external_effects:
+  - tracker_state_update:succeeded
+required_validations:
+  - scripts/e2e/run-symphony-agent-eval.sh

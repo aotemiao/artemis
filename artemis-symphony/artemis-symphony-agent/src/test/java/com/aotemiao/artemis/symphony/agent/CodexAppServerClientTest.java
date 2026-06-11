@@ -1,6 +1,7 @@
 package com.aotemiao.artemis.symphony.agent;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -16,6 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class CodexAppServerClientTest {
+
+    private static final int READ_TIMEOUT_MS = 5_000;
+    private static final int TURN_TIMEOUT_MS = 2_000;
 
     @TempDir
     Path tempDir;
@@ -40,8 +44,8 @@ class CodexAppServerClientTest {
                 printf '%s\n' '{"id":2,"result":{"thread":{"id":"thread-1"}}}'
                 sleep 5
                 """);
-        CodexAppServerClient client =
-                new CodexAppServerClient(script.toString(), tempDir, 2_000, 2_000, null, null, null);
+        CodexAppServerClient client = new CodexAppServerClient(
+                script.toString(), tempDir, READ_TIMEOUT_MS, TURN_TIMEOUT_MS, null, null, null);
 
         try {
             assertEquals("thread-1", client.startSession());
@@ -70,8 +74,8 @@ class CodexAppServerClientTest {
                 printf '%s\n' '{"id":2,"result":{"thread":{"id":"thread-legacy"}}}'
                 sleep 5
                 """);
-        CodexAppServerClient client =
-                new CodexAppServerClient(script.toString(), tempDir, 2_000, 2_000, "auto", "none", null);
+        CodexAppServerClient client = new CodexAppServerClient(
+                script.toString(), tempDir, READ_TIMEOUT_MS, TURN_TIMEOUT_MS, "auto", "none", null);
 
         try {
             assertEquals("thread-legacy", client.startSession());
@@ -99,8 +103,8 @@ class CodexAppServerClientTest {
         CodexAppServerClient client = new CodexAppServerClient(
                 script.toString(),
                 tempDir,
-                2_000,
-                2_000,
+                READ_TIMEOUT_MS,
+                TURN_TIMEOUT_MS,
                 Map.of("reject", Map.of("rules", true)),
                 null,
                 null,
@@ -126,8 +130,8 @@ class CodexAppServerClientTest {
                 printf '%s\n' '{"id":2,"error":{"code":-32600,"message":"Invalid request"}}'
                 sleep 1
                 """);
-        CodexAppServerClient client =
-                new CodexAppServerClient(script.toString(), tempDir, 2_000, 2_000, null, null, null);
+        CodexAppServerClient client = new CodexAppServerClient(
+                script.toString(), tempDir, READ_TIMEOUT_MS, TURN_TIMEOUT_MS, null, null, null);
 
         CodexAppServerClient.CodexClientException error =
                 assertThrows(CodexAppServerClient.CodexClientException.class, client::startSession);
@@ -150,8 +154,8 @@ class CodexAppServerClientTest {
                 printf '%s\n' '{"id":3,"error":{"message":"turn rejected"}}'
                 sleep 1
                 """);
-        CodexAppServerClient client =
-                new CodexAppServerClient(script.toString(), tempDir, 2_000, 2_000, null, null, null);
+        CodexAppServerClient client = new CodexAppServerClient(
+                script.toString(), tempDir, READ_TIMEOUT_MS, TURN_TIMEOUT_MS, null, null, null);
 
         try {
             String threadId = client.startSession();
@@ -181,8 +185,8 @@ class CodexAppServerClientTest {
                 printf '%s\n' '{"method":"turn/completed","params":{"threadId":"thread-1","turn":{"id":"turn-1","status":"completed"}}}'
                 sleep 1
                 """);
-        CodexAppServerClient client =
-                new CodexAppServerClient(script.toString(), tempDir, 2_000, 2_000, null, null, null);
+        CodexAppServerClient client = new CodexAppServerClient(
+                script.toString(), tempDir, READ_TIMEOUT_MS, TURN_TIMEOUT_MS, null, null, null);
         List<CodexUpdateEvent> events = new ArrayList<>();
         client.addListener(events::add);
 
@@ -200,6 +204,33 @@ class CodexAppServerClientTest {
                         && Objects.equals(event.usage().get("total_tokens"), 33L)));
         assertTrue(events.stream()
                 .anyMatch(event -> event.payload() != null && event.payload().containsKey("rate_limits")));
+    }
+
+    @Test
+    void runTurn_recordsCancellationFailureReason() throws Exception {
+        Path script = writeScript("""
+                #!/usr/bin/env bash
+                set -euo pipefail
+                read -r _
+                printf '%s\n' '{"id":1,"result":{"userAgent":"test"}}'
+                read -r _
+                read -r _
+                printf '%s\n' '{"id":2,"result":{"thread":{"id":"thread-cancel"}}}'
+                read -r _
+                printf '%s\n' '{"id":3,"result":{"turn":{"id":"turn-cancel"}}}'
+                printf '%s\n' '{"method":"turn/cancelled","params":{"threadId":"thread-cancel","turn":{"id":"turn-cancel","status":"cancelled"}}}'
+                sleep 1
+                """);
+        CodexAppServerClient client = new CodexAppServerClient(
+                script.toString(), tempDir, READ_TIMEOUT_MS, TURN_TIMEOUT_MS, null, null, null);
+
+        try {
+            String threadId = client.startSession();
+            assertFalse(client.runTurn(threadId, "hello", "title"));
+            assertEquals("codex turn cancelled", client.lastTurnFailureReason());
+        } finally {
+            client.stopSession();
+        }
     }
 
     @Test
@@ -228,8 +259,13 @@ class CodexAppServerClientTest {
                       ;;
                   esac
                 done
+                remote_command="$*"
+                if [[ -z "$remote_command" ]]; then
+                  echo "missing remote command" >&2
+                  exit 2
+                fi
                 export HOME="%s"
-                exec bash -lc "$1"
+                exec bash -lc "$remote_command"
                 """.formatted(
                         remoteHome.toString().replace("\\", "\\\\").replace("\"", "\\\"")));
         fakeSsh.toFile().setExecutable(true);
@@ -255,8 +291,8 @@ class CodexAppServerClientTest {
         CodexAppServerClient client = new CodexAppServerClient(
                 serverScript.toString(),
                 Path.of("~/.codex-remote-cwd-test"),
-                2_000,
-                2_000,
+                READ_TIMEOUT_MS,
+                TURN_TIMEOUT_MS,
                 null,
                 null,
                 null,
@@ -300,7 +336,7 @@ class CodexAppServerClientTest {
                 sleep 5
                 """);
         CodexAppServerClient client = new CodexAppServerClient(
-                script.toString(), tempDir, 2_000, 2_000, null, null, null, simpleToolExecutor());
+                script.toString(), tempDir, READ_TIMEOUT_MS, TURN_TIMEOUT_MS, null, null, null, simpleToolExecutor());
 
         try {
             assertEquals("thread-tools", client.startSession());
@@ -333,7 +369,7 @@ class CodexAppServerClientTest {
                 sleep 1
                 """);
         CodexAppServerClient client = new CodexAppServerClient(
-                script.toString(), tempDir, 2_000, 2_000, null, null, null, simpleToolExecutor());
+                script.toString(), tempDir, READ_TIMEOUT_MS, TURN_TIMEOUT_MS, null, null, null, simpleToolExecutor());
         List<CodexUpdateEvent> events = new ArrayList<>();
         client.addListener(events::add);
 
@@ -345,6 +381,45 @@ class CodexAppServerClientTest {
         }
 
         assertTrue(events.stream().anyMatch(event -> "tool_call_completed".equals(event.event())));
+    }
+
+    @Test
+    void runTurn_recordsDynamicToolFailure() throws Exception {
+        Path script = writeScript("""
+                #!/usr/bin/env bash
+                set -euo pipefail
+                read -r _
+                printf '%s\n' '{"id":1,"result":{"userAgent":"test"}}'
+                read -r _
+                read -r _
+                printf '%s\n' '{"id":2,"result":{"thread":{"id":"thread-unsupported-tool"}}}'
+                read -r _
+                printf '%s\n' '{"id":3,"result":{"turn":{"id":"turn-unsupported-tool"}}}'
+                printf '%s\n' '{"id":101,"method":"item/tool/call","params":{"name":"unsupported_tool","arguments":{"query":"query Viewer { viewer { id } }"}}}'
+                read -r tool_result
+                if [[ "$tool_result" != *'"id":101'* ]]; then
+                  exit 10
+                fi
+                if [[ "$tool_result" != *'"success":false'* ]]; then
+                  exit 11
+                fi
+                sleep 1
+                """);
+        CodexAppServerClient client = new CodexAppServerClient(
+                script.toString(), tempDir, READ_TIMEOUT_MS, TURN_TIMEOUT_MS, null, null, null);
+        List<CodexUpdateEvent> events = new ArrayList<>();
+        client.addListener(events::add);
+
+        try {
+            String threadId = client.startSession();
+            assertFalse(client.runTurn(threadId, "hello", "title"));
+            assertEquals("codex turn ended with dynamic tool failure", client.lastTurnFailureReason());
+        } finally {
+            client.stopSession();
+        }
+
+        assertTrue(events.stream().anyMatch(event -> "tool_call_failed".equals(event.event())));
+        assertTrue(events.stream().anyMatch(event -> "turn_ended_with_error".equals(event.event())));
     }
 
     @Test
@@ -367,8 +442,8 @@ class CodexAppServerClientTest {
                 printf '%s\n' '{"method":"turn/completed","params":{"threadId":"thread-approve","turn":{"id":"turn-approve","status":"completed"}}}'
                 sleep 1
                 """);
-        CodexAppServerClient client =
-                new CodexAppServerClient(script.toString(), tempDir, 2_000, 2_000, null, null, null);
+        CodexAppServerClient client = new CodexAppServerClient(
+                script.toString(), tempDir, READ_TIMEOUT_MS, TURN_TIMEOUT_MS, null, null, null);
 
         try {
             String threadId = client.startSession();
@@ -398,8 +473,8 @@ class CodexAppServerClientTest {
                 printf '%s\n' '{"method":"turn/completed","params":{"threadId":"thread-input","turn":{"id":"turn-input","status":"completed"}}}'
                 sleep 1
                 """);
-        CodexAppServerClient client =
-                new CodexAppServerClient(script.toString(), tempDir, 2_000, 2_000, null, null, null);
+        CodexAppServerClient client = new CodexAppServerClient(
+                script.toString(), tempDir, READ_TIMEOUT_MS, TURN_TIMEOUT_MS, null, null, null);
 
         try {
             String threadId = client.startSession();
@@ -407,6 +482,38 @@ class CodexAppServerClientTest {
         } finally {
             client.stopSession();
         }
+    }
+
+    @Test
+    void runTurn_recordsToolRequestUserInputFailure() throws Exception {
+        Path script = writeScript("""
+                #!/usr/bin/env bash
+                set -euo pipefail
+                read -r _
+                printf '%s\n' '{"id":1,"result":{"userAgent":"test"}}'
+                read -r _
+                read -r _
+                printf '%s\n' '{"id":2,"result":{"thread":{"id":"thread-input-required"}}}'
+                read -r _
+                printf '%s\n' '{"id":3,"result":{"turn":{"id":"turn-input-required"}}}'
+                printf '%s\n' '{"id":303,"method":"item/tool/requestUserInput","params":{"questions":[]}}'
+                sleep 1
+                """);
+        CodexAppServerClient client = new CodexAppServerClient(
+                script.toString(), tempDir, READ_TIMEOUT_MS, TURN_TIMEOUT_MS, null, null, null);
+        List<CodexUpdateEvent> events = new ArrayList<>();
+        client.addListener(events::add);
+
+        try {
+            String threadId = client.startSession();
+            assertFalse(client.runTurn(threadId, "hello", "title"));
+            assertEquals("codex turn requires user input", client.lastTurnFailureReason());
+        } finally {
+            client.stopSession();
+        }
+
+        assertTrue(events.stream().anyMatch(event -> "turn_input_required".equals(event.event())));
+        assertTrue(events.stream().anyMatch(event -> "turn_ended_with_error".equals(event.event())));
     }
 
     private Path writeScript(String content) throws IOException {

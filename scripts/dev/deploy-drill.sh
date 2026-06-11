@@ -72,6 +72,10 @@ report_path="${report_dir}/${timestamp}-${target}.md"
   echo "|------|----------|------|------|-------|------|"
 } >"$report_path"
 
+smoke_summary="skipped"
+any_smoke_failed="0"
+any_smoke_passed="0"
+any_smoke_skipped="0"
 for service in "${services[@]}"; do
   print_step "Deploy drill for ${service}"
   scripts/dev/check-service-config.sh "$service"
@@ -90,11 +94,14 @@ for service in "${services[@]}"; do
     if [[ -n "$port" ]] && nc -z 127.0.0.1 "$port" >/dev/null 2>&1; then
       if scripts/dev/check-service-readiness.sh "$service" 3 1; then
         smoke_result="通过"
+        any_smoke_passed="1"
       else
         smoke_result="失败"
+        any_smoke_failed="1"
       fi
     else
       smoke_result="跳过（本地服务未运行）"
+      any_smoke_skipped="1"
     fi
   fi
 
@@ -103,7 +110,48 @@ for service in "${services[@]}"; do
   } >>"$report_path"
 done
 
+if [[ "$skip_smoke" == "1" ]]; then
+  smoke_summary="skipped"
+elif [[ "$any_smoke_failed" == "1" ]]; then
+  smoke_summary="failed"
+elif [[ "$any_smoke_passed" == "1" && "$any_smoke_skipped" == "1" ]]; then
+  smoke_summary="partial"
+elif [[ "$any_smoke_passed" == "1" ]]; then
+  smoke_summary="passed"
+else
+  smoke_summary="skipped"
+fi
+status_summary="completed"
+failure_stage=""
+if [[ "$any_smoke_failed" == "1" ]]; then
+  status_summary="failed"
+  failure_stage="smoke"
+fi
+json_services=""
+for service in "${services[@]}"; do
+  if [[ -n "$json_services" ]]; then
+    json_services+=", "
+  fi
+  json_services+="\"${service}\""
+done
+
 {
+  echo
+  echo "## 指标摘要"
+  echo
+  echo '```json'
+  echo "{"
+  echo '  "schema_version": 1,'
+  echo '  "summary_type": "deploy_drill_report",'
+  echo '  "kind": "deploy",'
+  echo "  \"service\": \"${target}\","
+  echo "  \"services\": [${json_services}],"
+  echo "  \"status\": \"${status_summary}\","
+  echo "  \"smoke\": \"${smoke_summary}\","
+  echo '  "rollback": false,'
+  echo "  \"failure_stage\": \"${failure_stage}\""
+  echo "}"
+  echo '```'
   echo
   echo "## 问题与处理"
   echo

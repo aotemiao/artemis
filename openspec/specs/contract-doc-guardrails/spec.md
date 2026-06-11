@@ -16,10 +16,18 @@
 - `artemis-auth`
 - `artemis-system`
 
+`artemis-system` 的检查 SHALL 自动发现 `artemis-system-adapter/src/main/java/**/adapter/web/**/*Controller.java`，并按 Controller 名称映射到模块级 `*_API.md`。无法按约定映射的 Controller SHALL 在检查脚本中显式声明例外或映射，否则检查失败。
+
 #### Scenario: Controller 新增路由但 API 文档未回写
 
 - **WHEN** Controller 中新增 `@GetMapping`、`@PostMapping`、`@PutMapping` 或 `@DeleteMapping`
 - **THEN** API 文档同步检查 SHALL 失败，并指出缺失的 `METHOD path` 条目
+
+#### Scenario: 新增系统 Controller 但缺少 API 文档
+
+- **WHEN** `artemis-system` 新增 REST Controller
+- **THEN** API 文档同步检查 SHALL 自动发现该 Controller
+- **AND** 若找不到对应模块级 API 文档，检查 SHALL 失败并指出缺失文档路径
 
 ### Requirement: 关键路径测试与覆盖率基线
 

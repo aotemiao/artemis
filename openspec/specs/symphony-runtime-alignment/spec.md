@@ -30,10 +30,30 @@
 
 当 workflow 使用 Linear tracker 时，Symphony SHALL 在 `thread/start` 中向 Codex app-server 宣告 `linear_graphql` 动态工具，并在 `item/tool/call` 请求到达时使用当前 tracker 鉴权代为执行 Linear GraphQL。
 
+动态工具定义 SHALL 同步沉淀到 `artemis-symphony/tools/registry.json`。注册表 SHALL 至少记录工具名、provider、可用条件、输入 schema、输出 schema、权限等级、是否允许外部写操作、是否允许无人值守、审计事件和稳定失败码。
+
+注册表中的动态工具条目 SHALL 保持可机器校验的稳定外形：`status` 只能使用已知状态，输入 / 输出 schema 必须是 object schema，输出 schema SHALL 至少包含 `success:boolean`、`output:string`、`contentItems:array`，审计字段 SHALL 覆盖成功 / 失败运行历史事件，稳定错误码 SHALL 非空、不重复并与运行时执行器保持同步。
+
+具备外部写能力的动态工具 MUST 在注册表中显式声明 `external_write_allowed: true`，避免把 mutation 能力误标为只读诊断工具。
+
 #### Scenario: Codex 请求调用 linear_graphql
 
 - **WHEN** app-server 发送 `item/tool/call` 且工具名为 `linear_graphql`
 - **THEN** Symphony SHALL 执行对应 Linear GraphQL 请求，并把结构化结果回传给 app-server
+
+#### Scenario: Codex 动态工具调用失败
+
+- **WHEN** app-server 发送 `item/tool/call` 且动态工具执行结果为 `success: false`
+- **THEN** Symphony SHALL 回传结构化失败结果
+- **AND** SHALL 将当前 turn 视为失败，记录 `tool_call_failed` 与 `turn_ended_with_error`
+
+#### Scenario: 动态工具注册表覆盖 linear_graphql
+
+- **WHEN** 仓库暴露 `linear_graphql` 动态工具
+- **THEN** `artemis-symphony/tools/registry.json` SHALL 包含同名工具条目
+- **AND** 该条目 SHALL 声明 `provider=linear`、`availability.tracker_kind=linear`、输入参数 `query` 与 `variables`
+- **AND** 该条目 SHALL 声明稳定输出 schema、审计事件、失败行为和运行时可识别的稳定错误码
+- **AND** 该条目 SHALL 声明 `external_write_allowed=true`
 
 ### Requirement: 默认 turn sandbox 收敛到当前工作区
 
@@ -72,6 +92,25 @@ Symphony SHALL 支持参考实现中的 `worker.ssh_hosts` 与 `worker.max_concu
 
 - **WHEN** 某个 issue 进入重试队列，且上一次尝试记录了 worker host
 - **THEN** Symphony SHALL 优先在该 host 仍有容量时复用原 host，再回退到其他可用 host
+
+#### Scenario: issue 存在待执行调度计划
+
+- **WHEN** 某个 issue 已存在待执行的 retry 或 continuation 调度计划
+- **THEN** 普通 poll dispatch SHALL NOT 在该计划到期前再次派发同一 issue
+- **AND** 该 issue 只能由对应定时调度路径释放后再次进入 worker 尝试
+- **AND** worker exit 写入调度计划、普通 dispatch 最终下发检查、定时调度释放计划 SHALL 共享原子状态迁移，避免 `refresh` 或后台 tick 在状态空窗内重复下发同一 issue
+
+### Requirement: 高风险 issue 支持独立 adversarial review attempt
+
+当 workflow 开启 `delivery.adversarial_review.enabled` 时，Symphony SHALL 在匹配过滤条件的实现 run 正常完成后派生一个独立 adversarial review run，而不是只依赖实现 agent 自评。该 review run SHALL 使用只读或等价受限的 turn sandbox policy，并在低敏 run summary 中标记 `attempt.dispatch_kind=adversarial_review` 与父实现 run id。
+
+#### Scenario: 实现 run 完成后派生 review run
+
+- **WHEN** `delivery.adversarial_review.enabled=true` 且 issue title 或风险 label 命中过滤条件
+- **THEN** 实现 run 正常完成后 SHALL 调度一次 `dispatch_kind=adversarial_review` 的独立 run
+- **AND** review run 的 prompt SHALL 明确要求独立审查、只读或 diff-only 模式，并引用 adversarial review prompt / skill 与安全审查资产
+- **AND** review run summary SHALL 记录 `attempt.parent_run_id` 指向实现 run
+- **AND** review run 完成或失败后 SHALL NOT 再递归调度新的 adversarial review run
 
 ### Requirement: approval_policy 支持 string 与 map
 

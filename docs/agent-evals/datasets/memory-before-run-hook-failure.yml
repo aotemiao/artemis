@@ -1,0 +1,34 @@
+id: memory-before-run-hook-failure
+title: Memory tracker before-run hook failure eval
+risk_level: medium
+tracker: memory
+issue_id: eval-memory-before-run-hook-failure
+issue_identifier: EVAL-10
+issue_title: Before-run hook failure memory eval
+issue_state: Todo
+issue_description: |
+  Configure a failing before_run hook. Symphony should create the issue
+  workspace, stop before launching Codex, persist failed run evidence, and avoid
+  writing the workspace success marker.
+expected_workspace_file: EVAL_RESULT.md
+expected_workspace_contains: should not be written
+expected_workspace_present: false
+expected_codex_started: false
+expected_summary_status: failed
+expected_history_status: failed
+expected_failure_reason_contains: before_run hook failed
+expected_failure_category: workspace_hook
+hook_before_run_outcome: failed
+expected_events:
+  - run_started
+  - run_failed
+forbidden_events:
+  - session_started
+  - thread/tokenUsage/updated
+  - turn_completed
+  - turn_failed
+  - turn_cancelled
+expected_external_effects:
+  - tracker_state_update:succeeded
+required_validations:
+  - scripts/e2e/run-symphony-agent-eval.sh

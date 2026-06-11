@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "registry_type": "symphony_tool_registry",
+  "tools": [
+    {
+      "name": "linear_graphql",
+      "status": "active",
+      "provider": "linear",
+      "availability": {
+        "tracker_kind": "linear",
+        "worker_scope": "local_or_ssh"
+      },
+      "description": "Execute a raw GraphQL query or mutation against Linear using Symphony's configured auth.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "GraphQL query or mutation document to execute against Linear."
+          },
+          "variables": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional GraphQL variables object.",
+            "additionalProperties": true
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "success",
+          "output",
+          "contentItems"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "output": {
+            "type": "string",
+            "sensitivity": "external_response_bounded_to_codex_session"
+          },
+          "contentItems": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "permissions": {
+        "permission_level": "external_api",
+        "external_write_allowed": true,
+        "unattended_allowed": true,
+        "requires_human_approval": false,
+        "secrets_access": "uses configured tracker credentials inside Symphony; credentials are not exposed to Codex app-server"
+      },
+      "audit": {
+        "run_history_events": [
+          "tool_call_completed",
+          "tool_call_failed"
+        ],
+        "external_effect_type": "linear_graphql",
+        "low_sensitive_summary": "tool call status is observable through run history; raw GraphQL requests and responses must not be copied into retained summaries"
+      },
+      "failure_behavior": {
+        "retryable": false,
+        "turn_failure_on_error": true,
+        "stable_error_codes": [
+          "missing_query",
+          "invalid_arguments",
+          "invalid_variables",
+          "linear_api_status",
+          "linear_api_request",
+          "tracker_graphql_unsupported"
+        ]
+      }
+    }
+  ]
+}

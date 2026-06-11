@@ -21,6 +21,10 @@
             <artifactId>artemis-symphony-orchestrator</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.aotemiao</groupId>
+            <artifactId>artemis-symphony-persistence</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs-annotations</artifactId>
             <version>4.8.3</version>

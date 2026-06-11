@@ -1,7 +1,7 @@
 # Docs
 
 Status: maintained
-Last Reviewed: 2026-06-02
+Last Reviewed: 2026-06-10
 Review Cadence: 90 days
 
 这个目录存放 Artemis 的工程说明、执行说明、治理记录和阶段性计划。本文不是简单导航，而是说明 `docs/` 下每类文档资产的职责、内容边界和放置规则，让人和 agent 都能判断“应该读哪里、应该把新文档放哪里”。
@@ -24,13 +24,13 @@ Review Cadence: 90 days
 | 目录 | 里面有什么 | 什么时候读 | 不放什么 |
 |------|------------|------------|----------|
 | `api/` | 对外 REST API 入口、通用联调约定、模块级 API 文档链接 | 前端联调、接口排障、补 API 文档 | 长期工程规则；这些应放 `openspec/` |
-| `agent-evals/` | agentic 工作流评测 fixture 与运行说明 | 检查 agent 是否按需求受理、Spec、执行计划、安全审查和 handoff 流程工作 | 真实模型长日志和敏感运行记录 |
+| `agent-evals/` | agentic 工作流评测 fixture、可执行 dataset 与运行说明 | 检查 agent 是否按需求受理、Spec、执行计划、安全审查、handoff 和 Symphony memory eval 流程工作 | 真实模型长日志和敏感运行记录 |
 | `agent-workflow/` | agent 需求受理、默认分流、自评和 reviewer 回路 | 让 agent 或人按统一流程处理任务 | 具体任务执行计划；这些放 `exec-plans/` |
 | `feature-specs/` | 业务需求级 Spec、模板、示例、验收标准和验证映射 | PRD、issue 或口头需求需要先澄清业务规则与验收标准 | 长期工程规则；这些放 `openspec/` |
 | `exec-plans/` | 复杂任务的背景、范围、步骤、风险、验证和完成归档 | 跨模块、多阶段、迁移、重构、基础设施任务 | 长期规范本身；这些放 `openspec/` |
 | `governance/` | Harness checklist、文档 freshness、质量问题标准和质量问题记录 | 做治理检查、关闭质量问题、维护文档新鲜度 | 一次性任务过程；这些放 `exec-plans/` |
 | `patterns/` | 可复用工程模式、验收映射、handoff 模板和安全审查清单 | 多个需求会重复使用同一模式时 | 单次任务记录 |
-| `reports/` | 项目进度、路线图、部署/回滚演练报告、agent run 摘要规则 | 看当前完成度、阶段路线、演练结果或低敏运行摘要 | 操作步骤；这些放 `runbooks/` |
+| `reports/` | 项目进度、路线图、部署/回滚演练报告、agent run 摘要规则、Harness 指标报告 | 看当前完成度、阶段路线、演练结果、低敏运行摘要或指标 scorecard | 操作步骤；这些放 `runbooks/` |
 | `runbooks/` | 可重复执行的操作步骤和排障路径 | 启动、smoke、部署、回滚、新增服务、新增契约、排查 Symphony | 抽象规则和路线图 |
 | `security/` | 威胁模型和安全边界说明 | 涉及权限、认证、敏感信息、外部副作用或高风险 review | 单次任务审查记录 |
 
@@ -58,14 +58,32 @@ Review Cadence: 90 days
 ### `agent-evals/`
 
 - `README.md`
-  agent eval 的目标、fixture 结构和运行方式。
+  agent eval 的目标、fixture / dataset 结构和运行方式。
 - `fixtures/`
   issue 风格评测用例，描述期望读取的资产、验证入口和 reviewer 关注点。
+- `datasets/`
+  可执行评测数据集，描述 Symphony memory tracker 场景、期望 workspace 产物、运行历史状态和事件。
+- `../scripts/e2e/run-symphony-agent-eval.sh`
+  可执行 memory eval 入口，会启动本地 Symphony 和 fake Codex app-server，并验证 workspace、SQLite history、Codex 事件和低敏 JSON summary。
+- `../scripts/harness/generate-agent-eval-drafts.sh`
+  从失败的低敏 agent run summary 生成 memory eval dataset 草稿，默认写入不提交的 `artifacts/agent-eval-drafts/`，需人工复核后才能沉淀为正式 dataset。
+- `../scripts/harness/generate-harness-metrics-report.sh`
+  Harness 指标报告生成入口，默认聚合 `artifacts/agent-evals/` 和 `artifacts/agent-runs/` 的低敏 summary。
+- `../scripts/harness/generate-ci-harness-metrics.sh`
+  CI 指标快照入口，生成 `artifacts/harness-metrics/latest.*`，供 GitHub Actions artifact 上传；可聚合 `artifacts/harness-delivery-signals/` 中的低敏 PR / review finding 计数。
+- `../scripts/harness/collect-github-delivery-signal.sh`
+  GitHub Actions event 低敏 delivery signal 采集入口，默认输出 `artifacts/harness-delivery-signals/github-event.json`。
 
 ### 根部治理资产
 
 - `asset-manifest.yml`
   关键文档、脚本、prompt、skill 和跨工具指针的轻量 manifest，供守门脚本检查资产存在性。
+- `../scripts/e2e/run-symphony-agent-eval.sh`
+  Symphony memory agent eval 入口，默认产物写入已忽略的 `artifacts/agent-evals/`。
+- `../scripts/harness/check-harness-metrics-report.sh`
+  Harness 指标报告生成器检查入口，使用临时 fixture 验证 JSON / Markdown 输出结构和 CI 包装脚本。
+- `../scripts/harness/check-openspec-change-state.sh`
+  OpenSpec active change 状态守门，要求进行中 change 具备 `proposal.md`、`tasks.md` 和未完成任务，已完成 change 及时归档。
 
 ### `feature-specs/`
 
@@ -142,6 +160,8 @@ Review Cadence: 90 days
   部署与回滚演练报告目录。当前保留 `README.md` 是为了让空报告目录也有可追踪入口；后续演练报告直接按日期写入该目录。
 - `agent-runs/README.md`
   agent 运行轨迹摘要的低敏留存规则和模板。
+- `harness-metrics/README.md`
+  Harness 指标报告入口，说明如何从低敏 eval / run artifacts 生成 scorecard。
 
 ### `runbooks/`
 
@@ -185,7 +205,7 @@ Review Cadence: 90 days
 - 可复用模式、模板和示例：放 `patterns/`。
 - 可重复操作步骤：放 `runbooks/`，并优先链接 `../scripts/` 下的入口。
 - agent 工作流评测 fixture：放 `agent-evals/`。
-- 项目阶段状态和对外汇报：放 `reports/`。
+- 项目阶段状态、对外汇报和 Harness 指标报告：放 `reports/`。
 - 安全威胁模型：放 `security/`。
 - 质量问题记录：放 `governance/quality-issues/`。
 - REST API 说明：入口放 `api/README.md`，模块级文档继续随服务模块放置。

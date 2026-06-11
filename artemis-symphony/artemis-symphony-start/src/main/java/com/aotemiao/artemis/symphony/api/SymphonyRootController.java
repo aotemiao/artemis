@@ -16,9 +16,11 @@ public class SymphonyRootController {
                 <body>
                 <h1>Artemis Symphony</h1>
                 <ul>
+                  <li><a href="/runs">GET /runs</a> — 运行历史可视化页面</li>
                   <li><a href="/api/v1/state">GET /api/v1/state</a> — 编排器状态快照</li>
                   <li>POST /api/v1/refresh — 请求立即执行一轮 tick</li>
                   <li>GET /api/v1/issues/{identifier} — 议题工作区 / 重试状态</li>
+                  <li><a href="/api/v1/history/runs">GET /api/v1/history/runs</a> — 最近运行历史</li>
                 </ul>
                 </body></html>
                 """;

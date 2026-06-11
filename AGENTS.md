@@ -1,7 +1,7 @@
 # Artemis Agent Guide
 
 Status: maintained
-Last Reviewed: 2026-06-02
+Last Reviewed: 2026-06-10
 Review Cadence: 90 days
 
 本文件是仓库内 agent 的稳定入口，目标是让任何自动化执行都先找到地图，再开始改代码。
@@ -99,10 +99,16 @@ Review Cadence: 90 days
 - 健康检查：`scripts/dev/health.sh`
 - 查看服务日志：`scripts/dev/tail-log.sh <gateway|auth|system|<domain>>`
 - 检查 OpenSpec 同步：`scripts/harness/check-openspec-sync.sh`
+- 检查 OpenSpec change 状态：`scripts/harness/check-openspec-change-state.sh`
 - 检查 Feature Spec 结构：`scripts/harness/check-feature-specs.sh`
 - 检查 Spec 驱动交付链路：`scripts/harness/check-spec-driven-delivery-chain.sh`
 - 检查 Agentic Harness 资产：`scripts/harness/check-agentic-harness-assets.sh`
+- 检查 agent run 摘要脱敏：`scripts/harness/check-agent-run-summaries.sh`
 - 运行 agent workflow eval：`scripts/harness/run-agent-evals.sh`
+- 生成 Harness 指标报告：`scripts/harness/generate-harness-metrics-report.sh`
+- 生成 CI Harness 指标快照：`scripts/harness/generate-ci-harness-metrics.sh`
+- 采集 GitHub delivery signal：`scripts/harness/collect-github-delivery-signal.sh`
+- 检查 Harness 指标报告生成器：`scripts/harness/check-harness-metrics-report.sh`
 - 检查 API 文档同步：`scripts/harness/check-api-doc-sync.sh`
 - 检查 Dubbo client 契约：`scripts/harness/check-client-contracts.sh`
 - 检查业务能力包结构：`scripts/harness/check-capability-package-structure.sh`
