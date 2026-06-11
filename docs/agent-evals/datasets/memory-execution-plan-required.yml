@@ -1,0 +1,48 @@
+id: memory-execution-plan-required
+title: Memory tracker execution plan required eval
+risk_level: medium
+tracker: memory
+issue_id: eval-memory-execution-plan-required
+issue_identifier: EVAL-17
+issue_title: Execution plan required memory eval
+issue_state: Todo
+issue_description: |
+  分阶段迁移 Symphony 的运行历史、低敏 run summary 和 harness metrics 输出，
+  需要跨 persistence、orchestrator、start API、docs 和 scripts 协作。
+  这不是单点修复，实施前必须先建立执行计划，明确范围、风险、任务拆解和验证映射。
+expected_workspace_file: docs/exec-plans/active/2026-06-10-symphony-run-history-metrics-migration.md
+expected_workspace_contains: |
+  # Symphony Run History Metrics Migration
+  Status: draft
+  ## 背景
+  ## 关联需求与规范
+  ## 目标
+  ## 非目标
+  ## 范围
+  ## 风险
+  ## 风险分类
+  ## 任务拆解
+  ## 分步执行
+  ## 验收映射
+  ## 验证计划
+  ## 验证分类
+  ## 回滚策略
+  ## 决策记录
+  ## 遗留问题
+  memory-execution-plan-required passed
+expected_summary_status: completed
+expected_history_status: completed
+expected_min_total_tokens: 18
+prompt_must_contain:
+  - docs/exec-plans/templates/execution-plan-template.md
+  - For complex implementation work, create or update an execution plan under `docs/exec-plans/active/`.
+  - 分阶段迁移 Symphony 的运行历史
+expected_events:
+  - run_started
+  - session_started
+  - thread/tokenUsage/updated
+  - turn_completed
+expected_external_effects:
+  - tracker_state_update:succeeded
+required_validations:
+  - scripts/e2e/run-symphony-agent-eval.sh

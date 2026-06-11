@@ -1,5 +1,7 @@
 ---
 # Symphony WORKFLOW.md example (rename to WORKFLOW.md and set LINEAR_API_KEY)
+# 本文件只描述 workflow；运行历史 SQLite 路径请用启动参数覆盖：
+# --symphony.history.sqlite-path=/path/to/symphony_runs.sqlite
 tracker:
   kind: linear
   api_key: $LINEAR_API_KEY
@@ -35,9 +37,21 @@ delivery:
       - artemis-symphony/skills/spec-driven-delivery.md
       - artemis-symphony/prompts/adversarial-review.md
       - artemis-symphony/skills/adversarial-review.md
+      - artemis-symphony/tools/registry.json
       - scripts/harness/check-feature-specs.sh
       - scripts/harness/check-spec-driven-delivery-chain.sh
+  adversarial_review:
+    # 开启后，命中标题正则或风险标签的实现 run 完成时，会自动派生一次只读 review run。
+    enabled: false
+    issue_title_regex: "(RBAC|权限|高风险)"
+    risk_labels:
+      - high-risk
+      - security-sensitive
+      - adversarial-review
 reporting:
+  agent_runs:
+    enabled: true
+    directory: artifacts/agent-runs
   linear_comments:
     enabled: false
     issue_title_regex: ^进度汇报$
@@ -49,6 +63,14 @@ agent:
   max_concurrent_agents: 2
   max_turns: 20
   max_retry_backoff_ms: 300000
+permissions:
+  # 默认只允许当前 issue workspace 写入；额外 writable root 必须显式列入 allowlist。
+  # allowed_writable_roots:
+  #   - ./symphony_shared_cache
+  # turn_sandbox_policy.networkAccess=true 时必须说明原因，原因会进入 run summary。
+  # network_access_reason: download public build dependencies
+  # danger-full-access 需要显式确认，避免旧配置 thread_sandbox: none 静默扩大权限。
+  allow_danger_full_access: false
 codex:
   command: codex app-server
   # approval_policy: never
@@ -72,11 +94,13 @@ Before changing code, read these minimal repository-local sources of truth:
 Then route by task type and read only the relevant additional assets:
 
 - Quality / progress context: `QUALITY_SCORE.md`, `docs/governance/CHECKLIST.md`, `docs/reports/ROADMAP.md`
-- Stable rules: relevant files under `openspec/specs/`
+- Stable rule change: create or update an OpenSpec change under `openspec/changes/`.
+- Stable rule source: relevant files under `openspec/specs/`
 - Existing staged work: relevant active plan under `docs/exec-plans/active/`, if one exists
 - Vague request: `artemis-symphony/prompts/agent-requirement-intake.md`
 - Business feature: `docs/feature-specs/README.md`, `docs/patterns/spec-to-validation-mapping.md`
 - Security-sensitive work: `docs/security/THREAT_MODEL.md`, `docs/patterns/security-review-checklist.md`, `docs/runbooks/AGENT_PERMISSION_RUNBOOK.md`
+- Dynamic tool behavior: `artemis-symphony/tools/registry.json`
 
 When the task matches a common engineering pattern, also read the corresponding asset:
 
@@ -104,7 +128,7 @@ Execution rules:
 - Use `scripts/harness/check-api-doc-sync.sh` and `scripts/harness/check-client-contracts.sh` when touching contracts or API docs.
 - Use `scripts/harness/check-critical-path-tests.sh` when adding new guardrails or key-path tests.
 - When changing `artemis-system` REST behavior and the service is running locally, use `scripts/smoke/system-lookup.sh`.
-- If a task changes stable behavior rules, constraints, contracts, or repository workflow, update the relevant OpenSpec artifacts in the same change whenever practical.
+- If a task changes stable behavior rules, constraints, contracts, quality gates, or repository workflow, create or update an OpenSpec change under `openspec/changes/` and read the relevant stable specs under `openspec/specs/`.
 - For complex implementation work, create or update an execution plan under `docs/exec-plans/active/`.
 - When a task both changes rules and requires staged delivery, use both: OpenSpec artifacts describe the rule change, and the execution plan tracks implementation, risk, and verification.
 - Before the final handoff, answer the self-review questions in `docs/agent-workflow/AGENT_REVIEW_LOOP.md` and use `artemis-symphony/prompts/self-review-and-handoff.md` as the output template.

@@ -1,0 +1,37 @@
+id: memory-after-create-hook-failure
+title: Memory tracker after-create hook failure eval
+risk_level: medium
+tracker: memory
+issue_id: eval-memory-after-create-hook-failure
+issue_identifier: EVAL-12
+issue_title: After-create hook failure memory eval
+issue_state: In Progress
+issue_description: |
+  Configure a failing after_create hook. Symphony should create the issue
+  workspace, fail before permission preflight and Codex startup, persist failed
+  run evidence, and avoid writing the workspace success marker even if the
+  automatic retry observes the already-created workspace.
+expected_workspace_file: EVAL_RESULT.md
+expected_workspace_contains: should not be written
+expected_workspace_present: false
+expected_workspace_directory_present: true
+expected_codex_started: false
+expected_summary_status: failed
+expected_history_status: failed
+expected_failure_reason_contains: after_create_hook_failed
+expected_failure_category: workspace_hook
+hook_after_create_outcome: failed
+hook_before_run_outcome: failed
+agent_max_retry_backoff_ms: 30000
+expected_metrics_total_runs: 3
+expected_events:
+  - run_started
+  - run_failed
+forbidden_events:
+  - session_started
+  - thread/tokenUsage/updated
+  - turn_completed
+  - turn_failed
+  - turn_cancelled
+required_validations:
+  - scripts/e2e/run-symphony-agent-eval.sh

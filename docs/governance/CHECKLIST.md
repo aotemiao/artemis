@@ -1,7 +1,7 @@
 # Harness Engineering Checklist
 
 Status: maintained
-Last Reviewed: 2026-06-02
+Last Reviewed: 2026-06-10
 Review Cadence: 90 days
 
 本清单强调“可直接落地”。每一项都应尽量对应仓库中的文档、脚本、测试或自动化入口，而不是抽象口号。
@@ -48,10 +48,12 @@ Review Cadence: 90 days
 - `[x]` 提供增量验证脚本 `scripts/harness/verify-changed.sh`
 - `[x]` 提供全量验证脚本 `scripts/harness/full-verify.sh`
 - `[x]` 提供 OpenSpec 同步检查脚本 `scripts/harness/check-openspec-sync.sh`
+- `[x]` 提供 OpenSpec active change 状态检查脚本 `scripts/harness/check-openspec-change-state.sh`
 - `[x]` 提供 Feature Spec 结构检查脚本 `scripts/harness/check-feature-specs.sh`
 - `[x]` 提供 Spec 驱动交付链路检查脚本 `scripts/harness/check-spec-driven-delivery-chain.sh`
 - `[x]` 提供 Agentic Harness 资产检查脚本 `scripts/harness/check-agentic-harness-assets.sh`
 - `[x]` 提供 agent workflow eval 脚本 `scripts/harness/run-agent-evals.sh`
+- `[x]` 提供可执行 Symphony memory agent eval 脚本 `scripts/e2e/run-symphony-agent-eval.sh`
 - `[x]` 提供部署演练报告结构检查脚本 `scripts/harness/check-deploy-drill-reports.sh`
 - `[x]` 提供最小 smoke 脚本 `scripts/smoke/system-lookup.sh`
 - `[x]` Symphony 已具备编排器，workflow 模板已细化到 runbook / skills / self-review
@@ -66,11 +68,13 @@ Review Cadence: 90 days
 - `[x]` 将层间依赖约束系统化扩展到更多模块
 - `[x]` 增加基础 CI 工作流执行标准验证
 - `[x]` 将 OpenSpec 同步规则接入 CI 差异比较逻辑
+- `[x]` 将 OpenSpec active change 状态接入治理检查，避免已完成变更留在 active 区
 - `[x]` 增加契约变更检查与 API 文档同步检查
 - `[x]` 增加覆盖率与关键路径测试基线
 - `[x]` 增加 Feature Spec 验收映射结构检查
 - `[x]` 增加 Feature Spec 异常场景与工程风险字段
 - `[x]` 增加风险分级验证 runbook 与 agentic harness 资产守门
+- `[x]` 增加 Symphony permission preflight，将 writable roots、network access 和 danger-full-access 显式化为运行时检查
 - `[x]` 增加部署 / 回滚演练报告结构检查
 
 ## D. 让 agent 按仓库结构工作，而不是按聊天记忆工作
@@ -80,6 +84,7 @@ Review Cadence: 90 days
 - `[x]` 规定代码、规范、脚本、文档尽量成组交付
 - `[x]` 为常见任务补专用 runbook，例如“新增领域服务”“新增 Dubbo client”“补 ArchUnit 约束”
 - `[x]` 为 agent 建立更细粒度的 skills / prompts
+- `[x]` 为 Symphony 动态工具建立 schema registry，明确工具输入输出、权限等级、外部写能力和失败语义
 - `[x]` 为 Spec 驱动交付建立 skill / prompt 与 handoff 模式
 - `[x]` 建立 agent 自评与 reviewer 回路
 - `[x]` 建立 adversarial review skill / prompt 和安全审查清单
@@ -103,6 +108,8 @@ Review Cadence: 90 days
 - `[x]` 给 agent 增加日志检索入口
 - `[x]` 给 agent 增加启动成功、依赖就绪、关键端点可达的断言脚本
 - `[x]` 给 `artemis-symphony` 增加本仓库常见故障 runbook
+- `[x]` 给 `artemis-symphony` 增加 SQLite run history、`/runs` 页面、低敏 JSON run summary、run environment 快照和 executable memory eval
+- `[x]` 增加 Harness 指标报告入口，可从低敏 eval / run / run environment / GitHub event delivery signal / deploy drill report artifacts 生成 scorecard，并接入治理检查与 CI artifact 快照
 
 ## G. 面向交付的工程骨架
 

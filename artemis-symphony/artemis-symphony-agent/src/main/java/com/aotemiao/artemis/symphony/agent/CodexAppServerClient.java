@@ -49,6 +49,7 @@ public class CodexAppServerClient {
     private Writer stdin;
     private final CopyOnWriteArrayList<CodexUpdateListener> listeners = new CopyOnWriteArrayList<>();
     private final AtomicBoolean running = new AtomicBoolean(false);
+    private volatile String lastTurnFailureReason = "";
 
     public CodexAppServerClient(
             String command,
@@ -115,6 +116,10 @@ public class CodexAppServerClient {
 
     public void addListener(CodexUpdateListener listener) {
         if (listener != null) listeners.add(listener);
+    }
+
+    public String lastTurnFailureReason() {
+        return lastTurnFailureReason;
     }
 
     /**
@@ -184,6 +189,7 @@ public class CodexAppServerClient {
      * success, false on failure/cancel/timeout.
      */
     public boolean runTurn(String threadId, String prompt, String title) throws CodexClientException {
+        lastTurnFailureReason = "";
         String cwd = workspaceCwd();
         ObjectNode inputItem = MAPPER.createObjectNode();
         inputItem.put("type", "text");
@@ -204,7 +210,7 @@ public class CodexAppServerClient {
         }
         JsonNode turnResp = readResponse(3);
         if (turnResp == null) {
-            emit("turn_ended_with_error", Map.of("reason", "response_timeout"));
+            markTurnFailure("codex turn response timeout", "turn_ended_with_error", "response_timeout");
             return false;
         }
         throwIfErrorResponse(turnResp, "turn/start");
@@ -226,34 +232,42 @@ public class CodexAppServerClient {
                         return true;
                     }
                     case "turn/failed" -> {
+                        lastTurnFailureReason = "codex turn failed";
                         emit("turn_failed", Map.of());
                         return false;
                     }
                     case "turn/cancelled" -> {
+                        lastTurnFailureReason = "codex turn cancelled";
                         emit("turn_cancelled", Map.of());
                         return false;
                     }
                     case "item/tool/call" -> {
                         if (!handleDynamicToolCall(msg)) {
-                            emit("turn_ended_with_error", Map.of("reason", "dynamic_tool_failed"));
+                            markTurnFailure(
+                                    "codex turn ended with dynamic tool failure",
+                                    "turn_ended_with_error",
+                                    "dynamic_tool_failed");
                             return false;
                         }
                     }
                     case "item/commandExecution/requestApproval", "item/fileChange/requestApproval" -> {
                         if (!handleApprovalRequest(msg, "acceptForSession")) {
-                            emit("turn_ended_with_error", Map.of("reason", "approval_required"));
+                            markTurnFailure(
+                                    "codex turn requires approval", "turn_ended_with_error", "approval_required");
                             return false;
                         }
                     }
                     case "execCommandApproval", "applyPatchApproval" -> {
                         if (!handleApprovalRequest(msg, "approved_for_session")) {
-                            emit("turn_ended_with_error", Map.of("reason", "approval_required"));
+                            markTurnFailure(
+                                    "codex turn requires approval", "turn_ended_with_error", "approval_required");
                             return false;
                         }
                     }
                     case "item/tool/requestUserInput" -> {
                         if (!handleToolRequestUserInput(msg)) {
-                            emit("turn_ended_with_error", Map.of("reason", "turn_input_required"));
+                            markTurnFailure(
+                                    "codex turn requires user input", "turn_ended_with_error", "turn_input_required");
                             return false;
                         }
                     }
@@ -261,7 +275,7 @@ public class CodexAppServerClient {
                 }
             }
         }
-        emit("turn_ended_with_error", Map.of("reason", "turn_timeout"));
+        markTurnFailure("codex turn timeout", "turn_ended_with_error", "turn_timeout");
         return false;
     }
 
@@ -347,6 +361,11 @@ public class CodexAppServerClient {
         }
     }
 
+    private void markTurnFailure(String failureReason, String event, String eventReason) {
+        lastTurnFailureReason = failureReason;
+        emit(event, Map.of("reason", eventReason));
+    }
+
     private void emitFromMessage(JsonNode msg, String sessionId) {
         String method = msg.path("method").asText("other_message");
         Map<String, Object> payload = new java.util.HashMap<>();
@@ -385,7 +404,7 @@ public class CodexAppServerClient {
             emit(
                     Boolean.TRUE.equals(result.get("success")) ? "tool_call_completed" : "tool_call_failed",
                     Map.of("tool", toolName != null ? toolName : "", "result", result));
-            return true;
+            return Boolean.TRUE.equals(result.get("success"));
         } catch (Exception e) {
             throw new CodexClientException("dynamic_tool_failed", e.getMessage(), e);
         }

@@ -1,0 +1,25 @@
+id: memory-docs-governance
+title: Memory tracker docs-only governance smoke
+risk_level: low
+tracker: memory
+issue_id: eval-memory-docs-governance
+issue_identifier: EVAL-1
+issue_title: Docs-only governance memory eval
+issue_state: Todo
+issue_description: |
+  Create a low-sensitivity marker file in the issue workspace so Symphony can prove
+  the memory tracker, workspace, Codex app-server protocol, run history, and run
+  summary path execute end-to-end without external credentials.
+expected_workspace_file: EVAL_RESULT.md
+expected_workspace_contains: memory-docs-governance passed
+expected_summary_status: completed
+expected_history_status: completed
+expected_events:
+  - run_started
+  - session_started
+  - thread/tokenUsage/updated
+  - turn_completed
+expected_external_effects:
+  - tracker_state_update:succeeded
+required_validations:
+  - scripts/e2e/run-symphony-agent-eval.sh

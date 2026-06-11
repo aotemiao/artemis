@@ -1,7 +1,7 @@
 # Harness Engineering Roadmap
 
 Status: maintained
-Last Reviewed: 2026-06-02
+Last Reviewed: 2026-06-10
 Review Cadence: 90 days
 
 ## 目标
@@ -95,17 +95,25 @@ Review Cadence: 90 days
 交付物：
 
 - agent workflow eval 与运行摘要资产
+- 可执行 Symphony memory agent eval
 - 权限策略、安全审查和风险分级验证 runbook
+- Symphony permission preflight / audit
+- Harness metrics report generator
+- Symphony run environment snapshot
+- Symphony dynamic tool registry
 - adversarial review skill / prompt
 - agentic harness 资产守门脚本
 
 完成标准：
 
 - agent workflow fixture 可被脚本检查。
+- memory agent eval 可真实启动 Symphony、fake Codex app-server 并验证 workspace、运行历史、事件、指标摘要和 JSON summary。
+- Harness metrics report generator 可从低敏 eval / run artifacts 输出 Markdown / JSON scorecard，并聚合 run environment 与 deploy drill 分布。
+- Symphony dynamic tool registry 可记录 `linear_graphql` 的输入输出 schema、外部写能力、无人值守策略和稳定失败码，并由 Symphony 资产检查守住。
 - 高风险改动有安全审查清单、权限策略和 adversarial review 入口。
 - CI 与本地治理复用同一批 harness 脚本，避免重复清单漂移。
 
-状态：已完成当前基础闭环，后续可扩展真实 Symphony memory / Linear e2e eval
+状态：已完成当前基础闭环，已补充低敏 agent run 摘要样例、自动 JSON run summary、permission preflight / audit 字段、run environment 快照、SQLite history metrics API、`/runs` 运行指标摘要、Harness metrics report generator、CI artifact metrics 快照、GitHub event 低敏 delivery signal 采集入口、deploy drill report 指标摘要、失败 run 到 eval dataset 草稿生成器，以及 `scripts/e2e/run-symphony-agent-eval.sh` 可执行 memory eval；后续继续扩展更多 eval case、Linear / live eval，并把 metrics 快照继续接入 GitHub API 深度抓取、per-run 环境隔离和跨平台 dashboard。
 
 ## 封板后的演进原则
 

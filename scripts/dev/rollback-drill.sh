@@ -69,6 +69,22 @@ report_path="${report_dir}/${timestamp}-${service}-rollback.md"
   echo "| 建议 smoke | $(service_catalog_field "$service" smoke_script) | 待执行 |"
   echo "| 日志入口 | $(service_catalog_field "$service" log_file 2>/dev/null || true) | 待检查 |"
   echo
+  echo "## 指标摘要"
+  echo
+  echo '```json'
+  echo "{"
+  echo '  "schema_version": 1,'
+  echo '  "summary_type": "deploy_drill_report",'
+  echo '  "kind": "rollback",'
+  echo "  \"service\": \"${service}\","
+  echo "  \"services\": [\"${service}\"],"
+  echo '  "status": "completed",'
+  echo '  "smoke": "pending",'
+  echo '  "rollback": true,'
+  echo '  "failure_stage": ""'
+  echo "}"
+  echo '```'
+  echo
   echo "## 回滚后建议动作"
   echo
   echo "- 重新部署回滚目标"

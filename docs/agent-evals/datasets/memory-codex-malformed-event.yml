@@ -1,0 +1,28 @@
+id: memory-codex-malformed-event
+title: Memory tracker Codex malformed stdout eval
+risk_level: medium
+tracker: memory
+issue_id: eval-memory-codex-malformed-event
+issue_identifier: EVAL-14
+issue_title: Codex malformed stdout memory eval
+issue_state: Todo
+issue_description: |
+  Start Codex successfully, emit one malformed stdout line during the turn, then
+  complete the turn. Symphony should preserve the malformed protocol evidence in
+  run history without failing an otherwise successful worker attempt.
+expected_workspace_file: EVAL_RESULT.md
+expected_workspace_contains: memory-codex-malformed-event passed
+expected_summary_status: completed
+expected_history_status: completed
+expected_min_total_tokens: 18
+codex_turn_outcome: completed_with_malformed
+expected_events:
+  - run_started
+  - session_started
+  - thread/tokenUsage/updated
+  - malformed
+  - turn_completed
+expected_external_effects:
+  - tracker_state_update:succeeded
+required_validations:
+  - scripts/e2e/run-symphony-agent-eval.sh

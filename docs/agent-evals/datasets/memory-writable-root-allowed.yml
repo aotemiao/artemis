@@ -1,0 +1,31 @@
+id: memory-writable-root-allowed
+title: Memory tracker allowed writable root eval
+risk_level: high
+tracker: memory
+issue_id: eval-memory-writable-root-allowed
+issue_identifier: EVAL-25
+issue_title: Allowed writable root memory eval
+issue_state: Todo
+issue_description: |
+  Request a Codex turn sandbox with an extra writable root outside the issue
+  workspace and explicitly allow that root in permissions.allowed_writable_roots.
+  Symphony should allow the run, persist only low-sensitive writable-root
+  references in the run summary, and include the posture in harness metrics.
+expected_workspace_file: EVAL_WRITABLE_ROOT_ALLOWED.md
+expected_workspace_contains: memory-writable-root-allowed passed
+expected_summary_status: completed
+expected_history_status: completed
+expected_permission_network_access: false
+expected_permission_writable_root_contains: outside-writable-root
+expected_permission_allowed_writable_root_contains: configured-writable-root
+codex_turn_sandbox_extra_writable_root: artifact
+permissions_allowed_writable_root: artifact
+expected_events:
+  - run_started
+  - session_started
+  - thread/tokenUsage/updated
+  - turn_completed
+expected_external_effects:
+  - tracker_state_update:succeeded
+required_validations:
+  - scripts/e2e/run-symphony-agent-eval.sh

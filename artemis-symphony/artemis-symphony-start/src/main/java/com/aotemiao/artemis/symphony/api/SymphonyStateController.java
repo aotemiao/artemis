@@ -26,6 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1")
 public class SymphonyStateController {
 
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification =
+                    "Orchestrator is a Spring-managed shared collaborator and is not exposed by this controller.")
     private final Orchestrator orchestrator;
 
     @SuppressFBWarnings(
@@ -43,6 +47,7 @@ public class SymphonyStateController {
         List<Map<String, Object>> runningList = new ArrayList<>();
         for (RunningEntry e : orchestrator.getRunning().values()) {
             Map<String, Object> runningEntry = new LinkedHashMap<>();
+            runningEntry.put("run_id", e.runId);
             runningEntry.put("issue_id", e.issueId);
             runningEntry.put("issue_identifier", e.identifier);
             runningEntry.put("worker_host", e.workerHost != null ? e.workerHost : "");
@@ -79,6 +84,7 @@ public class SymphonyStateController {
                                     : workspacePathFor(re.identifier(), re.workerHost())
                                             .toString(),
                     "attempt", re.attempt(),
+                    "dispatch_kind", re.kind(),
                     "due_at", Instant.ofEpochMilli(re.dueAtMs()).toString(),
                     "error", re.error() != null ? re.error() : ""));
         }
@@ -169,6 +175,8 @@ public class SymphonyStateController {
                             retry.attempt(),
                             "worker_host",
                             retry.workerHost() != null ? retry.workerHost() : "",
+                            "dispatch_kind",
+                            retry.kind(),
                             "due_at",
                             Instant.ofEpochMilli(retry.dueAtMs()).toString(),
                             "error",

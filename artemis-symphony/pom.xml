@@ -22,6 +22,7 @@
         <module>artemis-symphony-tracker</module>
         <module>artemis-symphony-workspace</module>
         <module>artemis-symphony-agent</module>
+        <module>artemis-symphony-persistence</module>
         <module>artemis-symphony-orchestrator</module>
         <module>artemis-symphony-start</module>
     </modules>

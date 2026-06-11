@@ -13,56 +13,36 @@ import re
 import sys
 
 REPO = Path.cwd()
-TARGETS = [
+TARGETS: list[tuple[Path, Path]] = [
     (
         Path("artemis-auth/src/main/java/com/aotemiao/artemis/auth/web/AuthController.java"),
         Path("artemis-auth/AUTH_API.md"),
     ),
-    (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/lookup/LookupTypeController.java"),
-        Path("artemis-modules/artemis-system/LOOKUP_API.md"),
-    ),
-    (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/auth/InternalAuthController.java"),
-        Path("artemis-modules/artemis-system/INTERNAL_AUTH_API.md"),
-    ),
-    (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/user/SystemUserController.java"),
-        Path("artemis-modules/artemis-system/USER_API.md"),
-    ),
-    (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/role/SystemRoleController.java"),
-        Path("artemis-modules/artemis-system/ROLE_API.md"),
-    ),
-    (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/menu/SystemMenuController.java"),
-        Path("artemis-modules/artemis-system/MENU_API.md"),
-    ),
-    (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/config/SystemConfigController.java"),
-        Path("artemis-modules/artemis-system/CONFIG_API.md"),
-    ),
-    (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/notice/SystemNoticeController.java"),
-        Path("artemis-modules/artemis-system/NOTICE_API.md"),
-    ),
-    (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/department/SystemDepartmentController.java"),
-        Path("artemis-modules/artemis-system/DEPARTMENT_API.md"),
-    ),
-    (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/post/SystemPostController.java"),
-        Path("artemis-modules/artemis-system/POST_API.md"),
-    ),
-    (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/client/SystemClientController.java"),
-        Path("artemis-modules/artemis-system/CLIENT_API.md"),
-    ),
-    (
-        Path("artemis-modules/artemis-system/artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web/audit/LoginInfoController.java"),
-        Path("artemis-modules/artemis-system/LOGIN_INFO_API.md"),
-    ),
 ]
+SYSTEM_SERVICE_ROOT = Path("artemis-modules/artemis-system")
+SYSTEM_CONTROLLER_ROOT = (
+    SYSTEM_SERVICE_ROOT
+    / "artemis-system-adapter/src/main/java/com/aotemiao/artemis/system/adapter/web"
+)
+SYSTEM_DOC_NAME_OVERRIDES = {
+    # 字典能力沿用既有 LOOKUP_API.md，不按类名推导成 LOOKUP_TYPE_API.md。
+    "LookupTypeController": "LOOKUP_API.md",
+}
+
+
+def camel_to_api_doc_name(controller_name: str) -> str:
+    stem = controller_name.removesuffix("Controller")
+    stem = stem.removeprefix("System")
+    words = re.findall(r"[A-Z]+(?=[A-Z][a-z]|\d|\b)|[A-Z]?[a-z]+|\d+", stem)
+    if not words:
+        raise ValueError(f"Unable to infer API doc name from controller: {controller_name}")
+    return f"{'_'.join(word.upper() for word in words)}_API.md"
+
+
+def system_api_doc_for(controller: Path) -> Path:
+    controller_name = controller.stem
+    doc_name = SYSTEM_DOC_NAME_OVERRIDES.get(controller_name, camel_to_api_doc_name(controller_name))
+    return SYSTEM_SERVICE_ROOT / doc_name
 
 
 def exact_exists(path: Path) -> bool:
@@ -81,6 +61,10 @@ def exact_exists(path: Path) -> bool:
             return False
         current = current / part
     return True
+
+for controller_candidate in sorted((REPO / SYSTEM_CONTROLLER_ROOT).glob("**/*Controller.java")):
+    controller = controller_candidate.relative_to(REPO)
+    TARGETS.append((controller, system_api_doc_for(controller)))
 
 for service_doc in sorted(REPO.glob("artemis-modules/artemis-*/SERVICE_API.md")):
     service_root = service_doc.parent

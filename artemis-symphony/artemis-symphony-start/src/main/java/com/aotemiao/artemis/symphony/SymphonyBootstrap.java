@@ -6,6 +6,8 @@ import com.aotemiao.artemis.symphony.config.WorkflowLoader;
 import com.aotemiao.artemis.symphony.orchestrator.AgentRunner;
 import com.aotemiao.artemis.symphony.orchestrator.Orchestrator;
 import com.aotemiao.artemis.symphony.orchestrator.SymphonyRuntimeHolder;
+import com.aotemiao.artemis.symphony.persistence.RunHistoryRepository;
+import com.aotemiao.artemis.symphony.persistence.SqliteRunHistoryRepository;
 import com.aotemiao.artemis.symphony.workspace.WorkspaceManager;
 import java.nio.file.Path;
 import org.slf4j.Logger;
@@ -45,9 +47,22 @@ public class SymphonyBootstrap {
     }
 
     @Bean
+    public RunHistoryRepository runHistoryRepository(
+            @Value("${symphony.history.sqlite-path:./symphony_runs.sqlite}") String sqlitePath) {
+        Path path = Path.of(sqlitePath).toAbsolutePath().normalize();
+        LOGGER.info("Symphony 运行历史 SQLite 路径={}", path);
+        SqliteRunHistoryRepository repository = new SqliteRunHistoryRepository(path);
+        repository.markRunningRunsInterrupted(null, "Symphony restarted before run finished");
+        return repository;
+    }
+
+    @Bean
     public Orchestrator orchestrator(
-            SymphonyRuntimeHolder holder, WorkspaceManager workspaceManager, AgentRunner agentRunner) {
-        return new Orchestrator(holder, workspaceManager, agentRunner);
+            SymphonyRuntimeHolder holder,
+            WorkspaceManager workspaceManager,
+            AgentRunner agentRunner,
+            RunHistoryRepository runHistoryRepository) {
+        return new Orchestrator(holder, workspaceManager, agentRunner, runHistoryRepository);
     }
 
     @Bean

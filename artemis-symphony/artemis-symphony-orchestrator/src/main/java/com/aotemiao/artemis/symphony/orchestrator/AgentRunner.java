@@ -1,10 +1,12 @@
 package com.aotemiao.artemis.symphony.orchestrator;
 
 import com.aotemiao.artemis.symphony.agent.CodexAppServerClient;
+import com.aotemiao.artemis.symphony.config.PermissionPreflight;
 import com.aotemiao.artemis.symphony.config.PromptRenderer;
 import com.aotemiao.artemis.symphony.config.ServiceConfig;
 import com.aotemiao.artemis.symphony.core.model.Issue;
 import com.aotemiao.artemis.symphony.core.model.Workspace;
+import com.aotemiao.artemis.symphony.core.validation.DispatchValidation;
 import com.aotemiao.artemis.symphony.tracker.TrackerClient;
 import com.aotemiao.artemis.symphony.workspace.WorkspaceManager;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -55,6 +57,49 @@ public class AgentRunner {
             Consumer<RuntimeInfo> runtimeInfoListener,
             Runnable onSuccess,
             Consumer<String> onFailure) {
+        runAttemptInternal(
+                issue,
+                attempt,
+                workerHost,
+                updateListener,
+                runtimeInfoListener,
+                onSuccess,
+                onFailure,
+                AttemptKind.IMPLEMENTATION,
+                "");
+    }
+
+    public void runAdversarialReviewAttempt(
+            Issue issue,
+            Integer attempt,
+            String workerHost,
+            String implementationRunId,
+            CodexAppServerClient.CodexUpdateListener updateListener,
+            Consumer<RuntimeInfo> runtimeInfoListener,
+            Runnable onSuccess,
+            Consumer<String> onFailure) {
+        runAttemptInternal(
+                issue,
+                attempt,
+                workerHost,
+                updateListener,
+                runtimeInfoListener,
+                onSuccess,
+                onFailure,
+                AttemptKind.ADVERSARIAL_REVIEW,
+                implementationRunId);
+    }
+
+    private void runAttemptInternal(
+            Issue issue,
+            Integer attempt,
+            String workerHost,
+            CodexAppServerClient.CodexUpdateListener updateListener,
+            Consumer<RuntimeInfo> runtimeInfoListener,
+            Runnable onSuccess,
+            Consumer<String> onFailure,
+            AttemptKind attemptKind,
+            String implementationRunId) {
         WorkspaceManager.Result<Workspace> wsResult = workspaceManager.createForIssue(issue.identifier(), workerHost);
         if (!wsResult.isSuccess()) {
             onFailure.accept(describeFailure(wsResult.errorCode(), wsResult.errorMessage()));
@@ -63,6 +108,19 @@ public class AgentRunner {
         Path workspacePath = wsResult.value().path();
         if (runtimeInfoListener != null) {
             runtimeInfoListener.accept(new RuntimeInfo(workerHost, workspacePath.toString()));
+        }
+
+        ServiceConfig cfg = config();
+        boolean reviewAttempt = AttemptKind.ADVERSARIAL_REVIEW.equals(attemptKind);
+        Object turnSandboxPolicy = reviewAttempt
+                ? cfg.resolveAdversarialReviewTurnSandboxPolicy(workspacePath, workerHost != null)
+                : cfg.resolveCodexTurnSandboxPolicy(workspacePath, workerHost != null);
+        DispatchValidation permissionValidation = PermissionPreflight.validate(
+                cfg, workspacePath, workerHost != null, cfg.getEffectiveCodexThreadSandbox(), turnSandboxPolicy);
+        if (!permissionValidation.ok()) {
+            workspaceManager.runAfterRun(workspacePath, workerHost);
+            onFailure.accept("permission preflight failed: " + String.join("; ", permissionValidation.errors()));
+            return;
         }
 
         WorkspaceManager.HookResult beforeRun = workspaceManager.runBeforeRun(workspacePath, workerHost);
@@ -76,10 +134,12 @@ public class AgentRunner {
         try {
             String promptTemplate = config().getPromptTemplate();
             Integer attemptForPrompt = attempt != null ? attempt : null;
-            ServiceConfig cfg = config();
-            String prompt = appendSpecDrivenDeliveryGuidance(
-                    PromptRenderer.render(promptTemplate, issue, attemptForPrompt), cfg);
-            String title = issue.identifier() + ": " + (issue.title() != null ? issue.title() : "");
+            String prompt = reviewAttempt
+                    ? buildAdversarialReviewPrompt(issue, implementationRunId, workspacePath)
+                    : appendSpecDrivenDeliveryGuidance(
+                            PromptRenderer.render(promptTemplate, issue, attemptForPrompt), cfg);
+            String title = issue.identifier() + ": " + (issue.title() != null ? issue.title() : "")
+                    + (reviewAttempt ? " [adversarial review]" : "");
 
             CodexAppServerClient.DynamicToolExecutor dynamicToolExecutor =
                     "linear".equals(cfg.getTrackerKind()) ? new LinearGraphqlDynamicToolExecutor(this::tracker) : null;
@@ -90,7 +150,7 @@ public class AgentRunner {
                     cfg.getTurnTimeoutMs(),
                     cfg.getCodexApprovalPolicy(),
                     cfg.getCodexThreadSandbox(),
-                    cfg.resolveCodexTurnSandboxPolicy(workspacePath, workerHost != null),
+                    turnSandboxPolicy,
                     dynamicToolExecutor,
                     workerHost);
 
@@ -99,7 +159,7 @@ public class AgentRunner {
             }
 
             String threadId = client.startSession();
-            int maxTurns = config().getMaxTurns();
+            int maxTurns = reviewAttempt ? 1 : config().getMaxTurns();
             int turnNumber = 1;
             Issue currentIssue = issue;
 
@@ -117,7 +177,7 @@ public class AgentRunner {
                                 """.formatted(turnNumber, maxTurns).trim();
                 boolean turnOk = client.runTurn(threadId, turnPrompt, title);
                 if (!turnOk) {
-                    onFailure.accept("codex turn failed");
+                    onFailure.accept(blankToDefault(client.lastTurnFailureReason(), "codex turn failed"));
                     return;
                 }
 
@@ -172,6 +232,50 @@ public class AgentRunner {
             return addon;
         }
         return base + "\n\n---\n\n" + addon;
+    }
+
+    static String buildAdversarialReviewPrompt(Issue issue, String implementationRunId, Path workspacePath) {
+        String identifier = issue != null && issue.identifier() != null ? issue.identifier() : "";
+        String title = issue != null && issue.title() != null ? issue.title() : "";
+        String description = issue != null && issue.description() != null ? issue.description() : "";
+        String workspace = workspacePath != null ? workspacePath.toString() : "";
+        String parentRunId = implementationRunId != null ? implementationRunId : "";
+        return """
+                Adversarial review guidance:
+
+                You are the independent reviewer for a completed Symphony implementation attempt. Review the current workspace in read-only or diff-only mode. Do not implement feature code, do not rewrite the handoff, and do not broaden the original task.
+
+                Required local assets:
+
+                - `docs/agent-workflow/AGENT_REVIEW_LOOP.md`
+                - `docs/patterns/security-review-checklist.md`
+                - `docs/patterns/agent-delivery-handoff.md`
+                - `artemis-symphony/prompts/adversarial-review.md`
+                - `artemis-symphony/skills/adversarial-review.md`
+
+                Review target:
+
+                - implementation_run_id: `%s`
+                - workspace: `%s`
+                - issue: `%s`
+                - title: `%s`
+
+                Issue description:
+
+                %s
+
+                Output a low-sensitive review result with these sections:
+
+                ## Findings
+                ## Missing Evidence
+                ## Reviewer Decision
+                """.formatted(parentRunId, workspace, identifier, title, description)
+                .trim();
+    }
+
+    public enum AttemptKind {
+        IMPLEMENTATION,
+        ADVERSARIAL_REVIEW
     }
 
     public record RuntimeInfo(String workerHost, String workspacePath) {}

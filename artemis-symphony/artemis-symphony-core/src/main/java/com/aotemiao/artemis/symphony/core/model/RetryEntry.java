@@ -13,9 +13,41 @@ public record RetryEntry(
         Object timerHandle,
         String error,
         String workerHost,
-        String workspacePath) {
+        String workspacePath,
+        String kind,
+        String parentRunId) {
 
     public RetryEntry(String issueId, String identifier, int attempt, long dueAtMs, Object timerHandle, String error) {
-        this(issueId, identifier, attempt, dueAtMs, timerHandle, error, null, null);
+        this(issueId, identifier, attempt, dueAtMs, timerHandle, error, null, null, "retry", "");
+    }
+
+    public RetryEntry(
+            String issueId,
+            String identifier,
+            int attempt,
+            long dueAtMs,
+            Object timerHandle,
+            String error,
+            String workerHost,
+            String workspacePath) {
+        this(issueId, identifier, attempt, dueAtMs, timerHandle, error, workerHost, workspacePath, "retry", "");
+    }
+
+    public RetryEntry(
+            String issueId,
+            String identifier,
+            int attempt,
+            long dueAtMs,
+            Object timerHandle,
+            String error,
+            String workerHost,
+            String workspacePath,
+            String kind) {
+        this(issueId, identifier, attempt, dueAtMs, timerHandle, error, workerHost, workspacePath, kind, "");
+    }
+
+    public RetryEntry {
+        kind = kind == null || kind.isBlank() ? "retry" : kind;
+        parentRunId = parentRunId == null ? "" : parentRunId;
     }
 }

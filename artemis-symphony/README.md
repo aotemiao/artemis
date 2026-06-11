@@ -11,6 +11,7 @@
 | `artemis-symphony-tracker` | tracker 适配层（Linear GraphQL / memory；候选议题、按状态拉取、按 ID 刷新、状态写回、assignee 路由、可选 issue 评论写回） |
 | `artemis-symphony-workspace` | 按议题创建工作区、执行 hooks（after_create/before_run/after_run/before_remove），同时支持本地与 SSH worker 工作区 |
 | `artemis-symphony-agent` | Codex app-server 子进程客户端（stdio JSON-RPC、initialize/thread/start/turn/start，本地或 SSH worker 均可） |
+| `artemis-symphony-persistence` | 本地 SQLite 运行历史，记录 run、Codex 事件、workspace、token 与失败原因 |
 | `artemis-symphony-orchestrator` | 轮询、调度、协调、重试与 reconciliation；运行时配置快照（`SymphonyRuntimeHolder`），含 worker host 选择与复用 |
 | `artemis-symphony-start` | Spring Boot 启动、HTTP API、`WatchService` 工作流热重载 |
 
@@ -22,6 +23,8 @@
   针对常见工程任务的最小 skill 资产
 - `prompts/`
   自评与 reviewer handoff 等 prompt 模版
+- `tools/`
+  动态工具 schema registry，记录工具名、输入输出 schema、权限等级和外部副作用边界
 - `prompts/agent-requirement-intake.md`
   需求受理与分流模板
 - `skills/spec-driven-delivery.md`
@@ -48,6 +51,7 @@
 - `prompts/spec-driven-delivery.md`
 - `skills/adversarial-review.md`
 - `prompts/adversarial-review.md`
+- `tools/registry.json`
 
 ## 运行
 
@@ -67,6 +71,8 @@ scripts/dev/run-symphony.sh
 - 脚本默认会追加 `--server.port=9500`，便于本地直接访问状态页。
 - 若使用非默认 workflow 路径，可先设置 `SYMPHONY_WORKFLOW_PATH=/path/to/WORKFLOW.md`，或直接传 `--symphony.workflow-path=...`。
 - 若需要自定义端口，可直接传 `--server.port=8080`；也兼容 `-Dspring-boot.run.arguments=...` 旧写法。
+- 运行历史默认写入当前运行目录的 `./symphony_runs.sqlite`；可用 `--symphony.history.sqlite-path=/path/to/symphony_runs.sqlite` 覆盖。
+- 每次 agent attempt 收尾时默认输出低敏 JSON 摘要到 `artifacts/agent-runs/`；可用 workflow 中的 `reporting.agent_runs.enabled` 和 `reporting.agent_runs.directory` 调整。
 - 若希望在 issue 评论中看到 Symphony 的尝试摘要，可在 workflow 中开启 `reporting.linear_comments.enabled: true`。
 
 也可以从根项目编译并运行：
@@ -149,10 +155,42 @@ delivery:
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/` | 极简说明页，链向下方 JSON API |
+| GET | `/` | 极简说明页，链向下方 JSON API 和运行历史页 |
+| GET | `/runs` | 本地运行历史可视化页面，展示近期指标、状态分布、成功率、平均耗时、最近 run、worker、token 与事件 |
 | GET | `/api/v1/state` | 运行中议题、重试队列、Codex 累计、delivery 配置等快照 |
 | POST | `/api/v1/refresh` | `202 Accepted`，触发与 poll 等价的 reconcile/dispatch 路径；`coalesced=true` 表示与已在排队的立即 tick 合并 |
 | GET | `/api/v1/issues/{identifier}` | 按人类可读编号（如 `MT-649`）查询 running/retry 与推导的 `workspace_path`；未知返回 `404` + JSON `error.code` / `error.message` |
+| GET | `/api/v1/history/runs?limit=50` | 最近运行历史，按 `updated_at` 倒序返回，`limit` 上限为 500 |
+| GET | `/api/v1/history/runs/{runId}/events?limit=200` | 单个 run 的事件流，按事件时间升序返回，`limit` 上限为 500 |
+| GET | `/api/v1/history/metrics?limit=100` | 最近运行指标摘要，返回状态分布、重试数、token 汇总、平均耗时和时间窗口，`limit` 上限为 500 |
+
+### SQLite 运行历史
+
+- 默认 SQLite 文件为 `./symphony_runs.sqlite`，相关 WAL / SHM 文件已加入 `.gitignore`。
+- 写入是 best-effort：数据库初始化或写入失败只会打告警，不会单独中断当前 worker attempt。
+- 记录内容包括 issue id / identifier、tracker state、attempt、worker host、workspace path、Codex thread/session、token 汇总、失败原因以及 started / updated / finished 时间。
+- 每个 run 的事件流会包含一个幂等的 `run_started` 事件；即使 Todo 自动认领导致 run 记录被刷新，也不会重复写开始事件。
+- 当 reconcile 因终态、失去路由、非 active、tracker 不可见或 stall timeout 终止运行中 attempt 时，历史记录会以 `terminated` 收尾并写入具体原因，避免 `/runs` 长期显示假 running。
+- Symphony 启动时会把上一次进程退出遗留的 `running` 记录标记为 `interrupted`，并追加 `run_interrupted` 事件，便于区分真实运行中任务和重启恢复记录。
+- 运行指标摘要从最近 N 条本机历史记录实时汇总，覆盖状态分布、成功率、重试数、token 和平均耗时，不引入额外外部存储。
+- 事件 payload 会截断到固定长度，适合本地排障，不应作为长期审计或敏感数据仓库。
+
+### Agent Run 摘要
+
+- 默认开启 `reporting.agent_runs.enabled: true`，每次 worker attempt 结束时写入一个 JSON 文件到 `artifacts/agent-runs/`。
+- 摘要包含 run id、issue id / identifier / title、attempt、状态、失败原因、worker host、`workspace/<key>` 低敏引用、Codex session、token、重试计划、低敏运行环境、外部写回标记和本次 Codex approval / sandbox 权限快照。
+- 权限快照会记录 `approval_policy`、effective `thread_sandbox`、解析后的 `turn_sandbox_policy`、`network_access`、`network_access_reason`、低敏引用后的 `writable_roots` / `allowed_writable_roots`、`danger_full_access_allowed` 与是否为远端 worker，便于复盘每次 run 的文件系统和网络边界。
+- 环境快照会记录 Java runtime、Maven 版本占位、OS、CPU 架构、可用处理器数量和 Spring profile，不记录用户名、home 目录、PATH、完整环境变量或本地仓库路径。
+- 摘要不写入完整 prompt、聊天记录、工具输出全文、密钥或外部系统响应全文；该目录默认被 `.gitignore` 忽略，需要沉淀的人工复盘应整理到 `docs/reports/agent-runs/`。
+- 写入失败只会记录告警，不会改变 worker 收尾、重试或 tracker 回写路径。
+
+### 权限 Preflight
+
+- 每次 worker attempt 在创建 workspace 后、启动 Codex 前执行权限预检。
+- 默认只允许 `turn_sandbox_policy.writableRoots` 指向当前 issue workspace；额外可写目录必须配置 `permissions.allowed_writable_roots`。
+- 当 `turn_sandbox_policy.networkAccess: true` 时，必须配置 `permissions.network_access_reason`，该原因会进入 run summary。
+- `codex.thread_sandbox: danger-full-access`、旧配置 `thread_sandbox: none` 或 `turn_sandbox_policy.type: dangerFullAccess` 必须显式配置 `permissions.allow_danger_full_access: true`。
+- 权限预检失败会按本次 attempt failure 收尾：不启动 Codex app-server，会执行 `after_run`，并进入既有运行历史、低敏摘要和重试路径。
 
 ### Linear 进度评论回写
 
@@ -190,6 +228,8 @@ reporting:
 - 当 Symphony 开始执行一个 `Todo` issue 时，会先尝试把它推进到 `In Progress`。
 - 当 workflow 配置了 `tracker.assignee` 时，Symphony 会保留 assignee 信息，并只调度仍然路由到当前 worker 的 issue；若运行中的 issue 失去该路由，会在 reconcile 时停止。
 - 当 tracker 为 `linear` 时，Symphony 会在 `thread/start` 中注入 `linear_graphql` 动态工具，供 Codex 在当前会话里直接执行 Linear GraphQL。
+- 动态工具事实源为 `artemis-symphony/tools/registry.json`；该注册表声明工具输入 / 输出 schema、权限等级、是否允许外部写操作、是否允许无人值守和稳定失败码。
+- `linear_graphql` 既支持 query 也支持 mutation，因此注册表必须显式标注 `external_write_allowed: true`，避免把外部写能力误读为只读诊断工具。
 - 若状态认领失败，Symphony 会记录告警并继续本轮 worker；若动态工具执行失败，会把失败结果回传给 app-server，而不是直接卡死 turn。
 
 ### SSH Worker
