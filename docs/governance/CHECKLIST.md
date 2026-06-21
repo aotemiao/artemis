@@ -98,7 +98,7 @@ Review Cadence: 90 days
 - `[x]` 建立重复模式扫描，例如重复 DTO、重复异常映射、重复脚本
 - `[x]` 建立周期性“文档整理 / 工程整理”任务
 - `[x]` 建立质量问题的归档与关闭标准
-- `[x]` 将已完成的历史执行计划和 OpenSpec change 从 active 区归档，降低治理提醒噪声
+- `[x]` 将已完成的历史执行计划从 active 区归档，并将已完成 OpenSpec change 从 active 区删除，降低治理提醒噪声
 
 ## F. 提升环境与可观测性 legibility
 

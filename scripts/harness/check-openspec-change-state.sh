@@ -11,12 +11,10 @@ require_cmd python3
 python3 - <<'PY'
 from pathlib import Path
 import re
-import subprocess
 import sys
 
 REPO = Path.cwd()
 CHANGES_DIR = REPO / "openspec/changes"
-ARCHIVE_DIR = CHANGES_DIR / "archive"
 
 
 def exact_exists(path: Path) -> bool:
@@ -63,7 +61,7 @@ if CHANGES_DIR.exists():
     active_changes = [
         path
         for path in sorted(CHANGES_DIR.iterdir())
-        if path.is_dir() and path.name != "archive"
+        if path.is_dir()
     ]
 else:
     active_changes = []
@@ -82,33 +80,11 @@ for change in active_changes:
         errors.append(f"{rel(tasks)}: missing checkbox tasks")
         continue
     if not unchecked_task_lines(tasks_text):
-        archive_target = ARCHIVE_DIR / f"YYYY-MM-DD-{change.name}"
         errors.append(
-            f"{rel(change)}: all tasks are checked; archive it under "
-            f"{rel(archive_target)}"
+            f"{rel(change)}: all tasks are checked; delete this completed "
+            "change from openspec/changes after folding its deltas into "
+            "openspec/specs"
         )
-
-if ARCHIVE_DIR.exists():
-    output = subprocess.check_output(
-        ["git", "ls-files", "--others", "--exclude-standard", "--", rel(ARCHIVE_DIR)],
-        cwd=REPO,
-        text=True,
-    )
-    untracked_archive_files = [line for line in output.splitlines() if line.strip()]
-    deleted_output = subprocess.check_output(
-        ["git", "ls-files", "--deleted", "--", rel(CHANGES_DIR)],
-        cwd=REPO,
-        text=True,
-    )
-    deleted_files = {line for line in deleted_output.splitlines() if line.strip()}
-    for item in untracked_archive_files:
-        archive_rel = Path(item).relative_to(rel(ARCHIVE_DIR))
-        archive_change = archive_rel.parts[0]
-        source_change = re.sub(r"^\d{4}-\d{2}-\d{2}-", "", archive_change)
-        source_path = Path(rel(CHANGES_DIR)) / source_change / Path(*archive_rel.parts[1:])
-        if str(source_path) in deleted_files:
-            continue
-        errors.append(f"{item}: archive file is untracked")
 
 if errors:
     print("OpenSpec change state check failed:", file=sys.stderr)

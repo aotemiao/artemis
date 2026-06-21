@@ -16,16 +16,16 @@
 
 ### Requirement: OpenSpec 未同步规则一致
 
-Pre-commit 中的 OpenSpec 未同步逻辑 SHALL 与 `openspec/docs/pre-commit-openspec-sync-rule.md` 一致：进行中变更的目录约定、未同步判定条件、一次性例外（仅提交 OpenSpec、无进行中变更、可选路径范围排除）。默认行为 SHALL 为提醒模式（不阻止提交）；若实现支持严格模式，SHALL 文档说明如何切换及 `--no-verify` 的用途。
+Pre-commit 中的 OpenSpec 未同步逻辑 SHALL 与 `openspec/docs/pre-commit-openspec-sync-rule.md` 一致：进行中变更的目录约定、未同步判定条件、一次性例外（仅提交 OpenSpec、无进行中变更、可选路径范围排除）。完成的 change SHALL 在 delta 合入 `openspec/specs/` 后从 `openspec/changes/` 删除，不通过 `archive/` 目录持久保留。默认行为 SHALL 为提醒模式（不阻止提交）；若实现支持严格模式，SHALL 文档说明如何切换及 `--no-verify` 的用途。
 
 #### Scenario: 存在进行中变更且本次未改 OpenSpec
 
-- **WHEN** 存在 `openspec/changes/<name>/`（非 archive）且本次 staged 文件均不落在任一此类目录下
+- **WHEN** 存在 `openspec/changes/<name>/` 且本次 staged 文件均不落在任一此类目录下
 - **THEN** 钩子 SHALL 判定为可能未同步并至少输出提醒；是否阻止提交由配置或默认（提醒模式）决定
 
 #### Scenario: 无进行中变更不检查
 
-- **WHEN** `openspec/changes/` 下除 `archive/` 外无其他子目录
+- **WHEN** `openspec/changes/` 下无一级子目录
 - **THEN** 钩子 SHALL 不进行 OpenSpec 未同步检查，不输出相关提醒
 
 ### Requirement: 钩子安装与绕过文档化

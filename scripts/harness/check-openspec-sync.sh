@@ -54,7 +54,7 @@ active_changes=()
 while IFS= read -r dir; do
   [[ -z "$dir" ]] && continue
   active_changes+=("$dir")
-done < <(find "$openspec_changes_dir" -mindepth 1 -maxdepth 1 -type d ! -name archive | sort)
+done < <(find "$openspec_changes_dir" -mindepth 1 -maxdepth 1 -type d | sort)
 
 if [[ "${#active_changes[@]}" -eq 0 ]]; then
   echo "No active OpenSpec changes."

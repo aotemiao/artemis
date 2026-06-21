@@ -77,8 +77,6 @@ fi
 ACTIVE_CHANGES=""
 for d in "$OPENSPEC_CHANGES_DIR"/*/; do
   [ -d "$d" ] || continue
-  name=$(basename "$d")
-  [ "$name" = "archive" ] && continue
   ACTIVE_CHANGES="$ACTIVE_CHANGES $d"
 done
 ACTIVE_CHANGES=$(echo "$ACTIVE_CHANGES" | xargs)

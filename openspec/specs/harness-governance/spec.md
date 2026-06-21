@@ -52,14 +52,14 @@
 - active change 必须包含 `proposal.md`
 - active change 必须包含 `tasks.md`
 - `tasks.md` 必须包含 checkbox 任务
-- 已全部完成的 active change 必须归档到 `openspec/changes/archive/YYYY-MM-DD-<name>/`
-- archive 目录下不应存在未被版本控制跟踪的归档文件；若同一工作树中存在对应 active change 文件删除，视为正在进行的合法归档移动
+- 已全部完成的 active change 必须在 delta 合入 `openspec/specs/` 后从 `openspec/changes/` 删除
+- 仓库不持久保留 `openspec/changes/archive/`；变更过程历史由 Git commit 记录
 
 #### Scenario: 已完成 OpenSpec change 留在 active 区
 
 - **WHEN** `openspec/changes/<name>/tasks.md` 中所有 checkbox 任务均已勾选
 - **THEN** OpenSpec change 状态检查 SHALL 失败
-- **AND** SHALL 提示将该 change 归档到 `openspec/changes/archive/YYYY-MM-DD-<name>/`
+- **AND** SHALL 提示在规则合入 `openspec/specs/` 后删除该 change 目录
 
 #### Scenario: active OpenSpec change 缺少结构文件
 

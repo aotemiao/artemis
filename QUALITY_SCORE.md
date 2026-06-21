@@ -44,7 +44,7 @@ Review Cadence: 90 days
 2. 在真实环境持续演练镜像、部署与回滚
 3. 为更多服务补同等强度的 smoke / readiness / troubleshooting
 4. 持续清理历史重复模式与遗留技术债
-5. 继续把复杂任务先落 `docs/exec-plans/active/`，并通过 `scripts/harness/check-openspec-change-state.sh` 等守门定期归档已完成计划和 OpenSpec change，避免 active 区噪声扩大
+5. 继续把复杂任务先落 `docs/exec-plans/active/`，并通过 `scripts/harness/check-openspec-change-state.sh` 等守门定期归档已完成计划、删除已完成 OpenSpec change，避免 active 区噪声扩大
 
 ## 验证与变更快照
 

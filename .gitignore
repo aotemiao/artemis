@@ -47,6 +47,9 @@ artifacts/agent-evals/
 symphony_workspaces/
 symphony_runs.sqlite*
 
+### Runtime logs ###
+artemis-gateway/logs/
+
 ### Mac OS ###
 .DS_Store
 

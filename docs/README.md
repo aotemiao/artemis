@@ -58,7 +58,7 @@ Review Cadence: 90 days
 ### 根部治理资产
 
 - `../scripts/harness/check-openspec-change-state.sh`
-  OpenSpec active change 状态守门，要求进行中 change 具备 `proposal.md`、`tasks.md` 和未完成任务，已完成 change 及时归档。
+  OpenSpec active change 状态守门，要求进行中 change 具备 `proposal.md`、`tasks.md` 和未完成任务；已完成 change 在规则合入 `openspec/specs/` 后及时删除。
 
 ### `feature-specs/`
 
