@@ -200,7 +200,7 @@ The summary output SHALL be best-effort for the orchestration path: a summary wr
 
 The summary MUST NOT include full prompts, full chat transcripts, full tool outputs, secrets, or raw external system responses.
 
-Repository governance SHALL provide a scriptable sensitive-content and schema-lite check for manually retained summaries under `docs/reports/agent-runs/` and generated low-sensitivity artifact summaries.
+Repository governance SHALL provide a scriptable sensitive-content check for manually retained summaries under `docs/reports/agent-runs/` and generated low-sensitivity artifact summaries. The JSON summary structure contract SHALL be owned by the writer implementation and its unit test (`AgentRunSummaryWriterTest`), and SHALL NOT be re-validated by the governance script to avoid a duplicated cross-language schema.
 
 #### Scenario: Worker attempt writes summary
 

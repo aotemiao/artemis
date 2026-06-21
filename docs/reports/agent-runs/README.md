@@ -74,7 +74,7 @@ Review Cadence: 90 days
 scripts/harness/check-agent-run-summaries.sh
 ```
 
-该检查扫描 `docs/reports/agent-runs/` 下沉淀的摘要，拦截疑似 Bearer token、JWT、云访问密钥、明文密码字段和带密码的连接串。对 `summary_type=symphony_agent_run` 的 JSON 摘要，它还会检查必需审计字段是否存在，包括 issue、attempt、workspace、codex usage、codex event_counts、permissions、environment、retry 和 external effects。`workspace.path`、`permissions.writable_roots`、`permissions.allowed_writable_roots` 和 `turn_sandbox_policy.writableRoots` 只能保存 `workspace/<key>` 或 `configured-writable-root/<n>` 这类低敏相对引用，不应写入本机绝对路径；`codex.event_counts` 只允许事件类型到非负整数次数的映射，不应包含事件 payload、prompt、工具输出或 stdout 原文；`workspace.artifact_inventory` 只允许 workspace 相对路径、文件数量、字节数、截断标志和扫描错误码，不应包含文件内容或绝对产物路径；`environment` 只允许 Java、Maven 版本占位、OS、CPU 架构、可用处理器数量和 Spring profile 等低敏字段，不应写入用户名、home 目录、PATH、完整环境变量或本地仓库路径。该检查不能替代人工脱敏审查，但可以阻止最常见的敏感内容误提交和结构漂移。
+该检查扫描 `docs/reports/agent-runs/` 下沉淀的摘要（以及传入的 `.md` / `.json` 文件），拦截疑似 Bearer token、JWT、云访问密钥、明文密码字段和带密码的连接串。JSON 摘要的结构契约——必需审计字段（issue、attempt、workspace、codex usage、codex event_counts、permissions、environment、retry、external effects 等）以及 `workspace.path`、`permissions.writable_roots`、`permissions.allowed_writable_roots`、`turn_sandbox_policy.writableRoots` 只保存低敏相对引用等约束——由写入实现 `AgentRunSummaryWriter` 及其单测 `AgentRunSummaryWriterTest` 作为唯一事实源保证，不在本治理脚本中用第二套 schema 重复校验，避免跨语言双重维护与漂移。该检查不能替代人工脱敏审查，但可以阻止最常见的敏感内容误提交。
 
 `retry.scheduled=true` 只表示失败 attempt 已排入故障重试；成功 attempt 后用于检查 issue 是否仍处 active 状态的续跑调度使用 `retry.dispatch_kind=continuation`，不计入重试率。
 

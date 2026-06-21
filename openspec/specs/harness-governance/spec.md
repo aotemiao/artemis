@@ -104,8 +104,8 @@
 - **WHEN** 操作者运行 `scripts/harness/check-agent-run-summaries.sh`
 - **THEN** 脚本 SHALL 扫描 `docs/reports/agent-runs/` 中准备沉淀的摘要
 - **AND** SHALL 支持传入一个或多个文件 / 目录递归扫描本地低敏 artifact summary
-- **AND** SHALL 对 `summary_type=symphony_agent_run` 的 JSON 摘要执行轻量结构校验，至少覆盖 issue、attempt、workspace、codex usage、permissions、environment、retry 和 external effects
-- **AND** SHALL 要求 `workspace.path`、`permissions.writable_roots`、`permissions.allowed_writable_roots` 与 `turn_sandbox_policy.writableRoots` 只保存低敏相对引用，不能保存本机绝对路径或 `..` 路径片段
+- **AND** SHALL 同时扫描 `.md` 与 `.json` 摘要文件中的敏感内容
+- **AND** JSON 摘要的结构契约 SHALL 由写入实现 `AgentRunSummaryWriter` 及其单测 `AgentRunSummaryWriterTest` 作为唯一事实源保证，MUST NOT 在治理脚本中用第二套 schema 重复校验
 - **AND** SHALL 在发现疑似 Bearer token、JWT、云访问密钥、明文密码字段或带密码连接串时失败
 - **AND** SHALL 被 `scripts/harness/run-governance-checks.sh` 纳入周期性治理入口
 
