@@ -12,7 +12,7 @@ Review Cadence: 90 days
 |----------|----------|--------------|
 | docs-only | `README.md`、`docs/**/*.md`、`openspec/**/*.md` | `scripts/harness/run-governance-checks.sh` |
 | feature-spec | `docs/feature-specs/**` | `scripts/harness/check-feature-specs.sh`、`scripts/harness/check-spec-driven-delivery-chain.sh` |
-| workflow-assets | `artemis-symphony/prompts/**`、`artemis-symphony/skills/**`、`WORKFLOW.md.example` | `scripts/harness/check-symphony-assets.sh`、`scripts/harness/run-agent-evals.sh` |
+| workflow-assets | `artemis-symphony/prompts/**`、`artemis-symphony/skills/**`、`WORKFLOW.md.example` | `scripts/harness/check-agentic-harness-assets.sh`、`SymphonyToolRegistryTest`（JUnit） |
 | contract-api | `*-client/**`、Controller、`docs/api/**` | `scripts/harness/check-api-doc-sync.sh`、`scripts/harness/check-client-contracts.sh`、模块级 Maven verify |
 | service-code | Java 源码或 POM | `scripts/harness/verify-changed.sh working-tree` |
 | data-migration | migration、schema、repository、gateway | 相关 infra 集成测试、模块级 Maven verify |

@@ -26,5 +26,5 @@ Review Cadence: 90 days
 ## 验证入口
 
 ```bash
-scripts/harness/check-symphony-assets.sh
+mvn -pl artemis-symphony/artemis-symphony-orchestrator test -Dtest=SymphonyToolRegistryTest
 ```

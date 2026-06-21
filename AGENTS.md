@@ -54,7 +54,7 @@ Review Cadence: 90 days
 - 业务需求、验收标准或 Spec 驱动交付：
   先读 `docs/feature-specs/README.md`、`docs/patterns/spec-to-validation-mapping.md`、`docs/patterns/security-review-checklist.md`、`docs/security/THREAT_MODEL.md`、`openspec/specs/spec-driven-delivery/spec.md`
 - 编码代理编排与自动化：
-  先读 `artemis-symphony/README.md`、`docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`、`docs/agent-evals/README.md`、`docs/reports/ROADMAP.md`、`openspec/specs/agent-task-assets/spec.md`
+  先读 `artemis-symphony/README.md`、`docs/agent-workflow/AGENT_DEVELOPMENT_WORKFLOW.md`、`docs/reports/ROADMAP.md`、`openspec/specs/agent-task-assets/spec.md`
 - 复杂任务或多步迁移：
   先在 `docs/exec-plans/active/` 建立或更新执行计划
 
@@ -77,68 +77,13 @@ Review Cadence: 90 days
 
 ## 优先使用的脚本
 
-- 启动基础设施：`scripts/dev/up.sh`
-- 一键启动核心链路：`scripts/dev/start-all.sh`
-- 停止一键启动服务：`scripts/dev/stop-all.sh`
-- 上传 Nacos 配置模板：`scripts/dev/upload-nacos-configs.sh`
-- 关闭基础设施：`scripts/dev/down.sh`
-- 启动系统服务：`scripts/dev/run-system.sh`
-- 启动认证服务：`scripts/dev/run-auth.sh`
-- 启动网关：`scripts/dev/run-gateway.sh`
-- 启动 Symphony：`scripts/dev/run-symphony.sh`
-- 新增领域服务模板：`scripts/dev/new-domain-service.sh <domain>`
-- 打包服务：`scripts/dev/package-service.sh <gateway|auth|system|symphony|all|<domain>>`
-- 构建镜像：`scripts/dev/build-image.sh <gateway|auth|system|all|<domain>>`
-- 服务状态总览：`scripts/dev/service-status.sh [all|<service>]`
-- Symphony 真实 live e2e：`scripts/e2e/run-symphony-live-e2e.sh`
-- 部署演练：`scripts/dev/deploy-drill.sh <all|service> [tag_suffix] [--skip-smoke]`
-- 回滚演练：`scripts/dev/rollback-drill.sh <service> <image-tag|jar-path>`
-- 等待 HTTP 端点：`scripts/dev/wait-http.sh`
-- 检查服务配置：`scripts/dev/check-service-config.sh <system|auth|gateway|symphony|<domain>>`
-- 检查服务就绪：`scripts/dev/check-service-readiness.sh <system|auth|gateway|symphony|<domain>>`
-- 健康检查：`scripts/dev/health.sh`
-- 查看服务日志：`scripts/dev/tail-log.sh <gateway|auth|system|<domain>>`
-- 检查 OpenSpec 同步：`scripts/harness/check-openspec-sync.sh`
-- 检查 OpenSpec change 状态：`scripts/harness/check-openspec-change-state.sh`
-- 检查 Feature Spec 结构：`scripts/harness/check-feature-specs.sh`
-- 检查 Spec 驱动交付链路：`scripts/harness/check-spec-driven-delivery-chain.sh`
-- 检查 Agentic Harness 资产：`scripts/harness/check-agentic-harness-assets.sh`
-- 检查 agent run 摘要脱敏：`scripts/harness/check-agent-run-summaries.sh`
-- 运行 agent workflow eval：`scripts/harness/run-agent-evals.sh`
-- 生成 Harness 指标报告：`scripts/harness/generate-harness-metrics-report.sh`
-- 生成 CI Harness 指标快照：`scripts/harness/generate-ci-harness-metrics.sh`
-- 采集 GitHub delivery signal：`scripts/harness/collect-github-delivery-signal.sh`
-- 检查 Harness 指标报告生成器：`scripts/harness/check-harness-metrics-report.sh`
-- 检查 API 文档同步：`scripts/harness/check-api-doc-sync.sh`
-- 检查 Dubbo client 契约：`scripts/harness/check-client-contracts.sh`
-- 检查业务能力包结构：`scripts/harness/check-capability-package-structure.sh`
-- 检查领域服务脚手架：`scripts/harness/check-domain-service-scaffold.sh`
-- 检查领域服务运行资产：`scripts/harness/check-service-catalog.sh`
-- 检查 Symphony 任务资产：`scripts/harness/check-symphony-assets.sh`
-- 检查部署演练报告：`scripts/harness/check-deploy-drill-reports.sh`
-- 检查关键路径测试基线：`scripts/harness/check-critical-path-tests.sh`
-- 扫描重复模式：`scripts/harness/check-duplicate-patterns.sh`
-- 执行治理检查：`scripts/harness/run-governance-checks.sh`
-- 增量验证：`scripts/harness/verify-changed.sh`
-- 全量验证：`scripts/harness/full-verify.sh`
-- 系统服务 smoke：`scripts/smoke/system-lookup.sh`
-- 认证服务 smoke：`scripts/smoke/auth-refresh.sh`
-- 网关路由 smoke：`scripts/smoke/gateway-auth-refresh.sh`
-- 网关 RBAC smoke：`scripts/smoke/gateway-system-admin.sh`
-- Symphony 状态 smoke：`scripts/smoke/symphony-state.sh`
-- 聚合 smoke：`scripts/smoke/all-services.sh`
-- 服务 smoke runbook：`docs/runbooks/SERVICE_SMOKE_RUNBOOK.md`
-- 新增领域服务 runbook：`docs/runbooks/ADD_DOMAIN_SERVICE_RUNBOOK.md`
-- 新增 Dubbo client runbook：`docs/runbooks/ADD_DUBBO_CLIENT_RUNBOOK.md`
-- ArchUnit 约束 runbook：`docs/runbooks/ADD_ARCHUNIT_RULE_RUNBOOK.md`
-- Agent review loop：`docs/agent-workflow/AGENT_REVIEW_LOOP.md`
-- Agent 权限 runbook：`docs/runbooks/AGENT_PERMISSION_RUNBOOK.md`
-- 风险分级验证 runbook：`docs/runbooks/RISK_BASED_VERIFICATION_RUNBOOK.md`
-- 安全审查清单：`docs/patterns/security-review-checklist.md`
-- 威胁模型：`docs/security/THREAT_MODEL.md`
-- 质量问题标准：`docs/governance/QUALITY_ISSUE_STANDARD.md`
-- 部署 / 回滚 runbook：`docs/runbooks/DEPLOY_AND_ROLLBACK_RUNBOOK.md`
-- Symphony 故障 runbook：`docs/runbooks/SYMPHONY_TROUBLESHOOTING.md`
+脚本按目录自描述，优先复用，不要把命令散落在 issue 评论或聊天里。各脚本的职责与参数见脚本头部注释。
+
+- 本地起停与运维：`scripts/dev/`（如 `up.sh` / `down.sh` / `start-all.sh` / `stop-all.sh` / `health.sh` / `run-<service>.sh` / `new-domain-service.sh` / `package-service.sh` / `build-image.sh`）
+- 验证与治理守门：`scripts/harness/`（增量验证 `verify-changed.sh`、全量验证 `full-verify.sh`、聚合治理 `run-governance-checks.sh`、OpenSpec 同步 `check-openspec-sync.sh`）
+- 服务冒烟：`scripts/smoke/`
+- 真实链路 e2e：`scripts/e2e/run-symphony-live-e2e.sh`
+- 常见任务 runbook：`docs/runbooks/`
 
 ## 产出要求
 

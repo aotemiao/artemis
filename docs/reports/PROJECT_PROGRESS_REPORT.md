@@ -216,7 +216,7 @@ Review Cadence: 30 days
 
 建议验证入口：
 
-- `scripts/harness/check-symphony-assets.sh`
+- `SymphonyToolRegistryTest`（JUnit，registry 契约守门）
 - `scripts/smoke/symphony-state.sh`
 - `scripts/harness/run-governance-checks.sh`
 

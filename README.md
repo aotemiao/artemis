@@ -165,7 +165,7 @@ Artemis 对 agentic 开发的定位是：人负责需求、边界、关键判断
 | 让 agent 分模块实现 | 业务微服务按 `client / adapter / app / domain / infra / start` 拆分，依赖方向固定为 `adapter -> app -> domain <- infra`；新增领域服务优先使用 `scripts/dev/new-domain-service.sh` 生成骨架，避免 agent 临时发明模块结构。 |
 | 强制 agent 生成测试、边界用例和回归用例 | 每个 Feature Spec 的验收标准必须映射到单元测试、集成测试、smoke、harness 脚本或人工验收；`docs/runbooks/RISK_BASED_VERIFICATION_RUNBOOK.md` 用于按变更类型选择最小验证集；仓库提供 `scripts/harness/verify-changed.sh`、`scripts/harness/full-verify.sh`、`scripts/smoke/` 和 `mvn verify` 作为可重复验证入口。 |
 | 人做最终 code review，关注权限、幂等、锁、事务、异常处理、SQL 性能、日志和可观测性 | `docs/agent-workflow/AGENT_REVIEW_LOOP.md` 要求 agent 交付前说明触发的风险、执行过的验证、剩余风险和已同步资产；高风险改动可使用 `artemis-symphony/skills/adversarial-review.md` 做独立复核。 |
-| 把常用约束沉淀成项目级 agent spec | `AGENTS.md` 是 agent 稳定入口，`openspec/specs/` 保存 DDD 分层、仓库结构、工程约束、契约文档、治理守门和 spec-driven delivery 等长期规则；`docs/runbooks/`、`docs/agent-evals/`、`docs/reports/harness-metrics/`、`artemis-symphony/skills/`、`artemis-symphony/prompts/` 则沉淀高频任务、评测、指标和自评模板。 |
+| 把常用约束沉淀成项目级 agent spec | `AGENTS.md` 是 agent 稳定入口，`openspec/specs/` 保存 DDD 分层、仓库结构、工程约束、契约文档、治理守门和 spec-driven delivery 等长期规则；`docs/runbooks/`、`artemis-symphony/skills/`、`artemis-symphony/prompts/` 则沉淀高频任务和自评模板。 |
 
 ### 分层收敛方向
 
@@ -184,10 +184,10 @@ Artemis 对 agentic 开发的定位是：人负责需求、边界、关键判断
 | 事实源 | `README.md`、`ARCHITECTURE.md`、`QUALITY_SCORE.md`、`openspec/specs/`、`artemis-modules/*/*-client` | 项目定位、模块边界、稳定规则、质量状态、内部契约 | 复制完整脚本清单和一次性执行步骤 |
 | 需求规范 | `docs/feature-specs/`、`docs/patterns/spec-to-validation-mapping.md` | 业务需求、用户故事、业务规则、验收标准、验证映射 | 定义长期工程规则和模块边界 |
 | 执行入口 | `scripts/dev/`、`scripts/smoke/`、`docs/runbooks/` | 启动服务、查看状态、smoke、打包、镜像、部署、回滚、常见任务操作步骤 | 定义模块边界、契约规则和默认 workflow 长期约束 |
-| 验证守门 | `scripts/harness/`、`mvn verify`、`.github/workflows/verify.yml`、`.github/workflows/governance.yml`、`docs/governance/DOC_FRESHNESS_POLICY.md` | 增量验证、全量验证、契约/API 文档同步、重复模式扫描、CI 与文档新鲜度守门 | 替代人工需求判断或记录复杂任务计划 |
+| 验证守门 | `scripts/harness/`、`mvn verify`、`.github/workflows/verify.yml`、`.github/workflows/governance.yml` | 增量验证、全量验证、契约/API 文档同步、重复模式扫描、CI 守门 | 替代人工需求判断或记录复杂任务计划 |
 | 任务过程 | `docs/exec-plans/active/`、`docs/exec-plans/completed/`、`docs/exec-plans/templates/` | 复杂任务的背景、范围、步骤、风险、验证和归档 | 替代 OpenSpec 里的稳定规则 |
 | 编排资产 | `artemis-symphony/`、`artemis-symphony/WORKFLOW.md.example`、`artemis-symphony/skills/`、`artemis-symphony/prompts/` | issue 拉取、隔离 workspace、Codex 执行、进度回写、常见任务提示和自评模板 | 成为新的知识库或规范事实来源 |
-| 评测、指标与运行摘要 | `docs/agent-evals/`、`docs/reports/agent-runs/`、`docs/reports/harness-metrics/` | agent 工作流 fixture、运行轨迹摘要规则、低敏复盘记录、Harness 指标快照 | 保存完整 prompt、密钥、token 或未脱敏工具输出 |
+| 运行摘要 | `docs/reports/agent-runs/` | 运行轨迹摘要规则、低敏复盘记录 | 保存完整 prompt、密钥、token 或未脱敏工具输出 |
 | 安全与权限 | `docs/security/THREAT_MODEL.md`、`docs/patterns/security-review-checklist.md`、`docs/runbooks/AGENT_PERMISSION_RUNBOOK.md` | 保护目标、信任边界、权限策略、sandbox / approval 和高风险 review | 替代具体实现测试或生产安全评审 |
 | 运行与交付资产 | `docker/`、`config/nacos/`、`scripts/e2e/`、`docs/reports/deploy-drills/` | 本地依赖、配置模板、镜像构建、真实 e2e 和部署/回滚演练记录 | 定义业务需求和领域模型 |
 
@@ -204,8 +204,7 @@ Artemis 对 agentic 开发的定位是：人负责需求、边界、关键判断
 | 如何新增领域服务、Dubbo client 或 ArchUnit 规则 | `docs/runbooks/`、`artemis-symphony/skills/` |
 | 如何启动、smoke、打包、部署或回滚 | `scripts/dev/`、`scripts/smoke/`、`docs/runbooks/SERVICE_SMOKE_RUNBOOK.md`、`docs/runbooks/DEPLOY_AND_ROLLBACK_RUNBOOK.md` |
 | 如何验证本次改动 | `scripts/harness/verify-changed.sh`；高风险或跨模块改动使用 `scripts/harness/full-verify.sh` |
-| 如何评测 agent 是否按流程工作 | `docs/agent-evals/README.md`、`scripts/harness/run-agent-evals.sh` |
-| 如何生成 Harness 指标报告 | `docs/reports/harness-metrics/README.md`、`scripts/harness/generate-harness-metrics-report.sh`；CI artifact 使用 `scripts/harness/generate-ci-harness-metrics.sh`；GitHub event 计数使用 `scripts/harness/collect-github-delivery-signal.sh` |
+| 如何验证 Symphony 编排行为 | `artemis-symphony` 下的 JUnit 测试、`scripts/e2e/run-symphony-live-e2e.sh`（真实 e2e）|
 | 如何理解 agent 编排 | `artemis-symphony/README.md`、`artemis-symphony/WORKFLOW.md.example` |
 
 ### 标准工作流

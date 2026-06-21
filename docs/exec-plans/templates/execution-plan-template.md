@@ -77,7 +77,7 @@ Review Cadence: 90 days
 | API / 契约 | `scripts/harness/check-api-doc-sync.sh`、`scripts/harness/check-client-contracts.sh` | 是 / 否 |
 | 数据迁移 | 模块级 migration 测试或 infra 集成测试 | 是 / 否 |
 | 服务行为 | `scripts/smoke/<service>.sh` 或 runbook 人工验收 | 是 / 否 |
-| agent 编排 | `scripts/harness/check-symphony-assets.sh`、`scripts/harness/run-agent-evals.sh` | 是 / 否 |
+| agent 编排 | `scripts/harness/check-agentic-harness-assets.sh`、`SymphonyToolRegistryTest` | 是 / 否 |
 
 ## 回滚策略
 

@@ -81,16 +81,9 @@ scripts/harness/check-agent-run-summaries.sh
 也可以传入一个或多个文件 / 目录，递归扫描本地 artifact 中的低敏 JSON summary：
 
 ```bash
-scripts/harness/check-agent-run-summaries.sh artifacts/agent-evals/<run>/agent-runs
-scripts/harness/check-agent-run-summaries.sh artifacts/agent-evals/<suite>
+scripts/harness/check-agent-run-summaries.sh artifacts/agent-runs
 ```
 
-`scripts/e2e/run-symphony-agent-eval.sh` 会在单次 eval 和 suite eval 结束后自动调用该检查，避免生成的 run summary 带着疑似敏感内容进入后续指标聚合或人工沉淀流程。
+Symphony 编排行为评测由 `artemis-symphony` 下的 JUnit 测试与 `scripts/e2e/run-symphony-live-e2e.sh` 覆盖；本检查用于对人工沉淀到 `docs/reports/agent-runs/` 的低敏摘要做脱敏校验。
 
-失败 run 可以作为后续回归样例的线索，但不能直接自动进入正式 dataset。需要先生成草稿：
-
-```bash
-scripts/harness/generate-agent-eval-drafts.sh artifacts/agent-runs
-```
-
-草稿默认写入 `artifacts/agent-eval-drafts/`，只包含低敏字段，并带有 `manual_review_required: true`。人工复核后，才能把最小稳定复现移动到 `docs/agent-evals/datasets/` 并运行 `scripts/harness/run-agent-evals.sh` 与对应 e2e eval。
+失败 run 可以作为后续回归样例的线索，但不能直接进入正式 dataset。人工提炼出最小稳定复现后，补充到 `artemis-symphony` 下对应的 JUnit 测试。

@@ -42,22 +42,6 @@ jobs:
       - name: Build Docker Images
         run: scripts/dev/build-image.sh all ci
 
-      - name: Collect GitHub Delivery Signal
-        if: always()
-        run: scripts/harness/collect-github-delivery-signal.sh
-
-      - name: Generate Harness Metrics Snapshot
-        if: always()
-        run: scripts/harness/generate-ci-harness-metrics.sh
-
-      - name: Upload Harness Metrics Snapshot
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: harness-metrics-verify
-          if-no-files-found: error
-          path: artifacts/harness-metrics/
-
       - name: Upload Reports On Failure
         if: failure()
         uses: actions/upload-artifact@v6

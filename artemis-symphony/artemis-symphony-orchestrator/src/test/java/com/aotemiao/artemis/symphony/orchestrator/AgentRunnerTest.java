@@ -2,6 +2,7 @@ package com.aotemiao.artemis.symphony.orchestrator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.aotemiao.artemis.symphony.config.ServiceConfig;
@@ -96,6 +97,63 @@ class AgentRunnerTest {
         assertFalse(workspaceManager.beforeRunCalled);
     }
 
+    @Test
+    void runAttempt_whenBeforeRunHookFails_stopsBeforeCodex() {
+        WorkflowDefinition definition = new WorkflowDefinition(
+                Map.of("tracker", Map.of("kind", "memory"), "codex", Map.of("command", "printf should-not-run")),
+                "prompt");
+        ServiceConfig config = new ServiceConfig(definition);
+        RecordingWorkspaceManager workspaceManager = new RecordingWorkspaceManager(config);
+        workspaceManager.beforeRunResult = WorkspaceManager.HookResult.failure("synthetic before_run failure");
+        AgentRunner runner =
+                new AgentRunner(() -> config, workspaceManager, () -> new MemoryTrackerClient(new ArrayList<>()));
+        AtomicReference<String> failure = new AtomicReference<>();
+
+        runner.runAttempt(
+                issue(),
+                null,
+                null,
+                null,
+                null,
+                () -> {
+                    throw new AssertionError("before_run hook failure should not reach success");
+                },
+                failure::set);
+
+        assertTrue(failure.get().contains("before_run hook failed"));
+        assertTrue(failure.get().contains("synthetic before_run failure"));
+        assertTrue(workspaceManager.beforeRunCalled);
+        assertTrue(workspaceManager.afterRunCalled);
+    }
+
+    @Test
+    void runAttempt_whenWorkspaceCreationFails_stopsBeforeBeforeRunAndCodex() {
+        WorkflowDefinition definition = new WorkflowDefinition(
+                Map.of("tracker", Map.of("kind", "memory"), "codex", Map.of("command", "printf should-not-run")),
+                "prompt");
+        ServiceConfig config = new ServiceConfig(definition);
+        RecordingWorkspaceManager workspaceManager = new RecordingWorkspaceManager(config);
+        workspaceManager.createResult =
+                WorkspaceManager.Result.failure("after_create_hook_failed", "after_create hook failed: synthetic");
+        AgentRunner runner =
+                new AgentRunner(() -> config, workspaceManager, () -> new MemoryTrackerClient(new ArrayList<>()));
+        AtomicReference<String> failure = new AtomicReference<>();
+
+        runner.runAttempt(
+                issue(),
+                null,
+                null,
+                null,
+                null,
+                () -> {
+                    throw new AssertionError("workspace creation failure should not reach success");
+                },
+                failure::set);
+
+        assertNotNull(failure.get());
+        assertFalse(workspaceManager.beforeRunCalled);
+    }
+
     private static Issue issue() {
         return new Issue(
                 "issue-1",
@@ -115,6 +173,9 @@ class AgentRunnerTest {
     private static final class RecordingWorkspaceManager extends WorkspaceManager {
         private boolean beforeRunCalled;
         private boolean afterRunCalled;
+        private Result<Workspace> createResult =
+                Result.success(new Workspace(Path.of("/tmp/symphony_workspaces/ART-1"), "ART-1", false));
+        private HookResult beforeRunResult = HookResult.ofSuccess();
 
         private RecordingWorkspaceManager(ServiceConfig config) {
             super(() -> config);
@@ -122,13 +183,13 @@ class AgentRunnerTest {
 
         @Override
         public Result<Workspace> createForIssue(String issueIdentifier, String workerHost) {
-            return Result.success(new Workspace(Path.of("/tmp/symphony_workspaces/ART-1"), "ART-1", false));
+            return createResult;
         }
 
         @Override
         public HookResult runBeforeRun(Path workspacePath, String workerHost) {
             beforeRunCalled = true;
-            return HookResult.ofSuccess();
+            return beforeRunResult;
         }
 
         @Override

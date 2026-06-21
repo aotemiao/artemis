@@ -29,19 +29,3 @@ jobs:
 
       - name: Governance Checks
         run: scripts/harness/run-governance-checks.sh
-
-      - name: Collect GitHub Delivery Signal
-        if: always()
-        run: scripts/harness/collect-github-delivery-signal.sh
-
-      - name: Generate Harness Metrics Snapshot
-        if: always()
-        run: scripts/harness/generate-ci-harness-metrics.sh
-
-      - name: Upload Harness Metrics Snapshot
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: harness-metrics-governance
-          if-no-files-found: error
-          path: artifacts/harness-metrics/

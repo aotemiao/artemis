@@ -42,15 +42,8 @@ build/
 WORKFLOW.md
 artifacts/agent-runs/
 **/artifacts/agent-runs/
-artifacts/agent-eval-drafts/
-**/artifacts/agent-eval-drafts/
 artifacts/agent-evals/
 **/artifacts/agent-evals/
-artifacts/harness-metrics/
-**/artifacts/harness-metrics/
-artifacts/harness-delivery-signals/
-**/artifacts/harness-delivery-signals/
-docs/reports/harness-metrics/generated/
 symphony_workspaces/
 symphony_runs.sqlite*
 
