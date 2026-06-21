@@ -29,7 +29,7 @@ Review Cadence: 90 days
 | `exec-plans/` | 复杂任务的背景、范围、步骤、风险、验证和完成归档 | 跨模块、多阶段、迁移、重构、基础设施任务 | 长期规范本身；这些放 `openspec/` |
 | `governance/` | Harness checklist、文档 freshness、质量问题标准和质量问题记录 | 做治理检查、关闭质量问题、维护文档新鲜度 | 一次性任务过程；这些放 `exec-plans/` |
 | `patterns/` | 可复用工程模式、验收映射、handoff 模板和安全审查清单 | 多个需求会重复使用同一模式时 | 单次任务记录 |
-| `reports/` | 项目进度、路线图、部署/回滚演练报告、agent run 摘要规则、Harness 指标报告 | 看当前完成度、阶段路线、演练结果、低敏运行摘要或指标 scorecard | 操作步骤；这些放 `runbooks/` |
+| `reports/` | 项目进度、路线图、部署/回滚演练报告、agent run 摘要规则 | 看当前完成度、阶段路线、演练结果、低敏运行摘要 | 操作步骤；这些放 `runbooks/` |
 | `runbooks/` | 可重复执行的操作步骤和排障路径 | 启动、smoke、部署、回滚、新增服务、新增契约、排查 Symphony | 抽象规则和路线图 |
 | `security/` | 威胁模型和安全边界说明 | 涉及权限、认证、敏感信息、外部副作用或高风险 review | 单次任务审查记录 |
 
@@ -175,7 +175,7 @@ Review Cadence: 90 days
 - 一次复杂任务的实施计划：放 `exec-plans/active/`，完成后迁到 `exec-plans/completed/`。
 - 可复用模式、模板和示例：放 `patterns/`。
 - 可重复操作步骤：放 `runbooks/`，并优先链接 `../scripts/` 下的入口。
-- 项目阶段状态、对外汇报和 Harness 指标报告：放 `reports/`。
+- 项目阶段状态和对外汇报：放 `reports/`。
 - 安全威胁模型：放 `security/`。
 - 质量问题记录：放 `governance/quality-issues/`。
 - REST API 说明：入口放 `api/README.md`，模块级文档继续随服务模块放置。
