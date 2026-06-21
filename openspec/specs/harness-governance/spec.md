@@ -15,6 +15,26 @@
 - **THEN** SHALL 复用 `scripts/harness/run-governance-checks.sh`
 - **AND** SHOULD NOT 在 workflow 中复制一份容易漂移的治理脚本清单
 
+### Requirement: 文档路径引用守门
+
+仓库 SHALL 提供文档路径引用检查，并将其接入周期性治理入口。该检查至少 SHALL 覆盖：
+
+- Markdown 链接目标
+- 当前状态类文档中以反引号标注的 `docs/` 与 `scripts/` 仓库路径
+
+历史执行计划归档 MAY 保留已经下线或删除的路径作为历史记录，MUST NOT 因内联路径检查而阻塞治理入口。
+
+#### Scenario: 当前状态文档引用已删除路径
+
+- **WHEN** `README.md`、`QUALITY_SCORE.md`、`docs/README.md`、`docs/governance/` 或 `docs/reports/` 下的当前状态文档以内联代码引用不存在的 `docs/` 或 `scripts/` 路径
+- **THEN** 文档路径引用检查 SHALL 失败
+- **AND** SHALL 输出包含文档路径和行号的失败信息
+
+#### Scenario: 历史执行计划保留退役路径
+
+- **WHEN** `docs/exec-plans/completed/` 下的历史执行计划引用已经退役的路径
+- **THEN** 内联路径检查 SHALL 不要求这些历史路径仍然存在
+
 ### Requirement: 重复模式扫描
 
 仓库 SHALL 提供重复模式扫描脚本，至少覆盖以下高频熵增点：

@@ -44,7 +44,7 @@ run_governance_check() {
 
 echo
 echo "==> Running governance checks (scope=${scope})"
-run_governance_check "Markdown Links" scripts/harness/check-doc-links.sh
+run_governance_check "Markdown Links and Inline Paths" scripts/harness/check-doc-links.sh
 run_governance_check "OpenSpec Change State" scripts/harness/check-openspec-change-state.sh "docs"
 run_governance_check "Feature Specs" scripts/harness/check-feature-specs.sh "docs"
 run_governance_check "Spec Driven Delivery Chain" scripts/harness/check-spec-driven-delivery-chain.sh

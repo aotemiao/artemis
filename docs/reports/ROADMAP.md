@@ -92,13 +92,15 @@ Review Cadence: 90 days
 
 目标：让 agent 不只“按规则写代码”，还要能被评测、被复盘、被安全审查，并按变更风险选择验证集。
 
+概念源：`docs/governance/HARNESS.md`。该文档记录当前有效能力与已下线 self-measurement 层。
+
 交付物：
 
-- agent workflow eval 与运行摘要资产
-- 可执行 Symphony memory agent eval
+- agent run 摘要资产；原 agent workflow eval 已下线
+- 原可执行 Symphony memory agent eval 已下线
 - 权限策略、安全审查和风险分级验证 runbook
 - Symphony permission preflight / audit
-- Harness metrics report generator
+- 原 Harness metrics report generator 已下线
 - Symphony run environment snapshot
 - Symphony dynamic tool registry
 - adversarial review skill / prompt
@@ -106,21 +108,20 @@ Review Cadence: 90 days
 
 完成标准：
 
-- agent workflow fixture 可被脚本检查。
-- memory agent eval 可真实启动 Symphony、fake Codex app-server 并验证 workspace、运行历史、事件、指标摘要和 JSON summary。
-- Harness metrics report generator 可从低敏 eval / run artifacts 输出 Markdown / JSON scorecard，并聚合 run environment 与 deploy drill 分布。
+- agent run 摘要规则可被脚本检查，且摘要保持低敏。
+- 原 memory agent eval 与 Harness metrics report generator 已下线，不再作为当前完成标准。
 - Symphony dynamic tool registry 可记录 `linear_graphql` 的输入输出 schema、外部写能力、无人值守策略和稳定失败码，并由 Symphony 资产检查守住。
 - 高风险改动有安全审查清单、权限策略和 adversarial review 入口。
 - CI 与本地治理复用同一批 harness 脚本，避免重复清单漂移。
 
-状态：已完成当前基础闭环，已补充低敏 agent run 摘要样例、自动 JSON run summary、permission preflight / audit 字段、run environment 快照、SQLite history metrics API、`/runs` 运行指标摘要和 deploy drill report 指标摘要；后续继续扩展更多 eval case、Linear / live eval、per-run 环境隔离和跨平台 dashboard。
+状态：已完成当前基础闭环，已补充低敏 agent run 摘要样例、自动 JSON run summary、permission preflight / audit 字段、run environment 快照、SQLite history metrics API、`/runs` 运行指标摘要和 deploy drill report 指标摘要；后续继续扩展 Linear / live 验证、per-run 环境隔离和跨平台 dashboard。
 
-> 注：原属本阶段的"自我度量"层——Harness metrics report generator、CI artifact metrics 快照、GitHub event delivery signal 采集入口、失败 run 到 eval dataset 草稿生成器，以及 `scripts/e2e/run-symphony-agent-eval.sh` 可执行 memory eval——已在 `slim agentic harness — drop self-measurement` 变更中退役。当前 Symphony 运行可观测性以 SQLite run history、`/runs` 页面、`/api/v1/history/*` 指标 API 和（gitignore 的）per-attempt JSON 审计摘要为准。上文"交付物"与"完成标准"保留作阶段历史记录。
+> 注：原属本阶段的"自我度量"层——Harness metrics report generator、CI artifact metrics 快照、GitHub event delivery signal 采集入口、失败 run 到 eval dataset 草稿生成器和可执行 memory eval——已在 `slim agentic harness — drop self-measurement` 变更中退役。当前 Symphony 运行可观测性以 SQLite run history、`/runs` 页面、`/api/v1/history/*` 指标 API 和（gitignore 的）per-attempt JSON 审计摘要为准。
 
 ## 封板后的演进原则
 
 1. 继续让 `scripts/harness/full-verify.sh` 与 `scripts/harness/verify-changed.sh` 作为团队默认入口
 2. 对业务需求先收敛到 `docs/feature-specs/`，把验收标准和验证映射写清楚
 3. 继续把复杂任务落到 `docs/exec-plans/active/`，减少上下文散失
-4. 对高风险 agentic 交付同步使用安全审查、权限策略、风险分级验证和 agent eval
+4. 对高风险 agentic 交付同步使用安全审查、权限策略和风险分级验证
 5. 新增工程能力时，同步补文档、脚本、守门和 runbook，避免知识重新退回聊天上下文

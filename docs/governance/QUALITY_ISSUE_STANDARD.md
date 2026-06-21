@@ -8,10 +8,12 @@ Review Cadence: 90 days
 
 ## 目录约定
 
-- `docs/governance/quality-issues/active/`
+- `active/`
   仍在处理中的质量问题
-- `docs/governance/quality-issues/archive/`
+- `archive/`
   已关闭或已接受的历史问题
+
+上述路径相对于 `docs/governance/quality-issues/`；当前没有活动问题时不要求保留空的 `active/` 目录。
 
 ## 何时建档
 

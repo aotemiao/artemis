@@ -31,9 +31,9 @@ Review Cadence: 90 days
 | 本地环境确定性 | `5/5` | Docker Compose、固定端口、wait-http、config/readiness 断言、聚合 smoke、服务打包与镜像入口已齐备 | 后续按新增服务持续补同样的 readiness 模式 |
 | 架构约束可执行性 | `4/5` | 已有 OpenSpec、认证依赖约束与 `artemis-system` 分层 ArchUnit 测试 | 继续把同类规则扩展到更多微服务 |
 | Agent 工作流成熟度 | `5/5` | 已有 `artemis-symphony`、exec-plans、runbook、skills、prompts、dynamic tool registry、agent review loop、权限策略和 adversarial review 入口 | 后续继续基于真实业务补更多任务型 assets，并把更多工具纳入 registry 与审计 |
-| Agent 运行质量可评测性 | `4/5` | Symphony 编排行为由 22 个 JUnit 测试与真实 e2e（`scripts/e2e/run-symphony-live-e2e.sh`）覆盖：权限预检、Codex turn 各类结果、hook 失败、run history、低敏 summary 脱敏、Linear 评论与 spec-driven prompt 注入 | 继续扩展更多 memory case 和受显式凭证保护的 Linear / live eval |
+| Agent 运行质量可评测性 | `4/5` | Symphony 编排行为由 22 个 JUnit 测试与真实 e2e（`scripts/e2e/run-symphony-live-e2e.sh`）覆盖：权限预检、Codex turn 各类结果、hook 失败、run history、低敏 summary 脱敏、Linear 评论与 spec-driven prompt 注入；原 agent workflow eval 与 memory eval 已下线 | 继续扩展受显式凭证保护的 Linear / live 场景 |
 | 文档新鲜度控制 | `5/5` | 核心文档审阅元信息、freshness 守门、周期性治理工作流与质量问题归档标准已建立 | 继续保持 cadence 回写并清理历史冗余 |
-| Smoke / 可观测性 | `5/5` | 已有 system/auth/gateway/symphony smoke、聚合 smoke、健康检查、readiness 断言、日志、状态入口、SQLite 运行历史、`/api/v1/history/metrics`、`/runs` 指标摘要、低敏 JSON run summary、run environment 快照、Harness metrics report 生成器、CI artifact 快照入口、GitHub event 低敏 delivery signal 采集、deploy drill report 指标摘要和权限 preflight / audit 字段 | 后续把指标快照扩展为 GitHub API 深度抓取、per-run 环境隔离和跨平台 dashboard |
+| Smoke / 可观测性 | `5/5` | 已有 system/auth/gateway/symphony smoke、聚合 smoke、健康检查、readiness 断言、日志、状态入口、SQLite 运行历史、`/api/v1/history/metrics`、`/runs` 指标摘要、低敏 JSON run summary、run environment 快照、deploy drill report 指标摘要和权限 preflight / audit 字段；原 Harness metrics report 与 CI metrics artifact 快照已下线 | 后续继续补强 per-run 环境隔离和跨平台 dashboard |
 | 部署骨架完整度 | `4/5` | 已有 Dockerfile、统一镜像构建脚本、部署回滚 runbook、CI 镜像构建和可聚合 deploy / rollback drill 摘要 | 在真实环境持续演练部署与回滚 |
 
 ## 封板后的扩展方向
@@ -53,12 +53,12 @@ Review Cadence: 90 days
 - `2026-03-23`：本地通过 `scripts/harness/full-verify.sh`，CI、smoke、docs consistency、freshness、OpenSpec diff、契约 / API 文档同步、关键路径测试基线和部署 / 回滚 runbook 完成封板闭环。
 - `2026-06-02`：完成 agentic harness 优化，新增资产见 `docs/exec-plans/completed/2026-06-02-agentic-harness-optimization.md`，守门入口为 `scripts/harness/check-agentic-harness-assets.sh`。
 - `2026-06-09`：根据 Harness Engineering 市场差距报告，补强 API 文档自动发现、OpenSpec active change 状态守门和低敏 agent run 摘要样例；详见 `docs/exec-plans/completed/2026-06-09-harness-market-gap-improvements.md`。
-- `2026-06-09`：继续补强 Symphony 真实运行闭环，新增可执行 memory agent eval、权限预检失败 eval、自动 JSON run summary、SQLite 运行历史、`/api/v1/history/metrics`、`/runs` 运行指标摘要、Harness metrics report 生成器和权限 preflight；详见 `docs/exec-plans/completed/2026-06-09-symphony-executable-agent-eval.md`。
+- `2026-06-09`：继续补强 Symphony 真实运行闭环，新增可执行 memory agent eval、权限预检失败 eval、自动 JSON run summary、SQLite 运行历史、`/api/v1/history/metrics`、`/runs` 运行指标摘要、Harness metrics report 生成器和权限 preflight；其中 eval 与 Harness metrics self-measurement 层后续已下线，历史记录见 `docs/exec-plans/completed/2026-06-09-symphony-executable-agent-eval.md`。
 - `2026-06-10`：本地通过 `scripts/harness/verify-changed.sh working-tree`，覆盖 governance、Symphony 资产检查与受当前工作树影响的 Symphony 模块 scoped verify。
 
 ## 封板范围外的扩展方向
 
 - 还没有把新增守门扩展到未来的所有业务微服务
 - 还没有在真实部署环境持续演练新增的部署 / 回滚 runbook
-- 还需要将 Symphony 行为评测扩展到受显式凭证保护的 Linear / live 场景
-- Harness metrics 快照已接入 CI artifact，并支持 GitHub Actions event 低敏 PR / review finding delivery signal、run environment 分布和 deploy drill report 分布；尚未扩展为 GitHub API 深度抓取、per-run 环境隔离或跨平台 dashboard
+- 还需要将 Symphony 行为验证扩展到受显式凭证保护的 Linear / live 场景
+- 原 Harness metrics 快照、CI artifact 指标和 GitHub Actions event 低敏 delivery signal 已下线；后续可按需重新设计跨平台 dashboard，但不沿用已退役入口

@@ -27,7 +27,7 @@ Review Cadence: 90 days
 | `agent-workflow/` | agent 需求受理、默认分流、自评和 reviewer 回路 | 让 agent 或人按统一流程处理任务 | 具体任务执行计划；这些放 `exec-plans/` |
 | `feature-specs/` | 业务需求级 Spec、模板、示例、验收标准和验证映射 | PRD、issue 或口头需求需要先澄清业务规则与验收标准 | 长期工程规则；这些放 `openspec/` |
 | `exec-plans/` | 复杂任务的背景、范围、步骤、风险、验证和完成归档 | 跨模块、多阶段、迁移、重构、基础设施任务 | 长期规范本身；这些放 `openspec/` |
-| `governance/` | Harness checklist、文档 freshness、质量问题标准和质量问题记录 | 做治理检查、关闭质量问题、维护文档新鲜度 | 一次性任务过程；这些放 `exec-plans/` |
+| `governance/` | Harness 概念源、checklist、文档 freshness、质量问题标准和质量问题记录 | 做治理检查、关闭质量问题、维护文档新鲜度 | 一次性任务过程；这些放 `exec-plans/` |
 | `patterns/` | 可复用工程模式、验收映射、handoff 模板和安全审查清单 | 多个需求会重复使用同一模式时 | 单次任务记录 |
 | `reports/` | 项目进度、路线图、部署/回滚演练报告、agent run 摘要规则 | 看当前完成度、阶段路线、演练结果、低敏运行摘要 | 操作步骤；这些放 `runbooks/` |
 | `runbooks/` | 可重复执行的操作步骤和排障路径 | 启动、smoke、部署、回滚、新增服务、新增契约、排查 Symphony | 抽象规则和路线图 |
@@ -111,6 +111,8 @@ Review Cadence: 90 days
 
 ### `governance/`
 
+- `HARNESS.md`
+  Harness Engineering 的唯一概念源，记录当前有效能力与已下线能力。
 - `CHECKLIST.md`
   Harness Engineering 落地清单。
 - `QUALITY_ISSUE_STANDARD.md`

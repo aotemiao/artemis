@@ -6,6 +6,8 @@ Review Cadence: 90 days
 
 本清单强调“可直接落地”。每一项都应尽量对应仓库中的文档、脚本、测试或自动化入口，而不是抽象口号。
 
+Harness Engineering 的概念、当前有效能力和已下线能力以 `docs/governance/HARNESS.md` 为准；本清单只记录当前仍维护的落地项。
+
 封板说明：
 
 - 当前仓库已达到本轮 Harness Engineering 封板范围
@@ -22,6 +24,7 @@ Review Cadence: 90 days
 - `[x]` 提供根入口文档 `AGENTS.md`
 - `[x]` 提供全局架构地图 `ARCHITECTURE.md`
 - `[x]` 提供质量看板 `QUALITY_SCORE.md`
+- `[x]` 提供 Harness 概念源 `docs/governance/HARNESS.md`
 - `[x]` 提供 Harness 专项清单 `docs/governance/CHECKLIST.md`
 - `[x]` 提供阶段路线图 `docs/reports/ROADMAP.md`
 - `[x]` 提供项目进度汇报 `docs/reports/PROJECT_PROGRESS_REPORT.md`
@@ -29,7 +32,6 @@ Review Cadence: 90 days
 - `[x]` 提供执行计划模板 `docs/exec-plans/templates/execution-plan-template.md`
 - `[x]` 提供业务需求级 Feature Spec 目录 `docs/feature-specs/`
 - `[x]` 提供可复用模式资产目录 `docs/patterns/`
-- `[x]` 提供 agent workflow eval 目录 `docs/agent-evals/`
 - `[x]` 提供 agent run 摘要规则 `docs/reports/agent-runs/README.md`
 - `[x]` OpenSpec 已补更多具体场景（治理、agent 资产、契约文档、readiness）
 - `[x]` 建立 docs 索引与交叉链接检查
@@ -52,8 +54,6 @@ Review Cadence: 90 days
 - `[x]` 提供 Feature Spec 结构检查脚本 `scripts/harness/check-feature-specs.sh`
 - `[x]` 提供 Spec 驱动交付链路检查脚本 `scripts/harness/check-spec-driven-delivery-chain.sh`
 - `[x]` 提供 Agentic Harness 资产检查脚本 `scripts/harness/check-agentic-harness-assets.sh`
-- `[x]` 提供 agent workflow eval 脚本 `scripts/harness/run-agent-evals.sh`
-- `[x]` 提供可执行 Symphony memory agent eval 脚本 `scripts/e2e/run-symphony-agent-eval.sh`
 - `[x]` 提供部署演练报告结构检查脚本 `scripts/harness/check-deploy-drill-reports.sh`
 - `[x]` 提供最小 smoke 脚本 `scripts/smoke/system-lookup.sh`
 - `[x]` Symphony 已具备编排器，workflow 模板已细化到 runbook / skills / self-review
@@ -108,8 +108,8 @@ Review Cadence: 90 days
 - `[x]` 给 agent 增加日志检索入口
 - `[x]` 给 agent 增加启动成功、依赖就绪、关键端点可达的断言脚本
 - `[x]` 给 `artemis-symphony` 增加本仓库常见故障 runbook
-- `[x]` 给 `artemis-symphony` 增加 SQLite run history、`/runs` 页面、低敏 JSON run summary、run environment 快照和 executable memory eval
-- `[x]` 增加 Harness 指标报告入口，可从低敏 eval / run / run environment / GitHub event delivery signal / deploy drill report artifacts 生成 scorecard，并接入治理检查与 CI artifact 快照
+- `[x]` 给 `artemis-symphony` 增加 SQLite run history、`/runs` 页面、低敏 JSON run summary 和 run environment 快照
+- `[x]` 已下线 agent workflow eval、可执行 memory eval、Harness metrics report generator 与 CI metrics artifact 快照；历史执行计划保留原始记录
 
 ## G. 面向交付的工程骨架
 
